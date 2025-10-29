@@ -104,12 +104,10 @@ export async function PUT(
     }
 
     // Gérer le fichier PDF
-    let pdfFileName: string | undefined = plans[planIndex].pdfFileName // Garder l'existant par défaut
+    let pdfFileName: string | undefined = plans[planIndex].pdfFileName
     if (pdfFile) {
-      // Nouveau fichier uploadé
       pdfFileName = (pdfFile as File).name
     } else if (incomingPdfFileName !== undefined) {
-      // Nom de fichier fourni (garde l'existant)
       pdfFileName = incomingPdfFileName
     }
 
