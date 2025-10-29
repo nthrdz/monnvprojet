@@ -133,7 +133,10 @@ export default async function ProfilePage({ params }: Props) {
             tiktok={profile.tiktok}
             plan={profile.plan as "FREE" | "PRO" | "ELITE"}
             links={profile.links}
-            races={profile.races}
+            races={profile.races.map(race => ({
+              ...race,
+              date: race.date.toISOString()
+            }))}
             sponsors={profile.sponsors}
             media={profile.media}
             username={username}

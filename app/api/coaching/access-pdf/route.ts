@@ -57,7 +57,9 @@ export async function POST(request: NextRequest) {
     const accessToken = generateAccessToken(planId, clientEmail)
     
     // Enregistrer l'achat dans les stats du coach
-    await recordPurchase(coachProfileId, planId, clientEmail, clientName, targetPlan.price)
+    if (coachProfileId) {
+      await recordPurchase(coachProfileId, planId, clientEmail, clientName || '', targetPlan.price)
+    }
 
     return NextResponse.json({
       success: true,

@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 
-export function AffiliateTracker() {
+function AffiliateTrackerContent() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -52,4 +52,12 @@ export function AffiliateTracker() {
   }
 
   return null // Ce composant ne rend rien, il fait juste du tracking
+}
+
+export function AffiliateTracker() {
+  return (
+    <Suspense fallback={null}>
+      <AffiliateTrackerContent />
+    </Suspense>
+  )
 }

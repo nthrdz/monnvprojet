@@ -36,12 +36,24 @@ export function TrainingPlansClient({ initialPlans, profileId }: TrainingPlansCl
   const [showSessionsManager, setShowSessionsManager] = useState(false)
   const [selectedPlanForSessions, setSelectedPlanForSessions] = useState<TrainingPlan | null>(null)
 
-  const [formData, setFormData] = useState({
+  type PlanFormState = {
+    title: string
+    description: string
+    price: number
+    duration: number
+    difficulty: "DEBUTANT" | "INTERMEDIAIRE" | "AVANCE"
+    category: string
+    isActive: boolean
+    pdfFile: File | null
+    pdfFileName: string
+  }
+
+  const [formData, setFormData] = useState<PlanFormState>({
     title: "",
     description: "",
     price: 0,
     duration: 4,
-    difficulty: "DEBUTANT" as const,
+    difficulty: "DEBUTANT",
     category: "",
     isActive: true,
     pdfFile: null as File | null,

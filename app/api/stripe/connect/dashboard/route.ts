@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         id: transfer.id,
         amount: transfer.amount / 100,
         currency: transfer.currency,
-        status: transfer.status,
+        status: (transfer as any).status || 'completed',
         created: new Date(transfer.created * 1000)
       })),
       recentCharges: charges.data.map(charge => ({

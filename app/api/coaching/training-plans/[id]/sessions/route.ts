@@ -4,9 +4,10 @@ import { prisma } from "@/lib/db"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = (await context?.params)?.id as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -29,7 +30,7 @@ export async function GET(
 
     const stats = profileData?.stats as any || {}
     const plans = stats.trainingPlans || []
-    const plan = plans.find((p: any) => p.id === params.id)
+    const plan = plans.find((p: any) => p.id === id)
 
     if (!plan) {
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })
@@ -45,9 +46,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = (await context?.params)?.id as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -70,7 +72,7 @@ export async function POST(
 
     const stats = profileData?.stats as any || {}
     const plans = stats.trainingPlans || []
-    const planIndex = plans.findIndex((p: any) => p.id === params.id)
+    const planIndex = plans.findIndex((p: any) => p.id === id)
 
     if (planIndex === -1) {
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })

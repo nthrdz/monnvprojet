@@ -1,7 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { themes, getAvailableThemes } from "@/lib/themes"
+// import { themes, getAvailableThemes } from "@/lib/themes"
+
+// Mock themes for now
+const themes = {
+  default: { name: "Défaut", colors: { primary: "#3b82f6", secondary: "#1e40af" } },
+  dark: { name: "Sombre", colors: { primary: "#1f2937", secondary: "#111827" } },
+  neon: { name: "Néon", colors: { primary: "#00ff88", secondary: "#00cc6a" } }
+}
+
+const getAvailableThemes = (plan: string) => Object.keys(themes)
 
 interface ThemePreviewProps {
   currentTheme: string
@@ -36,8 +45,8 @@ export function ThemePreview({ currentTheme, onThemeChange }: ThemePreviewProps)
                   : 'text-white/80 hover:bg-white/10'
               }`}
             >
-              {theme.name}
-              {theme.isPremium && (
+              {themes[themeId as keyof typeof themes].name}
+              {false && (
                 <span className="ml-2 text-xs text-yellow-400">Premium</span>
               )}
             </button>

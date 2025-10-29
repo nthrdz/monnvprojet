@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '30mb',
     },
   },
+  // Force Turbopack to use this project as the root to avoid lockfile confusion
+  turbopack: {
+    root: __dirname,
+  },
   // Note: La config API est maintenant gérée via les route handlers
   // Pour configurer la taille max des requêtes, utilisez bodySizeLimit dans serverActions
   images: {

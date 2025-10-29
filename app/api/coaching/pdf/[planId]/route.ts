@@ -13,9 +13,10 @@ interface AccessTokenPayload {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { planId: string } }
+  context: any
 ) {
   try {
+    const planId = (await context?.params)?.planId as string
     const { searchParams } = new URL(request.url)
     const token = searchParams.get('token')
 
@@ -29,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 })
     }
 
-    if (tokenPayload.planId !== params.planId) {
+    if (tokenPayload.planId !== planId) {
       return NextResponse.json({ error: "Token invalide pour ce plan" }, { status: 403 })
     }
 
@@ -45,7 +46,7 @@ export async function GET(
     for (const profile of profiles) {
       const stats = profile.stats as any
       const trainingPlans = stats.trainingPlans || []
-      const plan = trainingPlans.find((p: any) => p.id === params.planId)
+      const plan = trainingPlans.find((p: any) => p.id === planId)
       
       if (plan) {
         targetPlan = plan
@@ -59,8 +60,15 @@ export async function GET(
     }
 
     // Construire le chemin du fichier
-    const fileName = targetPlan.pdfFileName
-    const filePath = join(process.cwd(), 'public', 'uploads', 'coaching', coachProfileId, fileName)
+    const fileName = String(targetPlan.pdfFileName)
+    const filePath = join(
+      process.cwd(),
+      'public',
+      'uploads',
+      'coaching',
+      String(coachProfileId),
+      fileName
+    )
 
     if (!existsSync(filePath)) {
       return NextResponse.json({ error: "Fichier PDF non trouvé sur le serveur" }, { status: 404 })
@@ -68,8 +76,8 @@ export async function GET(
 
     // Lire et servir le fichier
     const fileBuffer = await readFile(filePath)
-    
-    return new NextResponse(fileBuffer, {
+
+    return new NextResponse(new Uint8Array(fileBuffer) as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${targetPlan.title}.pdf"`,

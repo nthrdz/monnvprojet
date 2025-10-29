@@ -24,7 +24,7 @@ import {
   BarChart3
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { canUserAccessFeature, PLAN_FEATURES } from "@/lib/features"
+import { canUserAccessFeature, PLAN_FEATURES, PlanType } from "@/lib/features"
 import Link from "next/link"
 
 interface SettingsClientProps {
@@ -63,11 +63,14 @@ export function SettingsClient({
     }
   }, [])
 
+  // Map string plan to enum for feature checks
+  const planEnum = userPlan as unknown as PlanType
+
   // Hook pour les notifications temps réel
   const realtimeNotifications = useRealtimeNotifications(userPlan)
 
-  const canAccessCustomDomain = canUserAccessFeature(userPlan, "customDomain")
-  const canAccessRealtimeNotifications = canUserAccessFeature(userPlan, "realtimeNotifications")
+  const canAccessCustomDomain = canUserAccessFeature(planEnum, "customDomain")
+  const canAccessRealtimeNotifications = canUserAccessFeature(planEnum, "realtimeNotifications")
 
   // Vérifier les changements
   useEffect(() => {
@@ -386,31 +389,31 @@ export function SettingsClient({
                   <div className="flex justify-between">
                     <span className="text-gray-600">Liens</span>
                     <span className="font-semibold text-gray-900">
-                      {PLAN_FEATURES[userPlan].maxLinks === -1 ? "Illimité" : PLAN_FEATURES[userPlan].maxLinks}
+                      {PLAN_FEATURES[planEnum].maxLinks === -1 ? "Illimité" : PLAN_FEATURES[planEnum].maxLinks}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Compétitions</span>
                     <span className="font-semibold text-gray-900">
-                      {PLAN_FEATURES[userPlan].maxRaces === -1 ? "Illimité" : PLAN_FEATURES[userPlan].maxRaces}
+                      {PLAN_FEATURES[planEnum].maxRaces === -1 ? "Illimité" : PLAN_FEATURES[planEnum].maxRaces}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Sponsors</span>
                     <span className="font-semibold text-gray-900">
-                      {PLAN_FEATURES[userPlan].maxSponsors === -1 ? "Illimité" : PLAN_FEATURES[userPlan].maxSponsors}
+                      {PLAN_FEATURES[planEnum].maxSponsors === -1 ? "Illimité" : PLAN_FEATURES[planEnum].maxSponsors}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Médias</span>
                     <span className="font-semibold text-gray-900">
-                      {PLAN_FEATURES[userPlan].maxMedia === -1 ? "Illimité" : PLAN_FEATURES[userPlan].maxMedia}
+                      {PLAN_FEATURES[planEnum].maxMedia === -1 ? "Illimité" : PLAN_FEATURES[planEnum].maxMedia}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Analytics</span>
                     <span className="font-semibold text-gray-900">
-                      {PLAN_FEATURES[userPlan].analyticsDays === null ? "Illimité" : `${PLAN_FEATURES[userPlan].analyticsDays} jours`}
+                      {PLAN_FEATURES[planEnum].analyticsDays === null ? "Illimité" : `${PLAN_FEATURES[planEnum].analyticsDays} jours`}
                     </span>
                   </div>
                 </div>

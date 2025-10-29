@@ -115,9 +115,9 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
 // Gestionnaire pour les factures payées
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   try {
-    if (invoice.subscription) {
+    if ((invoice as any).subscription) {
       // Traiter l'abonnement payé
-      await handleSubscriptionPayment(invoice.subscription as string, invoice.amount_paid)
+      await handleSubscriptionPayment((invoice as any).subscription as string, invoice.amount_paid)
     }
   } catch (error) {
     console.error('Error handling invoice payment:', error)
@@ -164,7 +164,7 @@ async function handleTransferCreated(transfer: Stripe.Transfer) {
   try {
     // Trouver l'affilié
     const affiliate = await prisma.affiliate.findFirst({
-      where: { stripeAccountId: transfer.destination }
+      where: { stripeAccountId: transfer.destination as string }
     })
 
     if (affiliate) {

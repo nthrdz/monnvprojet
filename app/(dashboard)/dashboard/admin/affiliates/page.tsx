@@ -138,8 +138,7 @@ export default function AdminAffiliatesPage() {
         <div className="mb-8">
           <GlassSectionHeader
             title="Gestion des Ambassadeurs"
-            subtitle="Administrez le programme d'affiliation"
-            icon={Users}
+            iconName="award"
           />
         </div>
 

@@ -23,7 +23,8 @@ import {
   BarChart3,
   CheckCircle,
   AlertCircle,
-  Timer
+  Timer,
+  Search
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -573,7 +574,7 @@ export function CompetitionsContent() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => window.open(race.url, '_blank')}
+                          onClick={() => window.open(race.url || '#', '_blank')}
                           className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Voir le site"
                         >

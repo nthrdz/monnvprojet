@@ -4,9 +4,10 @@ import { prisma } from "@/lib/db"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = (await context?.params)?.id as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -23,7 +24,7 @@ export async function GET(
 
     const stats = profile.stats as any || {}
     const bookings = stats.bookings || []
-    const booking = bookings.find((b: any) => b.id === params.id)
+    const booking = bookings.find((b: any) => b.id === id)
 
     if (!booking) {
       return NextResponse.json({ error: "Réservation non trouvée" }, { status: 404 })
@@ -38,9 +39,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = (await context?.params)?.id as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -61,7 +63,7 @@ export async function PUT(
     // Récupérer les réservations existantes
     const stats = profile.stats as any || {}
     const bookings = stats.bookings || []
-    const bookingIndex = bookings.findIndex((b: any) => b.id === params.id)
+    const bookingIndex = bookings.findIndex((b: any) => b.id === id)
 
     if (bookingIndex === -1) {
       return NextResponse.json({ error: "Réservation non trouvée" }, { status: 404 })
@@ -123,9 +125,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
+    const id = (await context?.params)?.id as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -143,7 +146,7 @@ export async function DELETE(
     // Récupérer les réservations existantes
     const stats = profile.stats as any || {}
     const bookings = stats.bookings || []
-    const bookingIndex = bookings.findIndex((b: any) => b.id === params.id)
+    const bookingIndex = bookings.findIndex((b: any) => b.id === id)
 
     if (bookingIndex === -1) {
       return NextResponse.json({ error: "Réservation non trouvée" }, { status: 404 })

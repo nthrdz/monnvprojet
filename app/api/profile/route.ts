@@ -47,18 +47,22 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Mapper le sport libre vers l'enum Prisma et stocker l'original dans les stats
-    let statsToUpdate = profile.stats || {}
+    let statsToUpdate: any = profile.stats || {}
+    if (typeof statsToUpdate !== 'object' || statsToUpdate === null) {
+      statsToUpdate = {}
+    }
     
     // Gérer le sport original
     if (validatedData.sport) {
       statsToUpdate = createStatsWithOriginalSport(statsToUpdate, validatedData.sport)
     }
     
-    // Gérer le CSS personnalisé
-    if (validatedData.customCSS !== undefined) {
+    // Gérer le CSS personnalisé (champ optionnel non typé dans le schéma)
+    const customCSS = (validatedData as any).customCSS
+    if (customCSS !== undefined) {
       statsToUpdate = {
         ...statsToUpdate,
-        customCSS: validatedData.customCSS || null
+        customCSS: customCSS || null
       }
     }
 
@@ -70,7 +74,7 @@ export async function PATCH(req: NextRequest) {
       // Mettre à jour les stats si nécessaire
       ...(Object.keys(statsToUpdate).length > 0 && { stats: statsToUpdate }),
       // Retirer customCSS des données Prisma car il va dans stats
-      customCSS: undefined
+      ...(customCSS !== undefined ? { customCSS: undefined as any } : {})
     }
 
     // Si le sport actuel n'est pas une valeur de l'enum Prisma, on le force à "OTHER"

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const skip = (page - 1) * limit
 
-    const whereClause = status ? { status } : {}
+    const whereClause = status ? { status: status as "PENDING" | "APPROVED" | "SUSPENDED" } : {}
 
     const [affiliates, total] = await Promise.all([
       prisma.affiliate.findMany({

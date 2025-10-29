@@ -7,7 +7,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+// Local Zod resolver to avoid package resolution issues in some environments
+const zodResolver = (schema: any) => async (values: unknown) => {
+  const result = schema.safeParse(values)
+  if (result.success) {
+    return { values: result.data, errors: {} }
+  }
+  const fieldErrors: Record<string, any> = {}
+  for (const issue of result.error.issues) {
+    const path = issue.path.join('.')
+    fieldErrors[path] = { type: 'validation', message: issue.message }
+  }
+  return { values: {}, errors: fieldErrors }
+}
 import { loginSchema, type LoginInput } from "@/lib/validations"
 import { toast } from "sonner"
 import Link from "next/link"

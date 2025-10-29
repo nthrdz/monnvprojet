@@ -15,6 +15,7 @@ export default async function CoachingPage() {
   const profile = await prisma.profile.findUnique({
     where: { userId: session.user.id },
     select: {
+      id: true,
       plan: true,
       displayName: true,
       username: true,

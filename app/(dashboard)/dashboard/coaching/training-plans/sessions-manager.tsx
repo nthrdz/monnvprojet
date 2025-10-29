@@ -27,7 +27,16 @@ export function SessionsManager({ trainingPlanId, planDuration, onSessionsChange
   const [editingSession, setEditingSession] = useState<TrainingSession | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const [formData, setFormData] = useState({
+  type SessionForm = {
+    title: string
+    description: string
+    weekNumber: number
+    dayNumber: number
+    duration: number
+    exercises: any[]
+  }
+
+  const [formData, setFormData] = useState<SessionForm>({
     title: "",
     description: "",
     weekNumber: 1,

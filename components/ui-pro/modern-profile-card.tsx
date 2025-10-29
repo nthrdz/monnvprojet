@@ -211,7 +211,7 @@ export function ModernProfileCard({
               {allSocialIcons.map((social, index) => (
                 <motion.a
                   key={index}
-                  href={social.url}
+                  href={social.url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   initial={{ scale: 0, opacity: 0 }}

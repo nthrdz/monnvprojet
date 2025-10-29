@@ -14,6 +14,7 @@ export interface FeatureLimits {
   maxMedia: number
   analyticsDays: number | null // null = illimité
   customDomain: boolean
+  customCSS?: boolean
   realtimeNotifications: boolean
   dataExport: boolean
   clickHeatmap: boolean
@@ -127,7 +128,7 @@ export function getUserFeatureLimit(
   userPlan: PlanType,
   feature: keyof FeatureLimits
 ): number | boolean | string | null {
-  return PLAN_FEATURES[userPlan][feature]
+  return PLAN_FEATURES[userPlan][feature] ?? null
 }
 
 export function checkLimit(
@@ -171,10 +172,12 @@ export function getLimitMessage(
   userPlan: PlanType,
   itemType: 'links' | 'races' | 'sponsors' | 'media'
 ): string {
-  const planNames = {
+  const planNames: Record<PlanType, string> = {
     [PlanType.FREE]: "Free",
     [PlanType.PRO]: "Pro",
-    [PlanType.ELITE]: "Elite"
+    [PlanType.ELITE]: "Elite",
+    [PlanType.ATHLETE_PRO]: "Elite",
+    [PlanType.COACH]: "Pro"
   }
   
   const itemNames = {

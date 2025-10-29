@@ -258,7 +258,7 @@ export function SharePageClient({ username, displayName, avatarUrl, bio }: Share
           </div>
 
           {/* Native Share Button (Mobile) */}
-          {typeof navigator !== 'undefined' && navigator.share && (
+          {typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function' && (
             <Button
               onClick={handleShare}
               variant="outline"

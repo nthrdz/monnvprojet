@@ -4,9 +4,12 @@ import { prisma } from "@/lib/db"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; sessionId: string } }
+  context: any
 ) {
   try {
+    const p = await context?.params
+    const id = p?.id as string
+    const sessionId = p?.sessionId as string
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
@@ -29,7 +32,7 @@ export async function DELETE(
 
     const stats = profileData?.stats as any || {}
     const plans = stats.trainingPlans || []
-    const planIndex = plans.findIndex((p: any) => p.id === params.id)
+    const planIndex = plans.findIndex((p: any) => p.id === id)
 
     if (planIndex === -1) {
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })
@@ -39,7 +42,7 @@ export async function DELETE(
     if (!plan.sessions) plan.sessions = []
 
     // Trouver la session
-    const sessionIndex = plan.sessions.findIndex((s: any) => s.id === params.sessionId)
+    const sessionIndex = plan.sessions.findIndex((s: any) => s.id === sessionId)
     
     if (sessionIndex === -1) {
       return NextResponse.json({ error: "Session non trouvée" }, { status: 404 })

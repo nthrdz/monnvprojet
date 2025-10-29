@@ -52,8 +52,6 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         affiliateCode,
-        bankAccount: validatedData.bankAccount,
-        paypalEmail: validatedData.paypalEmail,
         notes: validatedData.notes,
         status: "PENDING"
       },

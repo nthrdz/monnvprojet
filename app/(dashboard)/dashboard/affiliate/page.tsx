@@ -158,8 +158,7 @@ export default function AffiliateDashboard() {
         <div className="mb-8">
           <GlassSectionHeader
             title="Dashboard Ambassadeur"
-            subtitle="Gérez vos parrainages et commissions"
-            icon={Target}
+            iconName="link"
           />
           
           <div className="flex items-center gap-4 mt-4">
@@ -174,27 +173,33 @@ export default function AffiliateDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <GlassStats
-            title="Total Parrainages"
-            value={data.stats.total.referrals}
-            icon={Users}
-            trend={data.stats.monthly.PENDING?.count || 0}
-            trendLabel="Ce mois"
-          />
-          <GlassStats
-            title="Conversions"
-            value={data.stats.total.conversions}
-            icon={CheckCircle}
-            trend={data.stats.monthly.CONVERTED?.count || 0}
-            trendLabel="Ce mois"
-          />
-          <GlassStats
-            title="Gains Totaux"
-            value={`${data.stats.total.earnings.toFixed(2)}€`}
-            icon={DollarSign}
-            trend={data.commissions.pending.amount}
-            trendLabel="En attente"
-          />
+          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
+            <div className="flex items-center gap-4">
+              <Users className="w-8 h-8 text-blue-400" />
+              <div>
+                <p className="text-2xl font-bold text-white">{data.stats.total.referrals}</p>
+                <p className="text-gray-400">Total Parrainages</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
+            <div className="flex items-center gap-4">
+              <CheckCircle className="w-8 h-8 text-green-400" />
+              <div>
+                <p className="text-2xl font-bold text-white">{data.stats.total.conversions}</p>
+                <p className="text-gray-400">Conversions</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
+            <div className="flex items-center gap-4">
+              <DollarSign className="w-8 h-8 text-purple-400" />
+              <div>
+                <p className="text-2xl font-bold text-white">{data.stats.total.earnings.toFixed(2)}€</p>
+                <p className="text-gray-400">Gains Totaux</p>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Referral Link */}

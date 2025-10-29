@@ -95,8 +95,7 @@ export default function ApplyAffiliatePage() {
         <div className="mb-12">
           <GlassSectionHeader
             title="Devenir Ambassadeur"
-            subtitle="Rejoignez notre programme d'affiliation et gagnez des commissions"
-            icon={Target}
+            iconName="zap"
           />
         </div>
 

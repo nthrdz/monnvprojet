@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
     if (!isVideo && (type === "avatar" || type === "cover")) {
       try {
         const targetSize = type === "avatar" ? 2000 : 2400
+        // @ts-ignore - Sharp type issue with Buffer
         buffer = await sharp(buffer)
           .resize(targetSize, type === "avatar" ? 2000 : 800, {
             fit: 'cover',
