@@ -1,0 +1,19 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Black circle background -->
+  <circle cx="50" cy="40" r="25" fill="#000000"/>
+  
+  <!-- White abstract design inside the circle (stylized N or layered shapes) -->
+  <g fill="#FFFFFF">
+    <!-- Main vertical line -->
+    <rect x="47" y="20" width="6" height="40" />
+    <!-- Top horizontal line -->
+    <rect x="47" y="20" width="20" height="6" />
+    <!-- Middle diagonal line -->
+    <rect x="47" y="38" width="20" height="6" transform="rotate(45 57 41)" />
+    <!-- Bottom horizontal line -->
+    <rect x="47" y="54" width="20" height="6" />
+  </g>
+  
+  <!-- Text NUTRI below the circle -->
+  <text x="50" y="85" textAnchor="middle" fill="#000000" fontSize="12" fontWeight="bold" fontFamily="Arial, sans-serif">NUTRI</text>
+</svg>
