@@ -5,20 +5,37 @@ import { stripe } from "@/lib/stripe"
 
 export async function POST(request: Request) {
   try {
+    console.log("🚀 API /api/upgrade-plan appelée")
+    
+    // Vérifier la configuration Stripe
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("❌ STRIPE_SECRET_KEY non configurée !")
+      return NextResponse.json({ 
+        error: "Configuration Stripe manquante. Ajoutez STRIPE_SECRET_KEY dans Vercel.",
+        details: "STRIPE_SECRET_KEY is not set"
+      }, { status: 500 })
+    }
+    
+    console.log("✅ STRIPE_SECRET_KEY présente, type:", process.env.STRIPE_SECRET_KEY.startsWith('sk_test_') ? 'TEST' : 'LIVE')
+    
     const session = await auth()
     
     if (!session?.user?.id) {
-      console.error("Session non valide:", session)
+      console.error("❌ Session non valide:", session)
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
     }
+    
+    console.log("✅ Utilisateur authentifié:", session.user.id)
 
     const { plan, promoCode } = await request.json()
+    console.log("📦 Données reçues - Plan:", plan, "PromoCode:", promoCode || "aucun")
 
     if (!["FREE", "ATHLETE_PRO", "COACH"].includes(plan)) {
+      console.error("❌ Plan invalide:", plan)
       return NextResponse.json({ error: "Plan invalide" }, { status: 400 })
     }
 
-    console.log("Tentative de mise à jour du plan pour userId:", session.user.id, "vers:", plan)
+    console.log("✅ Plan valide:", plan)
 
     // Vérifier si le profil existe
     const existingProfile = await prisma.profile.findUnique({
@@ -39,6 +56,8 @@ export async function POST(request: Request) {
     // Si un code promo est fourni, le valider via Stripe
     if (promoCode) {
       try {
+        console.log("🎫 Validation du code promo:", promoCode)
+        
         // Valider le code promo via Stripe
         const promoCodes = await stripe.promotionCodes.list({
           code: promoCode.toUpperCase(),
@@ -46,6 +65,8 @@ export async function POST(request: Request) {
           limit: 1,
           expand: ['data.coupon']
         })
+        
+        console.log("📊 Stripe a retourné", promoCodes.data.length, "code(s)")
 
         if (promoCodes.data.length > 0) {
           const validatedPromo = promoCodes.data[0]
@@ -93,19 +114,22 @@ export async function POST(request: Request) {
         } else {
           console.warn("⚠️ Code promo non trouvé dans Stripe:", promoCode)
         }
-      } catch (stripeError) {
+      } catch (stripeError: any) {
         console.error("❌ Erreur validation Stripe promo code:", stripeError)
+        console.error("Type d'erreur:", stripeError.type)
+        console.error("Message:", stripeError.message)
         // On continue sans le code promo plutôt que de bloquer l'upgrade
       }
     }
 
     // Mettre à jour le plan
+    console.log("💾 Mise à jour du profil en base de données...")
     const profile = await prisma.profile.update({
       where: { userId: session.user.id },
       data: updateData
     })
 
-    console.log("Plan mis à jour avec succès:", profile.plan)
+    console.log("✅ Plan mis à jour avec succès:", profile.plan)
 
     return NextResponse.json({ 
       success: true, 
@@ -114,12 +138,29 @@ export async function POST(request: Request) {
       promoApplied: stripePromoCodeId ? true : false,
       discountInfo: discountInfo || null
     })
-  } catch (error) {
-    console.error("Erreur détaillée lors de la mise à jour du plan:", error)
+  } catch (error: any) {
+    console.error("❌❌❌ ERREUR DÉTAILLÉE lors de la mise à jour du plan ❌❌❌")
+    console.error("Type d'erreur:", error.constructor.name)
+    console.error("Message:", error.message)
+    console.error("Stack:", error.stack)
+    
+    // Erreur Stripe spécifique
+    if (error.type) {
+      console.error("Type Stripe:", error.type)
+      console.error("Code Stripe:", error.code)
+    }
+    
+    // Erreur Prisma spécifique
+    if (error.code) {
+      console.error("Code Prisma:", error.code)
+    }
+    
     return NextResponse.json(
       { 
-        error: "Erreur lors de la mise à jour",
-        details: error instanceof Error ? error.message : "Erreur inconnue"
+        error: "Erreur lors de la mise à jour du plan",
+        details: error.message || "Erreur inconnue",
+        type: error.type || error.constructor.name,
+        hint: "Vérifiez les logs Vercel Functions pour plus de détails"
       },
       { status: 500 }
     )
