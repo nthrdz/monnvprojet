@@ -30,11 +30,12 @@ export async function GET(req: NextRequest) {
         commissions: {
           orderBy: { createdAt: 'desc' },
           take: 50
-        },
-        clicks: {
-          orderBy: { createdAt: 'desc' },
-          take: 100
         }
+        // TODO: Activer après migration DB
+        // clicks: {
+        //   orderBy: { createdAt: 'desc' },
+        //   take: 100
+        // }
       }
     })
 
@@ -61,20 +62,15 @@ export async function GET(req: NextRequest) {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const last30DaysClicks = affiliate.clicks.filter(c => c.createdAt >= thirtyDaysAgo).length
+    // TODO: Activer après migration DB pour les clics détaillés
+    const last30DaysClicks = 0 // affiliate.clicks.filter(c => c.createdAt >= thirtyDaysAgo).length
     const last30DaysConversions = affiliate.referrals.filter(r => r.convertedAt && r.convertedAt >= thirtyDaysAgo).length
     const last30DaysEarnings = affiliate.commissions
       .filter(c => c.createdAt >= thirtyDaysAgo)
       .reduce((sum, c) => sum + c.amount, 0)
 
-    // Clics par jour (derniers 30 jours)
-    const clicksByDay = affiliate.clicks
-      .filter(c => c.createdAt >= thirtyDaysAgo)
-      .reduce((acc, click) => {
-        const date = click.createdAt.toISOString().split('T')[0]
-        acc[date] = (acc[date] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+    // Clics par jour (derniers 30 jours) - TODO: Activer après migration DB
+    const clicksByDay = {} as Record<string, number>
 
     // Conversions par jour (derniers 30 jours)
     const conversionsByDay = affiliate.referrals
