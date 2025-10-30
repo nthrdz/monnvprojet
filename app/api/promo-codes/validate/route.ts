@@ -88,11 +88,29 @@ export async function POST(request: NextRequest) {
     const promoCode = promoCodes.data[0]
     
     // Récupérer les détails du coupon (avec type assertion car expand n'est pas typé)
-    const coupon = (promoCode as any).coupon
+    let coupon = (promoCode as any).coupon
+    
+    // Si le coupon n'est pas chargé via expand, le récupérer manuellement
+    if (!coupon && promoCode.coupon) {
+      try {
+        console.log("⚠️ Coupon non chargé via expand, récupération manuelle...")
+        console.log("   Coupon ID:", typeof promoCode.coupon === 'string' ? promoCode.coupon : (promoCode.coupon as any).id)
+        
+        const couponId = typeof promoCode.coupon === 'string' 
+          ? promoCode.coupon 
+          : (promoCode.coupon as any).id
+        
+        coupon = await stripe.coupons.retrieve(couponId)
+        console.log("✅ Coupon récupéré manuellement:", coupon.id)
+      } catch (error: any) {
+        console.error("❌ Impossible de récupérer le coupon:", error.message)
+      }
+    }
     
     // Vérifier que le coupon existe
     if (!coupon) {
       console.error("❌ Coupon manquant pour le code promo:", promoCode.id)
+      console.error("   - PromoCode.coupon:", promoCode.coupon)
       return NextResponse.json({ 
         error: "Code promo invalide (coupon manquant)",
         valid: false 
