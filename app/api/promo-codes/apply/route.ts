@@ -1,51 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { stripe } from "@/lib/stripe"
 
-// Codes promo prédéfinis
-const PROMO_CODES = {
-  "ELITE": {
-    type: "plan_upgrade",
-    plan: "ATHLETE_PRO",
-    duration: null,
-    discount: 0,
-    description: "Accès Pro complet"
-  },
-  "ATHLINK100": {
-    type: "trial", 
-    plan: "ATHLETE_PRO",
-    duration: 30,
-    discount: 0,
-    description: "1 mois offert Pro"
-  }
-}
-
+/**
+ * API pour inscription avec code promo Stripe
+ * 
+ * Valide le code promo via Stripe et crée le compte utilisateur
+ * avec les avantages du code promo appliqués
+ */
 export async function POST(request: NextRequest) {
+  console.log("============================================================")
+  console.log("🚀 API /api/promo-codes/apply appelée (INSCRIPTION)")
+  console.log("============================================================")
+  
   try {
-    const { promoCode, userData } = await request.json()
+    const body = await request.json()
+    const { promoCode, email, password, name, username, sport } = body
 
-    if (!userData) {
-      return NextResponse.json({ error: "Données utilisateur requises" }, { status: 400 })
-    }
+    console.log("📥 Données reçues:")
+    console.log("   - Email:", email)
+    console.log("   - Username:", username)
+    console.log("   - Code promo:", promoCode || "aucun")
 
-    // Vérifier si le code promo existe
-    const promo = PROMO_CODES[promoCode?.toUpperCase() as keyof typeof PROMO_CODES]
-    
-    let planType = "FREE" // Plan par défaut
-    let trialEndsAt = null
-
-    if (promo) {
-      planType = promo.plan
-      
-      if (promo.type === "trial" && promo.duration) {
-        // Calculer la date de fin d'essai
-        trialEndsAt = new Date()
-        trialEndsAt.setDate(trialEndsAt.getDate() + promo.duration)
-      }
+    // Validation des données
+    if (!email || !password || !name || !username || !sport) {
+      return NextResponse.json({ 
+        error: "Tous les champs sont requis" 
+      }, { status: 400 })
     }
 
     // Vérifier si l'email existe déjà
     const existingEmail = await prisma.user.findUnique({
-      where: { email: userData.email }
+      where: { email }
     })
 
     if (existingEmail) {
@@ -57,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Vérifier si le nom d'utilisateur existe déjà
     const existingUsername = await prisma.profile.findUnique({
-      where: { username: userData.username }
+      where: { username }
     })
 
     if (existingUsername) {
@@ -67,28 +53,100 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hacher le mot de passe
-    const bcrypt = await import("bcryptjs")
-    const hashedPassword = await bcrypt.hash(userData.password, 12)
+    // Variables pour le code promo
+    let planType = "FREE" // Plan par défaut
+    let promoDetails: any = null
+    let stripePromoCodeId: string | null = null
 
-    // Créer l'utilisateur et le profil avec le code promo appliqué
+    // Si un code promo est fourni, le valider via Stripe
+    if (promoCode) {
+      console.log("🎫 Validation du code promo Stripe:", promoCode)
+      
+      try {
+        const promoCodes = await stripe.promotionCodes.list({
+          code: promoCode.toUpperCase(),
+          active: true,
+          limit: 1,
+          expand: ['data.coupon']
+        })
+
+        if (promoCodes.data.length > 0) {
+          const validatedPromo = promoCodes.data[0]
+          const coupon = (validatedPromo as any).coupon
+
+          // Vérifier que le code est valide
+          if (validatedPromo.active && 
+              (!validatedPromo.expires_at || validatedPromo.expires_at * 1000 > Date.now()) &&
+              (!validatedPromo.max_redemptions || validatedPromo.times_redeemed < validatedPromo.max_redemptions)) {
+            
+            stripePromoCodeId = validatedPromo.id
+            
+            const discount = coupon.percent_off 
+              ? `${coupon.percent_off}%`
+              : coupon.amount_off 
+                ? `${(coupon.amount_off / 100).toFixed(2)}€`
+                : "Offre spéciale"
+
+            promoDetails = {
+              code: promoCode.toUpperCase(),
+              stripePromoCodeId,
+              stripeCouponId: coupon.id,
+              discount,
+              percentOff: coupon.percent_off || null,
+              amountOff: coupon.amount_off ? coupon.amount_off / 100 : null,
+              duration: coupon.duration,
+              durationInMonths: coupon.duration_in_months || null,
+              appliedAt: new Date().toISOString()
+            }
+
+            console.log("✅ Code promo Stripe validé:", promoDetails)
+            
+            // Note: Le plan reste FREE, le code promo sera appliqué lors du paiement
+            // Vous pouvez modifier cette logique si vous voulez donner un plan spécifique
+          } else {
+            console.warn("⚠️ Code promo invalide ou expiré:", promoCode)
+          }
+        } else {
+          console.warn("⚠️ Code promo non trouvé dans Stripe:", promoCode)
+        }
+      } catch (stripeError: any) {
+        console.error("❌ Erreur validation Stripe:", stripeError.message)
+        // On continue l'inscription même si le code promo échoue
+      }
+    }
+
+    // Hacher le mot de passe
+    console.log("🔐 Hashage du mot de passe...")
+    const bcrypt = await import("bcryptjs")
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    // Préparer les stats avec le code promo
+    const stats: any = {
+      personalRecords: [],
+      achievements: []
+    }
+
+    if (promoDetails) {
+      stats.promoCodeUsed = promoDetails.code
+      stats.promoAppliedAt = promoDetails.appliedAt
+      stats.stripePromoCodeId = promoDetails.stripePromoCodeId
+      stats.discountInfo = promoDetails
+    }
+
+    // Créer l'utilisateur et le profil
+    console.log("💾 Création de l'utilisateur en base de données...")
     const user = await prisma.user.create({
       data: {
-        email: userData.email,
-        name: userData.name,
+        email,
+        name,
         password: hashedPassword,
         profile: {
           create: {
-            username: userData.username,
-            displayName: userData.name,
-            sport: userData.sport as any, // Cast temporaire pour l'enum Sport
-            plan: planType as any, // Cast temporaire pour l'enum PlanType
-            stats: {
-              personalRecords: [],
-              achievements: [],
-              promoCodeUsed: promoCode?.toUpperCase() || null,
-              trialEndsAt: trialEndsAt?.toISOString() || null
-            }
+            username,
+            displayName: name,
+            sport: sport as any,
+            plan: planType as any,
+            stats
           }
         }
       },
@@ -96,6 +154,11 @@ export async function POST(request: NextRequest) {
         profile: true
       }
     })
+
+    console.log("✅ Utilisateur créé avec succès:", user.id)
+    console.log("   - Plan:", user.profile?.plan)
+    console.log("   - Code promo:", promoDetails ? "✅ Appliqué" : "❌ Aucun")
+    console.log("============================================================")
 
     return NextResponse.json({
       success: true,
@@ -105,13 +168,16 @@ export async function POST(request: NextRequest) {
         name: user.name,
         username: user.profile?.username,
         plan: user.profile?.plan,
-        promoApplied: promoCode?.toUpperCase() || null,
-        trialEndsAt: trialEndsAt?.toISOString() || null
+        promoApplied: promoDetails ? true : false,
+        promoCode: promoDetails?.code || null,
+        discount: promoDetails?.discount || null
       }
     }, { status: 201 })
 
   } catch (error: any) {
-    console.error("Erreur application code promo:", error)
+    console.error("❌ Erreur application code promo:", error)
+    console.error("   - Message:", error.message)
+    console.error("   - Code:", error.code)
     
     if (error.code === "P2002") {
       return NextResponse.json(

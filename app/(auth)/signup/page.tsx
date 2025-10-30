@@ -49,8 +49,14 @@ export default function SignupPage() {
     setIsLoading(true)
     
     try {
-      // Si un code promo valide est saisi, utiliser l'API promo
+      // Si un code promo valide est saisi, utiliser l'API avec code promo
       const endpoint = promoData?.valid ? "/api/promo-codes/apply" : "/api/auth/signup"
+      
+      console.log("📤 Inscription avec:", {
+        endpoint,
+        promoCode: promoData?.valid ? promoCode : undefined,
+        hasPromo: promoData?.valid
+      })
       
       const res = await fetch(endpoint, {
         method: "POST",
@@ -62,27 +68,27 @@ export default function SignupPage() {
       })
 
       const data = await res.json()
+      console.log("📥 Réponse:", data)
 
       if (!res.ok) {
         throw new Error(data.error || "Erreur lors de l'inscription")
       }
 
       // Message de succès personnalisé selon le code promo
-      if (promoData?.valid) {
-        if (promoData.type === "plan_upgrade") {
-          toast.success(`🎉 Compte créé avec accès ${promoData.plan} !`)
-        } else if (promoData.type === "trial") {
-          toast.success(`🎁 Compte créé avec ${promoData.duration} jours gratuits ${promoData.plan} !`)
-        } else {
-          toast.success("Compte créé ! Redirection...")
-        }
+      if (promoData?.valid && data.promoApplied) {
+        toast.success(`🎉 Compte créé avec code promo ${data.promoCode} (${data.discount}) !`)
       } else {
-        toast.success("Compte créé ! Redirection...")
+        toast.success("✅ Compte créé avec succès !")
       }
       
-      router.push("/login")
+      // Redirection après 1 seconde
+      setTimeout(() => {
+        router.push("/login")
+      }, 1000)
+      
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Une erreur est survenue"
+      console.error("❌ Erreur inscription:", message)
       toast.error(message)
     } finally {
       setIsLoading(false)
