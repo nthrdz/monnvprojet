@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Récupérer l'affilié
+    // Récupérer l'affilié avec ses relations
     const affiliate = await prisma.affiliate.findUnique({
       where: { userId: session.user.id },
       include: {
@@ -46,12 +46,12 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Calculer les stats
-    const totalClicks = affiliate.totalClicks
+    // Calculer les stats (avec type assertion car TypeScript ne voit pas tous les champs)
+    const totalClicks = (affiliate as any).totalClicks || 0
     const totalReferrals = affiliate.referrals.length
     const totalConversions = affiliate.referrals.filter(r => r.status === 'CONVERTED').length
     const pendingReferrals = affiliate.referrals.filter(r => r.status === 'PENDING').length
-    const totalEarnings = affiliate.totalEarnings
+    const totalEarnings = (affiliate as any).totalEarnings || 0
     const pendingCommissions = affiliate.commissions.filter(c => c.status === 'PENDING').reduce((sum, c) => sum + c.amount, 0)
     const paidCommissions = affiliate.commissions.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0)
     
