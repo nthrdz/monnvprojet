@@ -89,9 +89,19 @@ export async function POST(request: NextRequest) {
     
     // Récupérer les détails du coupon (avec type assertion car expand n'est pas typé)
     const coupon = (promoCode as any).coupon
+    
+    // Vérifier que le coupon existe
+    if (!coupon) {
+      console.error("❌ Coupon manquant pour le code promo:", promoCode.id)
+      return NextResponse.json({ 
+        error: "Code promo invalide (coupon manquant)",
+        valid: false 
+      }, { status: 200 })
+    }
 
     // Vérifier que le code est toujours actif
     if (!promoCode.active) {
+      console.log("❌ Code promo inactif")
       return NextResponse.json({ 
         error: "Ce code promo n'est plus actif",
         valid: false 
@@ -100,6 +110,7 @@ export async function POST(request: NextRequest) {
 
     // Vérifier la date d'expiration
     if (promoCode.expires_at && promoCode.expires_at * 1000 < Date.now()) {
+      console.log("❌ Code promo expiré")
       return NextResponse.json({ 
         error: "Ce code promo a expiré",
         valid: false 
@@ -108,6 +119,7 @@ export async function POST(request: NextRequest) {
 
     // Vérifier les utilisations maximum
     if (promoCode.max_redemptions && promoCode.times_redeemed >= promoCode.max_redemptions) {
+      console.log("❌ Code promo limite atteinte")
       return NextResponse.json({ 
         error: "Ce code promo a atteint sa limite d'utilisation",
         valid: false 
