@@ -21,13 +21,15 @@ export default function UpgradePage() {
   }
 
   // Vérifier si le code promo s'applique à un plan donné
-  const isPromoValidForPlan = (planName: string) => {
+const isPromoValidForPlan = (planName: string) => {
     if (!promoData?.valid) return false
     
     // Mapper les noms de plans interface vers Prisma
+    // Les seuls plans valides sont : FREE, PRO, ELITE
     const planMapping: Record<string, string> = {
-      "Pro": "ATHLETE_PRO",
-      "Elite": "COACH"
+      "Free": "FREE",
+      "Pro": "PRO",
+      "Elite": "ELITE"
     }
     
     const prismaName = planMapping[planName]
@@ -41,10 +43,11 @@ export default function UpgradePage() {
     
     try {
       // Mapper les noms de plans vers les valeurs Prisma
-      // Note: ATHLETE_PRO = Elite dans l'interface, COACH = Pro dans l'interface
+      // Les seuls plans valides sont : FREE, PRO, ELITE
       const planMapping: Record<string, string> = {
-        "Pro": "ATHLETE_PRO",  // Le plan Pro correspond à ATHLETE_PRO dans Prisma
-        "Elite": "COACH"        // Le plan Elite correspond à COACH dans Prisma
+        "Free": "FREE",
+        "Pro": "PRO",
+        "Elite": "ELITE"
       }
       
       const planValue = planMapping[planName]

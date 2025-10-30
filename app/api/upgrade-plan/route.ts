@@ -30,9 +30,13 @@ export async function POST(request: Request) {
     const { plan, promoCode } = await request.json()
     console.log("📦 Données reçues - Plan:", plan, "PromoCode:", promoCode || "aucun")
 
-    if (!["FREE", "ATHLETE_PRO", "COACH"].includes(plan)) {
-      console.error("❌ Plan invalide:", plan)
-      return NextResponse.json({ error: "Plan invalide" }, { status: 400 })
+    if (!["FREE", "PRO", "ELITE"].includes(plan)) {
+      console.error("❌ Plan invalide:", plan, "- Seuls FREE, PRO, ELITE sont acceptés")
+      return NextResponse.json({ 
+        error: "Plan invalide. Seuls FREE, PRO et ELITE sont disponibles.",
+        received: plan,
+        valid: ["FREE", "PRO", "ELITE"]
+      }, { status: 400 })
     }
 
     console.log("✅ Plan valide:", plan)
