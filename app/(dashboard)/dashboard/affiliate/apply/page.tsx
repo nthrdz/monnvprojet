@@ -1,264 +1,153 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { 
-  Target, 
-  DollarSign, 
-  Users, 
-  CheckCircle, 
-  Gift,
-  TrendingUp,
-  Shield,
-  Star
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { GlassSectionHeader } from "@/components/ui-pro/glass-section-header"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { GlassSectionHeader } from '@/components/ui-pro/glass-section-header'
+import { Sparkles, Send, CheckCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
-export default function ApplyAffiliatePage() {
-  const [formData, setFormData] = useState({
-    bankAccount: '',
-    paypalEmail: '',
-    notes: ''
-  })
+export default function AffiliateApply() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [formData, setFormData] = useState({
+    reason: '',
+    expectations: ''
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const response = await fetch('/api/affiliate/apply', {
+      const res = await fetch('/api/affiliate/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
 
-      if (response.ok) {
-        setSuccess(true)
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Erreur lors de la soumission')
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erreur lors de la candidature')
       }
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Erreur lors de la soumission')
+
+      toast.success('Candidature envoyée avec succès !')
+      router.push('/dashboard/affiliate')
+    } catch (error: any) {
+      toast.error(error.message)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <CheckCircle className="w-20 h-20 text-green-400 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Demande soumise avec succès !
-            </h1>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Votre demande d'affiliation a été soumise et sera examinée par notre équipe. 
-              Vous recevrez un email de confirmation dans les 24-48h.
-            </p>
-            <Button 
-              onClick={() => window.location.href = '/dashboard/affiliate'}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-            >
-              Voir mon dashboard
-            </Button>
-          </motion.div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <GlassSectionHeader
-            title="Devenir Ambassadeur"
-            iconName="zap"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Benefits */}
-          <div className="lg:col-span-1">
-            <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6 mb-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Avantages</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <DollarSign className="w-5 h-5 text-green-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Commissions attractives</p>
-                    <p className="text-sm text-gray-400">Jusqu'à 10% sur chaque conversion</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-blue-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Parrainage illimité</p>
-                    <p className="text-sm text-gray-400">Pas de limite sur le nombre de parrainages</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Gift className="w-5 h-5 text-purple-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Bonus de bienvenue</p>
-                    <p className="text-sm text-gray-400">50€ offerts pour vos 5 premières conversions</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <TrendingUp className="w-5 h-5 text-orange-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Suivi en temps réel</p>
-                    <p className="text-sm text-gray-400">Dashboard complet avec analytics</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-red-400 mt-1" />
-                  <div>
-                    <p className="text-white font-medium">Paiements sécurisés</p>
-                    <p className="text-sm text-gray-400">Virements bancaires ou PayPal</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Comment ça marche ?</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
-                  <p className="text-gray-300">Soumettez votre candidature</p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
-                  <p className="text-gray-300">Recevez votre code de parrainage</p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
-                  <p className="text-gray-300">Partagez vos liens de parrainage</p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">4</div>
-                  <p className="text-gray-300">Gagnez des commissions</p>
-                </div>
-              </div>
-            </Card>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <Card className="p-8 bg-white/80 backdrop-blur-sm">
+          <div className="text-center mb-8">
+            <Sparkles className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Candidature Ambassadeur
+            </h1>
+            <p className="text-gray-600">
+              Rejoignez notre programme et gagnez 40% de commission
+            </p>
           </div>
 
-          {/* Application Form */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-8">
-              <h3 className="text-2xl font-semibold text-white mb-6">Formulaire de candidature</h3>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <Label htmlFor="bankAccount" className="text-white mb-2 block">
-                    Compte bancaire (optionnel)
-                  </Label>
-                  <Input
-                    id="bankAccount"
-                    name="bankAccount"
-                    type="text"
-                    value={formData.bankAccount}
-                    onChange={handleChange}
-                    placeholder="IBAN ou numéro de compte"
-                    className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                  />
-                  <p className="text-sm text-gray-400 mt-1">
-                    Pour recevoir vos paiements par virement bancaire
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="paypalEmail" className="text-white mb-2 block">
-                    Email PayPal (optionnel)
-                  </Label>
-                  <Input
-                    id="paypalEmail"
-                    name="paypalEmail"
-                    type="email"
-                    value={formData.paypalEmail}
-                    onChange={handleChange}
-                    placeholder="votre@email.com"
-                    className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                  />
-                  <p className="text-sm text-gray-400 mt-1">
-                    Alternative au virement bancaire
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="notes" className="text-white mb-2 block">
-                    Informations supplémentaires (optionnel)
-                  </Label>
-                  <textarea
-                    id="notes"
-                    name="notes"
-                    value={formData.notes}
-                    onChange={handleChange}
-                    placeholder="Parlez-nous de votre audience, de votre expérience..."
-                    rows={4}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                  <p className="text-sm text-gray-400 mt-1">
-                    Aidez-nous à mieux vous connaître
-                  </p>
-                </div>
-
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Star className="w-5 h-5 text-blue-400 mt-0.5" />
-                    <div>
-                      <p className="text-blue-300 font-medium mb-1">Important</p>
-                      <p className="text-sm text-blue-200">
-                        Votre candidature sera examinée par notre équipe. 
-                        Vous recevrez une réponse dans les 24-48h par email.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50"
-                >
-                  {loading ? 'Soumission...' : 'Soumettre ma candidature'}
-                </Button>
-              </form>
-            </Card>
+          {/* Avantages */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-3xl font-bold text-purple-600 mb-1">40%</div>
+              <div className="text-sm text-gray-600">Commission</div>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-3xl font-bold text-blue-600 mb-1">3,99€</div>
+              <div className="text-sm text-gray-600">Par PRO (1,60€)</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-3xl font-bold text-green-600 mb-1">7,99€</div>
+              <div className="text-sm text-gray-600">Par ELITE (3,20€)</div>
+            </div>
           </div>
-        </div>
+
+          {/* Formulaire */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <Label htmlFor="reason" className="text-gray-900 font-semibold mb-2 block">
+                Pourquoi voulez-vous devenir ambassadeur Athlink ? *
+              </Label>
+              <textarea
+                id="reason"
+                required
+                value={formData.reason}
+                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                className="w-full min-h-[120px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                placeholder="Parlez-nous de votre motivation, votre audience, vos réseaux sociaux..."
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="expectations" className="text-gray-900 font-semibold mb-2 block">
+                Quelles sont vos attentes concernant ce partenariat ? *
+              </Label>
+              <textarea
+                id="expectations"
+                required
+                value={formData.expectations}
+                onChange={(e) => setFormData({ ...formData, expectations: e.target.value })}
+                className="w-full min-h-[120px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                placeholder="Comment comptez-vous promouvoir Athlink ? Quels sont vos objectifs ?"
+              />
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Ce que vous recevrez
+              </h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>✅ Un code de parrainage unique</li>
+                <li>✅ Des liens d'affiliation trackés</li>
+                <li>✅ Dashboard en temps réel (clics, conversions, gains)</li>
+                <li>✅ 40% de commission sur chaque vente</li>
+                <li>✅ Paiements automatiques via Stripe Connect</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                className="flex-1"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                {loading ? (
+                  'Envoi en cours...'
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Envoyer ma candidature
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center">
+              Votre candidature sera examinée par notre équipe. Vous recevrez une réponse par email sous 48h.
+            </p>
+          </form>
+        </Card>
       </div>
     </div>
   )

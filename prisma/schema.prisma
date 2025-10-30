@@ -224,14 +224,18 @@ model Affiliate {
   // Informations d'affiliation
   affiliateCode   String    @unique // Code unique pour les liens de parrainage
   status          AffiliateStatus @default(PENDING) // PENDING, APPROVED, SUSPENDED
-  commissionRate  Float     @default(0.05) // 5% par défaut (Stripe)
+  commissionRate  Float     @default(0.40) // 40% par défaut
   totalEarnings   Float     @default(0)
   totalReferrals  Int       @default(0)
   totalConversions Int      @default(0)
+  totalClicks     Int       @default(0) // Nouveau: compteur de clics
   
   // Stripe Connect
   stripeAccountId String?   @unique // ID du compte Stripe Connect
   stripeAccountStatus String? // pending, active, suspended
+  
+  // Contact
+  applicationEmail String?  // Email pour recevoir les notifications
   
   // Métadonnées
   approvedAt      DateTime?
@@ -243,10 +247,40 @@ model Affiliate {
   
   referrals       Referral[]
   commissions     Commission[]
+  clicks          AffiliateClick[]
   
   @@index([affiliateCode])
   @@index([status])
   @@index([stripeAccountId])
+}
+
+// Nouveau: Tracking des clics
+model AffiliateClick {
+  id              String    @id @default(cuid())
+  affiliateId     String
+  affiliate       Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  
+  // Tracking
+  ipAddress       String?
+  userAgent       String?
+  referrerUrl     String?
+  landingPage     String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  country         String?
+  city            String?
+  
+  // Conversion
+  converted       Boolean   @default(false)
+  convertedAt     DateTime?
+  referralId      String?   // Si converti, référence au Referral
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([affiliateId])
+  @@index([createdAt])
+  @@index([converted])
 }
 
 model Referral {

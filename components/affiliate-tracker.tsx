@@ -15,6 +15,9 @@ function AffiliateTrackerContent() {
       
       // Envoyer les données de tracking au serveur
       trackReferral(referralCode)
+      
+      // Créer un referral en attente
+      createPendingReferral(referralCode)
     }
   }, [searchParams])
 
@@ -22,15 +25,14 @@ function AffiliateTrackerContent() {
     try {
       const trackingData = {
         affiliateCode,
-        ipAddress: await getClientIP(),
-        userAgent: navigator.userAgent,
         referrerUrl: document.referrer,
+        landingPage: window.location.href,
         utmSource: searchParams.get('utm_source'),
         utmMedium: searchParams.get('utm_medium'),
         utmCampaign: searchParams.get('utm_campaign')
       }
 
-      await fetch('/api/affiliate/track', {
+      await fetch('/api/affiliate/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(trackingData)
@@ -40,14 +42,21 @@ function AffiliateTrackerContent() {
     }
   }
 
-  const getClientIP = async (): Promise<string | undefined> => {
+  const createPendingReferral = async (referralCode: string) => {
     try {
-      const response = await fetch('https://api.ipify.org?format=json')
-      const data = await response.json()
-      return data.ip
+      await fetch('/api/affiliate/create-referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          referralCode,
+          referrerUrl: document.referrer,
+          utmSource: searchParams.get('utm_source'),
+          utmMedium: searchParams.get('utm_medium'),
+          utmCampaign: searchParams.get('utm_campaign')
+        })
+      })
     } catch (error) {
-      console.error('Erreur récupération IP:', error)
-      return undefined
+      console.error('Erreur création referral:', error)
     }
   }
 

@@ -1,135 +1,169 @@
-import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/db"
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth()
     
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Non authentifié' },
+        { status: 401 }
+      )
     }
 
-    // Récupérer les informations d'affiliation
+    // Récupérer l'affilié
     const affiliate = await prisma.affiliate.findUnique({
       where: { userId: session.user.id },
       include: {
         referrals: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
           include: {
             referredUser: {
-              select: {
-                name: true,
-                email: true,
-                createdAt: true
+              include: {
+                profile: true
               }
             }
-          }
+          },
+          orderBy: { createdAt: 'desc' }
         },
         commissions: {
           orderBy: { createdAt: 'desc' },
-          take: 10
+          take: 50
+        },
+        clicks: {
+          orderBy: { createdAt: 'desc' },
+          take: 100
         }
       }
     })
 
     if (!affiliate) {
-      return NextResponse.json({ error: "Aucune affiliation trouvée" }, { status: 404 })
+      return NextResponse.json(
+        { error: 'Vous n\'êtes pas encore ambassadeur' },
+        { status: 404 }
+      )
     }
 
-    // Statistiques détaillées
-    const stats = await prisma.referral.groupBy({
-      by: ['status'],
-      where: { affiliateId: affiliate.id },
-      _count: { status: true },
-      _sum: { commissionEarned: true }
-    })
+    // Calculer les stats
+    const totalClicks = affiliate.totalClicks
+    const totalReferrals = affiliate.referrals.length
+    const totalConversions = affiliate.referrals.filter(r => r.status === 'CONVERTED').length
+    const pendingReferrals = affiliate.referrals.filter(r => r.status === 'PENDING').length
+    const totalEarnings = affiliate.totalEarnings
+    const pendingCommissions = affiliate.commissions.filter(c => c.status === 'PENDING').reduce((sum, c) => sum + c.amount, 0)
+    const paidCommissions = affiliate.commissions.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0)
+    
+    // Taux de conversion
+    const conversionRate = totalClicks > 0 ? ((totalConversions / totalClicks) * 100).toFixed(2) : '0'
 
-    const monthlyStats = await prisma.referral.groupBy({
-      by: ['status'],
-      where: {
-        affiliateId: affiliate.id,
-        createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        }
-      },
-      _count: { status: true },
-      _sum: { commissionEarned: true }
-    })
+    // Stats des 30 derniers jours
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    // Calculer les commissions en attente
-    const pendingCommissions = await prisma.commission.aggregate({
-      where: {
-        affiliateId: affiliate.id,
-        status: 'PENDING'
-      },
-      _sum: { amount: true },
-      _count: { id: true }
-    })
+    const last30DaysClicks = affiliate.clicks.filter(c => c.createdAt >= thirtyDaysAgo).length
+    const last30DaysConversions = affiliate.referrals.filter(r => r.convertedAt && r.convertedAt >= thirtyDaysAgo).length
+    const last30DaysEarnings = affiliate.commissions
+      .filter(c => c.createdAt >= thirtyDaysAgo)
+      .reduce((sum, c) => sum + c.amount, 0)
 
-    // Calculer les commissions payées
-    const paidCommissions = await prisma.commission.aggregate({
-      where: {
-        affiliateId: affiliate.id,
-        status: 'PAID'
-      },
-      _sum: { amount: true },
-      _count: { id: true }
-    })
+    // Clics par jour (derniers 30 jours)
+    const clicksByDay = affiliate.clicks
+      .filter(c => c.createdAt >= thirtyDaysAgo)
+      .reduce((acc, click) => {
+        const date = click.createdAt.toISOString().split('T')[0]
+        acc[date] = (acc[date] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+
+    // Conversions par jour (derniers 30 jours)
+    const conversionsByDay = affiliate.referrals
+      .filter(r => r.convertedAt && r.convertedAt >= thirtyDaysAgo)
+      .reduce((acc, referral) => {
+        const date = referral.convertedAt!.toISOString().split('T')[0]
+        acc[date] = (acc[date] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+
+    // Revenus par jour (derniers 30 jours)
+    const earningsByDay = affiliate.commissions
+      .filter(c => c.createdAt >= thirtyDaysAgo)
+      .reduce((acc, commission) => {
+        const date = commission.createdAt.toISOString().split('T')[0]
+        acc[date] = (acc[date] || 0) + commission.amount
+        return acc
+      }, {} as Record<string, number>)
+
+    // Top 5 conversions récentes
+    const recentConversions = affiliate.referrals
+      .filter(r => r.status === 'CONVERTED')
+      .slice(0, 5)
+      .map(r => ({
+        id: r.id,
+        date: r.convertedAt,
+        userName: r.referredUser?.profile?.displayName || 'Utilisateur',
+        value: r.conversionValue,
+        commission: r.commissionEarned,
+        plan: r.conversionType
+      }))
+
+    // Générer les liens de parrainage
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://athlink.fr'
+    const referralLinks = {
+      signup: `${baseUrl}/signup?ref=${affiliate.affiliateCode}`,
+      home: `${baseUrl}?ref=${affiliate.affiliateCode}`,
+      pro: `${baseUrl}/pricing?ref=${affiliate.affiliateCode}&plan=PRO`,
+      elite: `${baseUrl}/pricing?ref=${affiliate.affiliateCode}&plan=ELITE`,
+    }
 
     return NextResponse.json({
       success: true,
       affiliate: {
         id: affiliate.id,
-        affiliateCode: affiliate.affiliateCode,
+        code: affiliate.affiliateCode,
         status: affiliate.status,
         commissionRate: affiliate.commissionRate,
-        totalEarnings: affiliate.totalEarnings,
-        totalReferrals: affiliate.totalReferrals,
-        totalConversions: affiliate.totalConversions,
         approvedAt: affiliate.approvedAt,
-        createdAt: affiliate.createdAt
+        stripeAccountId: affiliate.stripeAccountId,
+        stripeAccountStatus: affiliate.stripeAccountStatus,
       },
       stats: {
-        total: {
-          referrals: affiliate.totalReferrals,
-          conversions: affiliate.totalConversions,
-          earnings: affiliate.totalEarnings
-        },
-        byStatus: stats.reduce((acc, stat) => {
-          acc[stat.status] = {
-            count: stat._count.status,
-            earnings: stat._sum.commissionEarned || 0
-          }
-          return acc
-        }, {} as Record<string, { count: number; earnings: number }>),
-        monthly: monthlyStats.reduce((acc, stat) => {
-          acc[stat.status] = {
-            count: stat._count.status,
-            earnings: stat._sum.commissionEarned || 0
-          }
-          return acc
-        }, {} as Record<string, { count: number; earnings: number }>)
-      },
-      commissions: {
-        pending: {
-          amount: pendingCommissions._sum.amount || 0,
-          count: pendingCommissions._count.id || 0
-        },
-        paid: {
-          amount: paidCommissions._sum.amount || 0,
-          count: paidCommissions._count.id || 0
+        totalClicks,
+        totalReferrals,
+        totalConversions,
+        pendingReferrals,
+        totalEarnings,
+        pendingCommissions,
+        paidCommissions,
+        conversionRate: parseFloat(conversionRate),
+        last30Days: {
+          clicks: last30DaysClicks,
+          conversions: last30DaysConversions,
+          earnings: last30DaysEarnings
         }
       },
-      recentReferrals: affiliate.referrals,
-      recentCommissions: affiliate.commissions
+      charts: {
+        clicksByDay,
+        conversionsByDay,
+        earningsByDay
+      },
+      recentConversions,
+      referralLinks,
+      commissions: affiliate.commissions.map(c => ({
+        id: c.id,
+        amount: c.amount,
+        type: c.type,
+        status: c.status,
+        description: c.description,
+        createdAt: c.createdAt,
+        paidAt: c.paidAt,
+        paymentMethod: c.paymentMethod
+      }))
     })
-
-  } catch (error: any) {
-    console.error("Erreur dashboard affiliation:", error)
+  } catch (error) {
+    console.error('Erreur dashboard affilié:', error)
     return NextResponse.json(
-      { error: "Erreur lors de la récupération des données" },
+      { error: 'Erreur lors de la récupération du dashboard' },
       { status: 500 }
     )
   }

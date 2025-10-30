@@ -1,132 +1,142 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { GlassSectionHeader } from '@/components/ui-pro/glass-section-header'
 import { 
-  Users, 
-  TrendingUp, 
-  DollarSign, 
-  Share2, 
   Copy, 
-  CheckCircle, 
-  Clock, 
-  BarChart3,
+  TrendingUp, 
+  Users, 
+  MousePointerClick, 
+  Euro, 
+  Calendar,
+  CheckCircle,
+  Clock,
   ExternalLink,
-  Gift,
-  Target,
-  CreditCard,
-  Zap
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { GlassSectionHeader } from "@/components/ui-pro/glass-section-header"
-import { GlassStats } from "@/components/ui-pro/glass-stats"
-import { GlassLinkCard } from "@/components/ui-pro/glass-link-card"
+  Share2,
+  BarChart3,
+  Sparkles
+} from 'lucide-react'
+import { toast } from 'sonner'
+import Link from 'next/link'
 
-interface AffiliateData {
+interface DashboardData {
   affiliate: {
     id: string
-    affiliateCode: string
+    code: string
     status: string
     commissionRate: number
-    totalEarnings: number
-    totalReferrals: number
-    totalConversions: number
     approvedAt: string | null
-    createdAt: string
+    stripeAccountId: string | null
+    stripeAccountStatus: string | null
   }
   stats: {
-    total: {
-      referrals: number
+    totalClicks: number
+    totalReferrals: number
+    totalConversions: number
+    pendingReferrals: number
+    totalEarnings: number
+    pendingCommissions: number
+    paidCommissions: number
+    conversionRate: number
+    last30Days: {
+      clicks: number
       conversions: number
       earnings: number
     }
-    byStatus: Record<string, { count: number; earnings: number }>
-    monthly: Record<string, { count: number; earnings: number }>
   }
-  commissions: {
-    pending: { amount: number; count: number }
-    paid: { amount: number; count: number }
+  charts: {
+    clicksByDay: Record<string, number>
+    conversionsByDay: Record<string, number>
+    earningsByDay: Record<string, number>
   }
-  recentReferrals: Array<{
+  recentConversions: Array<{
     id: string
-    status: string
-    createdAt: string
-    referredUser: {
-      name: string
-      email: string
-      createdAt: string
-    } | null
+    date: string
+    userName: string
+    value: number
+    commission: number
+    plan: string
   }>
-  recentCommissions: Array<{
+  referralLinks: {
+    signup: string
+    home: string
+    pro: string
+    elite: string
+  }
+  commissions: Array<{
     id: string
     amount: number
     type: string
     status: string
+    description: string
     createdAt: string
+    paidAt: string | null
+    paymentMethod: string | null
   }>
 }
 
 export default function AffiliateDashboard() {
-  const [data, setData] = useState<AffiliateData | null>(null)
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [copied, setCopied] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
 
   useEffect(() => {
-    fetchAffiliateData()
-  }, [])
+    if (status === 'loading') return
 
-  const fetchAffiliateData = async () => {
-    try {
-      const response = await fetch('/api/affiliate/dashboard')
-      if (response.ok) {
-        const result = await response.json()
-        setData(result)
-      }
-    } catch (error) {
-      console.error('Erreur récupération données:', error)
-    } finally {
-      setLoading(false)
+    if (!session) {
+      router.push('/login')
+      return
     }
-  }
 
-  const copyReferralLink = async () => {
-    if (!data?.affiliate.affiliateCode) return
-    
-    const referralLink = `${window.location.origin}?ref=${data.affiliate.affiliateCode}`
-    await navigator.clipboard.writeText(referralLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    // Vérifier le profil et le plan
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(profileData => {
+        setProfile(profileData)
+        
+        // Vérifier si l'utilisateur est PRO ou ELITE
+        if (profileData.plan !== 'PRO' && profileData.plan !== 'ELITE') {
+          toast.error('Vous devez être abonné PRO ou ELITE pour accéder au programme ambassadeur')
+          router.push('/dashboard/upgrade')
+          return
+        }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'bg-green-500/20 text-green-400'
-      case 'PENDING': return 'bg-yellow-500/20 text-yellow-400'
-      case 'SUSPENDED': return 'bg-red-500/20 text-red-400'
-      default: return 'bg-gray-500/20 text-gray-400'
-    }
-  }
+        // Charger les données du dashboard
+        return fetch('/api/affiliate/dashboard')
+      })
+      .then(res => res?.json())
+      .then(dashboardData => {
+        if (dashboardData?.success) {
+          setData(dashboardData)
+        }
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('Erreur chargement dashboard:', error)
+        setLoading(false)
+      })
+  }, [session, status, router])
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'APPROVED': return 'Approuvé'
-      case 'PENDING': return 'En attente'
-      case 'SUSPENDED': return 'Suspendu'
-      default: return status
-    }
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success(`${label} copié !`)
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-white/10 rounded w-1/3 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 bg-white/10 rounded-xl"></div>
+          <div className="animate-pulse space-y-6">
+            <div className="h-12 bg-gray-200 rounded-lg w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -135,188 +145,309 @@ export default function AffiliateDashboard() {
     )
   }
 
+  // Si pas de données, afficher le formulaire de candidature
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-20">
-            <h1 className="text-2xl font-bold text-white mb-4">Aucune donnée d'affiliation</h1>
-            <p className="text-gray-400 mb-8">Vous n'êtes pas encore ambassadeur.</p>
-            <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-              Devenir ambassadeur
-            </Button>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-8 bg-white/80 backdrop-blur-sm border-purple-200">
+            <div className="text-center mb-8">
+              <Sparkles className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Devenez Ambassadeur Athlink
+              </h1>
+              <p className="text-gray-600">
+                Gagnez 40% de commission sur chaque vente générée
+              </p>
+            </div>
+
+            <div className="space-y-6 mb-8">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <Euro className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    Commission de 40%
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Touchez 40% sur chaque abonnement PRO (3,99€) ou ELITE (7,99€) généré
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    Dashboard en temps réel
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Suivez vos clics, conversions et gains en temps réel
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    Paiement automatique
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Vos commissions sont versées automatiquement via Stripe Connect
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link href="/dashboard/affiliate/apply">
+                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  Postuler maintenant
+                </Button>
+              </Link>
+            </div>
+          </Card>
         </div>
       </div>
     )
   }
 
+  // Si en attente d'approbation
+  if (data.affiliate.status === 'PENDING') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-8 bg-white/80 backdrop-blur-sm border-yellow-200">
+            <div className="text-center">
+              <Clock className="w-16 h-16 text-yellow-600 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Candidature en cours
+              </h1>
+              <p className="text-gray-600 mb-6">
+                Votre candidature est en cours d'examen par notre équipe.
+              </p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                <Clock className="w-4 h-4" />
+                En attente d'approbation
+              </div>
+              <p className="text-gray-500 text-sm mt-6">
+                Vous recevrez un email dès que votre candidature sera approuvée.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard complet pour affilié approuvé
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <GlassSectionHeader
-            title="Dashboard Ambassadeur"
-            iconName="link"
-          />
-          
-          <div className="flex items-center gap-4 mt-4">
-            <Badge className={getStatusColor(data.affiliate.status)}>
-              {getStatusText(data.affiliate.status)}
-            </Badge>
-            <span className="text-sm text-gray-400">
-              Taux de commission: {Math.round(data.affiliate.commissionRate * 100)}%
-            </span>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Dashboard Ambassadeur
+            </h1>
+            <p className="text-gray-600">
+              Code : <span className="font-mono font-semibold text-purple-600">{data.affiliate.code}</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+            <CheckCircle className="w-4 h-4" />
+            Actif
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <Users className="w-8 h-8 text-blue-400" />
-              <div>
-                <p className="text-2xl font-bold text-white">{data.stats.total.referrals}</p>
-                <p className="text-gray-400">Total Parrainages</p>
-              </div>
+        {/* Stats principales */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <MousePointerClick className="w-8 h-8 text-blue-600" />
+            </div>
+            <div className="text-3xl font-bold text-gray-900">
+              {data.stats.totalClicks}
+            </div>
+            <div className="text-sm text-gray-600 mt-1">Clics totaux</div>
+            <div className="text-xs text-blue-600 mt-2">
+              +{data.stats.last30Days.clicks} ce mois
             </div>
           </Card>
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <CheckCircle className="w-8 h-8 text-green-400" />
-              <div>
-                <p className="text-2xl font-bold text-white">{data.stats.total.conversions}</p>
-                <p className="text-gray-400">Conversions</p>
-              </div>
+
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-purple-200">
+            <div className="flex items-center justify-between mb-2">
+              <Users className="w-8 h-8 text-purple-600" />
+            </div>
+            <div className="text-3xl font-bold text-gray-900">
+              {data.stats.totalConversions}
+            </div>
+            <div className="text-sm text-gray-600 mt-1">Conversions</div>
+            <div className="text-xs text-purple-600 mt-2">
+              +{data.stats.last30Days.conversions} ce mois
             </div>
           </Card>
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <DollarSign className="w-8 h-8 text-purple-400" />
-              <div>
-                <p className="text-2xl font-bold text-white">{data.stats.total.earnings.toFixed(2)}€</p>
-                <p className="text-gray-400">Gains Totaux</p>
-              </div>
+
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-green-200">
+            <div className="flex items-center justify-between mb-2">
+              <Euro className="w-8 h-8 text-green-600" />
+            </div>
+            <div className="text-3xl font-bold text-gray-900">
+              {data.stats.totalEarnings.toFixed(2)}€
+            </div>
+            <div className="text-sm text-gray-600 mt-1">Gains totaux</div>
+            <div className="text-xs text-green-600 mt-2">
+              +{data.stats.last30Days.earnings.toFixed(2)}€ ce mois
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-orange-200">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-8 h-8 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-gray-900">
+              {data.stats.conversionRate}%
+            </div>
+            <div className="text-sm text-gray-600 mt-1">Taux de conversion</div>
+            <div className="text-xs text-gray-500 mt-2">
+              {data.stats.pendingReferrals} en attente
             </div>
           </Card>
         </div>
 
-        {/* Referral Link */}
-        <div className="mb-8">
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Share2 className="w-6 h-6 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">Lien de parrainage</h3>
-            </div>
-            
-            <div className="flex gap-2">
-              <div className="flex-1 bg-white/10 rounded-lg p-3 font-mono text-sm text-gray-300">
-                {`${window.location.origin}?ref=${data.affiliate.affiliateCode}`}
+        {/* Liens de parrainage */}
+        <Card className="p-6 bg-white/80 backdrop-blur-sm">
+          <GlassSectionHeader
+            title="🔗 Vos liens de parrainage"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {Object.entries(data.referralLinks).map(([key, url]) => (
+              <div key={key} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-xs font-semibold text-gray-700 uppercase mb-1">
+                    {key === 'signup' && '📝 Inscription'}
+                    {key === 'home' && '🏠 Accueil'}
+                    {key === 'pro' && '⭐ Plan PRO'}
+                    {key === 'elite' && '💎 Plan ELITE'}
+                  </div>
+                  <div className="text-sm text-gray-600 truncate font-mono">
+                    {url}
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(url, 'Lien')}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(url, '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
               </div>
-              <Button
-                onClick={copyReferralLink}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              >
-                {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </Button>
-            </div>
-            
-            <p className="text-sm text-gray-400 mt-2">
-              Partagez ce lien pour parrainer de nouveaux utilisateurs
-            </p>
-          </Card>
-        </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Conversions récentes */}
+        <Card className="p-6 bg-white/80 backdrop-blur-sm">
+          <GlassSectionHeader
+            title="🎉 Conversions récentes"
+          />
+          <div className="mt-4 space-y-3">
+            {data.recentConversions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                Aucune conversion pour le moment. Partagez vos liens !
+              </div>
+            ) : (
+              data.recentConversions.map(conversion => (
+                <div key={conversion.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {conversion.userName}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {new Date(conversion.date).toLocaleDateString('fr-FR')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-green-600">
+                      +{conversion.commission?.toFixed(2)}€
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Vente: {conversion.value?.toFixed(2)}€
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
 
         {/* Commissions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Clock className="w-6 h-6 text-yellow-400" />
-              <h3 className="text-lg font-semibold text-white">Commissions en attente</h3>
+        <Card className="p-6 bg-white/80 backdrop-blur-sm">
+          <GlassSectionHeader
+            title="💰 Historique des commissions"
+          />
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-4 p-4 bg-blue-50 rounded-lg">
+              <div>
+                <div className="text-sm text-gray-600">En attente</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {data.stats.pendingCommissions.toFixed(2)}€
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-gray-600">Payé</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {data.stats.paidCommissions.toFixed(2)}€
+                </div>
+              </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-2">
-              {data.commissions.pending.amount.toFixed(2)}€
-            </div>
-            <p className="text-sm text-gray-400">
-              {data.commissions.pending.count} commission(s) en attente de paiement
-            </p>
-          </Card>
 
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <CheckCircle className="w-6 h-6 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Commissions payées</h3>
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">
-              {data.commissions.paid.amount.toFixed(2)}€
-            </div>
-            <p className="text-sm text-gray-400">
-              {data.commissions.paid.count} commission(s) payée(s)
-            </p>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Users className="w-6 h-6 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Parrainages récents</h3>
-            </div>
-            
-            <div className="space-y-3">
-              {data.recentReferrals.length > 0 ? (
-                data.recentReferrals.map((referral) => (
-                  <div key={referral.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">
-                        {referral.referredUser?.name || 'Utilisateur anonyme'}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {new Date(referral.createdAt).toLocaleDateString()}
-                      </p>
+            <div className="space-y-2">
+              {data.commissions.slice(0, 10).map(commission => (
+                <div key={commission.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900">
+                      {commission.description}
                     </div>
-                    <Badge className={getStatusColor(referral.status)}>
-                      {getStatusText(referral.status)}
-                    </Badge>
+                    <div className="text-xs text-gray-500">
+                      {new Date(commission.createdAt).toLocaleDateString('fr-FR')}
+                    </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-400 text-center py-4">Aucun parrainage récent</p>
-              )}
-            </div>
-          </Card>
-
-          <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <DollarSign className="w-6 h-6 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Commissions récentes</h3>
-            </div>
-            
-            <div className="space-y-3">
-              {data.recentCommissions.length > 0 ? (
-                data.recentCommissions.map((commission) => (
-                  <div key={commission.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-gray-900">
                         {commission.amount.toFixed(2)}€
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {new Date(commission.createdAt).toLocaleDateString()}
-                      </p>
+                      </div>
+                      <div className={`text-xs ${
+                        commission.status === 'PAID' ? 'text-green-600' : 'text-yellow-600'
+                      }`}>
+                        {commission.status === 'PAID' ? '✓ Payé' : '⏳ En attente'}
+                      </div>
                     </div>
-                    <Badge className={getStatusColor(commission.status)}>
-                      {getStatusText(commission.status)}
-                    </Badge>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-400 text-center py-4">Aucune commission récente</p>
-              )}
+                </div>
+              ))}
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   )

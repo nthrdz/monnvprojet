@@ -23,17 +23,25 @@ export const STRIPE_CONFIG = {
   
   // Configuration des commissions d'affiliation
   affiliateSettings: {
-    // Commission par défaut (5% = 0.05)
-    defaultCommissionRate: 0.05,
+    // Commission par défaut (40% = 0.40)
+    defaultCommissionRate: 0.40,
     
     // Commission minimum
-    minCommissionRate: 0.01, // 1%
+    minCommissionRate: 0.40, // 40%
     
     // Commission maximum
-    maxCommissionRate: 0.20, // 20%
+    maxCommissionRate: 0.40, // 40%
     
     // Paiement minimum avant versement
     minimumPayout: 50, // 50€
+  },
+  
+  // Prix des plans pour le calcul des commissions
+  planPrices: {
+    PRO: 9.99, // Prix mensuel PRO
+    ELITE: 19.99, // Prix mensuel ELITE
+    ATHLETE_PRO: 9.99,
+    COACH: 29.99,
   }
 }
 
