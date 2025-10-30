@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ConditionalNavbar } from "@/components/ConditionalNavbar";
+import { SessionProvider } from "@/components/providers/session-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ConditionalNavbar />
-        {children}
-        <Toaster position="top-center" richColors />
+        <SessionProvider>
+          <ConditionalNavbar />
+          {children}
+          <Toaster position="top-center" richColors />
+        </SessionProvider>
       </body>
     </html>
   );
