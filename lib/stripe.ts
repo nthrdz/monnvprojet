@@ -1,7 +1,25 @@
 import Stripe from 'stripe'
 
+// ⚠️ VALIDATION OBLIGATOIRE DES CLÉS STRIPE LIVE
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set')
+  throw new Error('❌ ERREUR CRITIQUE : STRIPE_SECRET_KEY n\'est pas configurée dans Vercel !')
+}
+
+// ⚠️ FORCER L'UTILISATION DES CLÉS LIVE UNIQUEMENT
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.STRIPE_SECRET_KEY.startsWith('sk_live_')) {
+    throw new Error('❌ ERREUR : Vous devez utiliser une clé STRIPE LIVE (sk_live_...) en production, pas une clé TEST (sk_test_...) !')
+  }
+  
+  if (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
+      !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_')) {
+    throw new Error('❌ ERREUR : Vous devez utiliser une clé Stripe Publishable LIVE (pk_live_...) en production, pas TEST !')
+  }
+  
+  console.log('✅ STRIPE MODE: LIVE (Production) ✅')
+  console.log('🔑 Clé Stripe:', process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...')
+} else {
+  console.log('⚠️  STRIPE MODE:', process.env.STRIPE_SECRET_KEY.startsWith('sk_live_') ? 'LIVE (⚠️ en dev)' : 'TEST')
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {

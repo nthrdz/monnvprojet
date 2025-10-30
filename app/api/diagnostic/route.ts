@@ -14,24 +14,37 @@ export async function GET() {
   }
 
   // Check 1: Stripe Secret Key
+  const stripeKeyType = process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') 
+    ? 'TEST' 
+    : process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')
+      ? 'LIVE'
+      : 'INVALID'
+  
+  const isProduction = process.env.NODE_ENV === 'production'
+  const shouldUseLive = isProduction && stripeKeyType !== 'LIVE'
+  
   diagnostics.checks.stripeSecretKey = {
     configured: !!process.env.STRIPE_SECRET_KEY,
-    type: process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') 
-      ? 'TEST' 
-      : process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')
-        ? 'LIVE'
-        : 'INVALID',
-    length: process.env.STRIPE_SECRET_KEY?.length || 0
+    type: stripeKeyType,
+    length: process.env.STRIPE_SECRET_KEY?.length || 0,
+    warning: shouldUseLive ? '⚠️ VOUS DEVEZ UTILISER UNE CLÉ LIVE EN PRODUCTION !' : undefined,
+    preview: process.env.STRIPE_SECRET_KEY?.substring(0, 20) + '...'
   }
 
   // Check 2: Stripe Publishable Key
+  const pubKeyType = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_test_')
+    ? 'TEST'
+    : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_live_')
+      ? 'LIVE'
+      : 'INVALID'
+  
+  const shouldUseLivePubKey = isProduction && pubKeyType !== 'LIVE'
+  
   diagnostics.checks.stripePublishableKey = {
     configured: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    type: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_test_')
-      ? 'TEST'
-      : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith('pk_live_')
-        ? 'LIVE'
-        : 'INVALID'
+    type: pubKeyType,
+    warning: shouldUseLivePubKey ? '⚠️ VOUS DEVEZ UTILISER UNE CLÉ LIVE EN PRODUCTION !' : undefined,
+    preview: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.substring(0, 20) + '...'
   }
 
   // Check 3: Stripe Webhook Secret
@@ -101,15 +114,24 @@ export async function GET() {
   const failedChecks = Object.entries(diagnostics.checks).filter(([key, check]: [string, any]) => {
     if (key === 'stripeConnection') return !check.success
     if (key === 'stripeSecretKey' || key === 'stripePublishableKey') {
-      return !check.configured || check.type === 'INVALID'
+      return !check.configured || check.type === 'INVALID' || check.type === 'TEST' && isProduction
     }
     return false
+  })
+  
+  const warnings = Object.entries(diagnostics.checks).filter(([key, check]: [string, any]) => {
+    return check.warning !== undefined
   })
 
   diagnostics.summary = {
     totalChecks: Object.keys(diagnostics.checks).length,
     failed: failedChecks.length,
-    status: failedChecks.length === 0 ? '✅ TOUT EST OK' : '❌ PROBLÈMES DÉTECTÉS'
+    warnings: warnings.length,
+    status: failedChecks.length === 0 && warnings.length === 0 
+      ? '✅ TOUT EST OK - CLÉS LIVE CONFIGURÉES' 
+      : warnings.length > 0 && failedChecks.length === 0
+        ? '⚠️ ATTENTION : UTILISEZ DES CLÉS LIVE EN PRODUCTION'
+        : '❌ PROBLÈMES DÉTECTÉS'
   }
 
   if (failedChecks.length > 0) {
