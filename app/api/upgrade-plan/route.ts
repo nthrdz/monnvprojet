@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import Stripe from "stripe"
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-09-30.clover"
+})
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +27,7 @@ export async function POST(request: Request) {
     // Vérifier si le profil existe
     const existingProfile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
-      select: { id: true, stats: true }
+      select: { id: true, stats: true, plan: true }
     })
 
     if (!existingProfile) {
@@ -32,14 +37,69 @@ export async function POST(request: Request) {
 
     // Préparer les données de mise à jour
     const updateData: any = { plan }
-    
-    // Si un code promo est fourni, l'ajouter aux stats
+    let stripePromoCodeId: string | null = null
+    let discountInfo: any = null
+
+    // Si un code promo est fourni, le valider via Stripe
     if (promoCode) {
-      const stats = existingProfile.stats as any || {}
-      updateData.stats = {
-        ...stats,
-        promoCodeUsed: promoCode.toUpperCase(),
-        promoAppliedAt: new Date().toISOString()
+      try {
+        // Valider le code promo via Stripe
+        const promoCodes = await stripe.promotionCodes.list({
+          code: promoCode.toUpperCase(),
+          active: true,
+          limit: 1,
+          expand: ['data.coupon']
+        })
+
+        if (promoCodes.data.length > 0) {
+          const validatedPromo = promoCodes.data[0]
+          const coupon = (validatedPromo as any).coupon
+
+          // Vérifier que le code est encore valide
+          if (validatedPromo.active && 
+              (!validatedPromo.expires_at || validatedPromo.expires_at * 1000 > Date.now()) &&
+              (!validatedPromo.max_redemptions || validatedPromo.times_redeemed < validatedPromo.max_redemptions)) {
+            
+            stripePromoCodeId = validatedPromo.id
+            
+            // Calculer les infos de réduction
+            const discount = coupon.percent_off 
+              ? `${coupon.percent_off}%`
+              : coupon.amount_off 
+                ? `${(coupon.amount_off / 100).toFixed(2)}€`
+                : "Offre spéciale"
+
+            discountInfo = {
+              code: promoCode.toUpperCase(),
+              stripePromoCodeId,
+              stripeCouponId: coupon.id,
+              discount,
+              percentOff: coupon.percent_off || null,
+              amountOff: coupon.amount_off ? coupon.amount_off / 100 : null,
+              duration: coupon.duration,
+              durationInMonths: coupon.duration_in_months || null
+            }
+
+            // Ajouter aux stats du profil
+            const stats = existingProfile.stats as any || {}
+            updateData.stats = {
+              ...stats,
+              promoCodeUsed: promoCode.toUpperCase(),
+              promoAppliedAt: new Date().toISOString(),
+              stripePromoCodeId,
+              discountInfo
+            }
+
+            console.log("✅ Code promo Stripe validé:", discountInfo)
+          } else {
+            console.warn("⚠️ Code promo invalide ou expiré:", promoCode)
+          }
+        } else {
+          console.warn("⚠️ Code promo non trouvé dans Stripe:", promoCode)
+        }
+      } catch (stripeError) {
+        console.error("❌ Erreur validation Stripe promo code:", stripeError)
+        // On continue sans le code promo plutôt que de bloquer l'upgrade
       }
     }
 
@@ -55,7 +115,8 @@ export async function POST(request: Request) {
       success: true, 
       plan: profile.plan,
       message: `Plan mis à jour vers ${plan}`,
-      promoApplied: promoCode ? true : false
+      promoApplied: stripePromoCodeId ? true : false,
+      discountInfo: discountInfo || null
     })
   } catch (error) {
     console.error("Erreur détaillée lors de la mise à jour du plan:", error)
