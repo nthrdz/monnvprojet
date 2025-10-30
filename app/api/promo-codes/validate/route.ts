@@ -18,12 +18,25 @@ export async function POST(request: NextRequest) {
   try {
     const { code } = await request.json()
 
+    console.log("🔍 Validation code promo:", code)
+
     if (!code) {
       return NextResponse.json({ 
         error: "Code promo requis",
         valid: false 
       }, { status: 400 })
     }
+
+    // Vérifier que les clés Stripe sont configurées
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("❌ STRIPE_SECRET_KEY non configurée !")
+      return NextResponse.json({ 
+        error: "Configuration Stripe manquante",
+        valid: false 
+      }, { status: 200 })
+    }
+
+    console.log("🔗 Connexion à Stripe API...")
 
     // Rechercher le code promo dans Stripe avec le coupon inclus
     const promoCodes = await stripe.promotionCodes.list({
@@ -32,6 +45,8 @@ export async function POST(request: NextRequest) {
       limit: 1,
       expand: ['data.coupon']
     })
+
+    console.log("📊 Résultats Stripe:", promoCodes.data.length, "code(s) trouvé(s)")
 
     if (promoCodes.data.length === 0) {
       return NextResponse.json({ 
@@ -100,11 +115,16 @@ export async function POST(request: NextRequest) {
       }
     })
 
-  } catch (error) {
-    console.error("Erreur validation code promo Stripe:", error)
+  } catch (error: any) {
+    console.error("❌ Erreur validation code promo Stripe:", error)
+    console.error("Détails:", error.message)
+    console.error("Type:", error.type)
+    console.error("Stack:", error.stack)
+    
     return NextResponse.json({ 
       error: "Erreur lors de la validation du code promo",
-      valid: false 
-    }, { status: 500 })
+      valid: false,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { status: 200 }) // 200 au lieu de 500 pour ne pas casser le frontend
   }
 }
