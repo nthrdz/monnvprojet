@@ -30,9 +30,17 @@ export async function GET(request: NextRequest) {
         })
         
         const coupon = (promo as any).coupon
+        
+        // Vérifier que le coupon existe
+        if (!coupon) {
+          throw new Error('Coupon non trouvé pour ce code promo')
+        }
+        
         const discount = coupon.percent_off 
           ? `${coupon.percent_off}%`
-          : `${(coupon.amount_off / 100).toFixed(2)}€`
+          : coupon.amount_off 
+            ? `${(coupon.amount_off / 100).toFixed(2)}€`
+            : 'Réduction'
 
         result.byId = {
           found: true,
@@ -40,7 +48,7 @@ export async function GET(request: NextRequest) {
           code: promo.code,
           active: promo.active,
           discount,
-          duration: coupon.duration,
+          duration: coupon.duration || 'once',
           timesRedeemed: promo.times_redeemed,
           maxRedemptions: promo.max_redemptions,
           expiresAt: promo.expires_at ? new Date(promo.expires_at * 1000).toISOString() : null,
@@ -70,9 +78,16 @@ export async function GET(request: NextRequest) {
         if (promoCodes.data.length > 0) {
           const promo = promoCodes.data[0]
           const coupon = (promo as any).coupon
+          
+          if (!coupon) {
+            throw new Error('Coupon non trouvé pour ce code promo')
+          }
+          
           const discount = coupon.percent_off 
             ? `${coupon.percent_off}%`
-            : `${(coupon.amount_off / 100).toFixed(2)}€`
+            : coupon.amount_off 
+              ? `${(coupon.amount_off / 100).toFixed(2)}€`
+              : 'Réduction'
 
           result.byCode = {
             found: true,
@@ -80,7 +95,7 @@ export async function GET(request: NextRequest) {
             code: promo.code,
             active: promo.active,
             discount,
-            duration: coupon.duration,
+            duration: coupon.duration || 'once',
             timesRedeemed: promo.times_redeemed,
             maxRedemptions: promo.max_redemptions
           }
