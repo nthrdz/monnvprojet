@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
     */
 
     // Mettre à jour le compteur de clics de l'affilié
+    // TODO: Activer après migration DB
+    /*
     await prisma.affiliate.update({
       where: { id: affiliate.id },
       data: {
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest) {
         }
       }
     })
+    */
 
     return NextResponse.json({
       success: true,
