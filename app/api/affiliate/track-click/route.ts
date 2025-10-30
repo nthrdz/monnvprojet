@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
     // Créer un enregistrement de clic
+    // TODO: Activer après migration de la base de données
+    /*
     const click = await prisma.affiliateClick.create({
       data: {
         affiliateId: affiliate.id,
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
         utmCampaign,
       }
     })
+    */
 
     // Mettre à jour le compteur de clics de l'affilié
     await prisma.affiliate.update({
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      clickId: click.id,
+      clickId: 'pending-migration',
       message: 'Clic enregistré'
     })
   } catch (error) {
@@ -89,13 +92,16 @@ export async function GET(req: NextRequest) {
     }
 
     const affiliate = await prisma.affiliate.findUnique({
-      where: { affiliateCode },
+      where: { affiliateCode }
+      // TODO: Activer après migration de la base de données
+      /*
       include: {
         clicks: {
           orderBy: { createdAt: 'desc' },
           take: 100
         }
       }
+      */
     })
 
     if (!affiliate) {
@@ -105,42 +111,21 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Statistiques des clics
-    const totalClicks = affiliate.clicks.length
-    const uniqueIps = new Set(affiliate.clicks.map(c => c.ipAddress)).size
-    const convertedClicks = affiliate.clicks.filter(c => c.converted).length
-    const conversionRate = totalClicks > 0 ? (convertedClicks / totalClicks * 100).toFixed(2) : '0'
-
-    // Clics par jour (derniers 30 jours)
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-    const clicksByDay = affiliate.clicks
-      .filter(c => c.createdAt >= thirtyDaysAgo)
-      .reduce((acc, click) => {
-        const date = click.createdAt.toISOString().split('T')[0]
-        acc[date] = (acc[date] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+    // Statistiques des clics (temporairement basées sur totalClicks de l'affilié)
+    const totalClicks = affiliate.totalClicks || 0
+    const totalConversions = affiliate.totalConversions || 0
+    const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks * 100).toFixed(2) : '0'
 
     return NextResponse.json({
       success: true,
       stats: {
         totalClicks,
-        uniqueIps,
-        convertedClicks,
+        uniqueIps: 0, // TODO: Activer après migration
+        convertedClicks: totalConversions,
         conversionRate: parseFloat(conversionRate),
-        clicksByDay
+        clicksByDay: {} // TODO: Activer après migration
       },
-      recentClicks: affiliate.clicks.slice(0, 20).map(c => ({
-        id: c.id,
-        createdAt: c.createdAt,
-        referrerUrl: c.referrerUrl,
-        landingPage: c.landingPage,
-        converted: c.converted,
-        utmSource: c.utmSource,
-        country: c.country
-      }))
+      recentClicks: [] // TODO: Activer après migration
     })
   } catch (error) {
     console.error('Erreur récupération stats clics:', error)

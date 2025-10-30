@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
         affiliateCode,
         status: 'PENDING',
         commissionRate: 0.40, // 40%
-        notes: `Email: ${session.user.email}\n\nRaison: ${reason}\n\nAttentes: ${expectations}`
+        applicationEmail: session.user.email,
+        notes: `Raison: ${reason}\n\nAttentes: ${expectations}`
       }
     })
 

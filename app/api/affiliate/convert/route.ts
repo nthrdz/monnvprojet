@@ -103,6 +103,8 @@ export async function POST(req: NextRequest) {
     })
 
     // Mettre à jour le clic correspondant si trouvé
+    // TODO: Activer après migration de la base de données
+    /*
     const recentClick = await prisma.affiliateClick.findFirst({
       where: {
         affiliateId: referral.affiliateId,
@@ -124,6 +126,7 @@ export async function POST(req: NextRequest) {
         }
       })
     }
+    */
 
     // Envoyer un email de notification à l'affilié
     try {
