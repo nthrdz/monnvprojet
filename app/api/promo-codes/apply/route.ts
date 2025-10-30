@@ -75,12 +75,13 @@ export async function POST(request: NextRequest) {
           let coupon = (validatedPromo as any).coupon
 
           // Si le coupon n'est pas chargé via expand, le récupérer manuellement
-          if (!coupon && validatedPromo.coupon) {
+          if (!coupon && (validatedPromo as any).coupon) {
             try {
               console.log("⚠️ Coupon non chargé via expand, récupération manuelle...")
-              const couponId = typeof validatedPromo.coupon === 'string' 
-                ? validatedPromo.coupon 
-                : (validatedPromo.coupon as any).id
+              const promoCoupon = (validatedPromo as any).coupon
+              const couponId = typeof promoCoupon === 'string' 
+                ? promoCoupon 
+                : promoCoupon.id
               
               coupon = await stripe.coupons.retrieve(couponId)
               console.log("✅ Coupon récupéré manuellement:", coupon.id)

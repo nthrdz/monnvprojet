@@ -91,14 +91,15 @@ export async function POST(request: NextRequest) {
     let coupon = (promoCode as any).coupon
     
     // Si le coupon n'est pas chargé via expand, le récupérer manuellement
-    if (!coupon && promoCode.coupon) {
+    if (!coupon && (promoCode as any).coupon) {
       try {
         console.log("⚠️ Coupon non chargé via expand, récupération manuelle...")
-        console.log("   Coupon ID:", typeof promoCode.coupon === 'string' ? promoCode.coupon : (promoCode.coupon as any).id)
+        const promoCoupon = (promoCode as any).coupon
+        console.log("   Coupon ID:", typeof promoCoupon === 'string' ? promoCoupon : promoCoupon.id)
         
-        const couponId = typeof promoCode.coupon === 'string' 
-          ? promoCode.coupon 
-          : (promoCode.coupon as any).id
+        const couponId = typeof promoCoupon === 'string' 
+          ? promoCoupon 
+          : promoCoupon.id
         
         coupon = await stripe.coupons.retrieve(couponId)
         console.log("✅ Coupon récupéré manuellement:", coupon.id)
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
     // Vérifier que le coupon existe
     if (!coupon) {
       console.error("❌ Coupon manquant pour le code promo:", promoCode.id)
-      console.error("   - PromoCode.coupon:", promoCode.coupon)
+      console.error("   - PromoCode.coupon:", (promoCode as any).coupon)
       return NextResponse.json({ 
         error: "Code promo invalide (coupon manquant)",
         valid: false 
