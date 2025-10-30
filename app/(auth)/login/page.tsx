@@ -240,7 +240,6 @@ export default function LoginPage() {
               className="flex gap-12"
             >
               {[
-                { value: "20K+", label: "Athlètes" },
                 { value: "100%", label: "Gratuit" },
               ].map((stat, i) => (
                 <div key={i}>

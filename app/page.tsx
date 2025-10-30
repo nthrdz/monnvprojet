@@ -142,32 +142,7 @@ export default function Home() {
             className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
           />
           
-          {/* Geometric shapes */}
-          <motion.div
-            animate={{
-              rotate: [0, 360],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute top-10 right-10 w-20 h-20 border-2 border-yellow-500/10 rounded-lg"
-          />
-          
-          <motion.div
-            animate={{
-              rotate: [360, 0],
-              y: [0, 20, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute bottom-20 left-10 w-16 h-16 border-2 border-gray-900/10"
-          />
+          {/* Geometric shapes supprimées */}
           
           {/* Gradient orbs */}
           <motion.div
@@ -184,29 +159,7 @@ export default function Home() {
             className="absolute top-1/3 right-1/3 w-72 h-72 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full blur-3xl"
           />
           
-          {/* Sports equipment floating around - Reduced */}
-          {['', '', ''].map((emoji, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -50, 0],
-                opacity: [0.1, 0.25, 0.1],
-              }}
-              transition={{
-                duration: 8 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 1.5,
-              }}
-              className="absolute text-3xl"
-              style={{
-                left: `${20 + i * 30}%`,
-                top: `${30 + (i % 3) * 25}%`,
-              }}
-            >
-              {emoji}
-        </motion.div>
-          ))}
+          {/* Animations supprimées */}
           
           {/* Connecting lines effect */}
           <svg className="absolute inset-0 w-full h-full opacity-5">
@@ -392,73 +345,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Decorative Sport Divider */}
-      <div className="relative h-32 bg-gradient-to-b from-white via-gray-50 to-gray-50 overflow-hidden">
-        {/* Running track line */}
-        <motion.div
-          animate={{
-            x: [-100, 100],
-            opacity: [0.1, 0.3, 0.1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-1 bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent"
-        />
-        
-        {/* Running athletes across the screen */}
-        <motion.div
-          animate={{
-            x: [-100, 1200],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute top-1/2 -translate-y-1/2 text-4xl"
-        >
-          🏃‍♂️
-        </motion.div>
-        
-        <motion.div
-          animate={{
-            x: [-150, 1200],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "linear",
-            delay: 2
-          }}
-          className="absolute top-1/2 -translate-y-1/2 text-4xl"
-        >
-          🚴‍♀️
-        </motion.div>
-        
-        {/* Sport icons bouncing - Reduced */}
-        <div className="absolute inset-0 flex items-center justify-center gap-16">
-          {['⚽', '🏀'].map((sport, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -15, 0],
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 1,
-              }}
-              className="text-3xl"
-            >
-              {sport}
-            </motion.div>
-          ))}
-        </div>
+      {/* Decorative Sport Divider - Simplifié */}
+      <div className="relative h-8 bg-gradient-to-b from-white via-gray-50 to-gray-50">
       </div>
 
       {/* Analytics & Performance Section - Apple Style with Sport Animations */}
@@ -490,29 +378,7 @@ export default function Home() {
             className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
           />
           
-          {/* Performance and stats themed emojis - Reduced */}
-          {['', '', ''].map((emoji, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -40, 0],
-                opacity: [0.08, 0.2, 0.08],
-              }}
-              transition={{
-                duration: 9 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 2,
-              }}
-              className="absolute text-4xl"
-              style={{
-                left: `${20 + i * 30}%`,
-                top: `${25 + (i % 3) * 30}%`,
-              }}
-            >
-              {emoji}
-            </motion.div>
-          ))}
+          {/* Animations supprimées */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -766,29 +632,7 @@ export default function Home() {
             className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
           />
           
-          {/* Sponsor and partnership themed emojis - Reduced */}
-          {['🤝', '💼', '🎁'].map((emoji, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -35, 0],
-                opacity: [0.08, 0.18, 0.08],
-              }}
-              transition={{
-                duration: 8 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 2,
-              }}
-              className="absolute text-4xl"
-              style={{
-                left: `${25 + i * 25}%`,
-                top: `${30 + (i % 3) * 25}%`,
-              }}
-            >
-              {emoji}
-            </motion.div>
-          ))}
+          {/* Animations supprimées */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -1033,81 +877,7 @@ export default function Home() {
             className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
           />
           
-          {/* Price tag shapes */}
-          <motion.div
-            animate={{
-              rotate: [0, 10, -10, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-20 left-20 w-24 h-24 border-2 border-green-500/10 rounded-full"
-          />
-          
-          <motion.div
-            animate={{
-              rotate: [0, -15, 15, 0],
-              x: [0, 20, -20, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute bottom-32 right-24 w-32 h-32 border-2 border-yellow-500/10"
-          />
-          
-          {/* Currency symbols floating */}
-          {['€', '€', '€'].map((symbol, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -100, 0],
-                opacity: [0.05, 0.15, 0.05],
-                rotate: [0, 360],
-              }}
-              transition={{
-                duration: 10 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 2,
-              }}
-              className="absolute text-6xl font-light text-gray-900/5"
-              style={{
-                left: `${20 + i * 30}%`,
-                top: `${30 + i * 15}%`,
-              }}
-            >
-              {symbol}
-            </motion.div>
-          ))}
-          
-          {/* Star ratings decorations */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                scale: [0.8, 1.2, 0.8],
-                rotate: [0, 180, 360],
-                opacity: [0.1, 0.2, 0.1],
-              }}
-              transition={{
-                duration: 4 + i,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.5,
-              }}
-              className="absolute text-2xl"
-              style={{
-                left: `${15 + i * 15}%`,
-                top: `${60 + (i % 3) * 10}%`,
-              }}
-            >
-            </motion.div>
-          ))}
+          {/* Formes décoratives supprimées */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -1217,7 +987,6 @@ export default function Home() {
                   "Sponsors illimités",
                   "Galerie illimitée",
                   "Analytics avancées (7 jours)",
-                  "Badge \"Pro\" sur le profil",
                 ],
                 cta: "Passer Pro",
                 highlight: true,
@@ -1236,8 +1005,6 @@ export default function Home() {
                   "Démographie visiteurs",
                   "Export données (PDF)",
                   "Service de coaching",
-                  "Personnalisation CSS",
-                  "Badge \"Elite\" sur le profil",
                   "Support prioritaire",
                 ],
                 cta: "Passer Elite",
@@ -1438,26 +1205,7 @@ export default function Home() {
               Rejoins des milliers d&apos;athlètes qui utilisent Athlink pour partager leur passion
             </motion.p>
             
-            <div className="grid md:grid-cols-4 gap-8 lg:gap-12 max-w-4xl mx-auto">
-              {[
-                { icon: "", label: "Runners" },
-                { icon: "", label: "Hyrox" },
-                { icon: "", label: "Triathletes" },
-                { icon: "", label: "Autres" }
-              ].map((sport, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.9 + i * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="text-5xl mb-4">{sport.icon}</div>
-                  <div className="text-lg font-medium text-gray-900">{sport.label}</div>
-                </motion.div>
-              ))}
-            </div>
+            {/* Emojis sportifs supprimés */}
           </motion.div>
         </div>
       </section>
@@ -1491,56 +1239,9 @@ export default function Home() {
             className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
           />
           
-          {/* Victory and motivation emojis */}
-          {['', '', '', '', '', '', '', '', '', ''].map((emoji, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -70, 0],
-                rotate: [0, (i % 2 === 0 ? 360 : -360)],
-                opacity: [0.15, 0.4, 0.15],
-                scale: [0.8, 1.4, 0.8],
-              }}
-              transition={{
-                duration: 5 + i * 0.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.4,
-              }}
-              className="absolute text-5xl"
-              style={{
-                left: `${5 + i * 9.5}%`,
-                top: `${15 + (i % 5) * 18}%`,
-              }}
-            >
-              {emoji}
-            </motion.div>
-          ))}
+          {/* Animations supprimées */}
           
-          {/* Confetti effect */}
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={`confetti-${i}`}
-              animate={{
-                y: [-20, 100],
-                x: [(i % 2 === 0 ? -30 : 30), (i % 2 === 0 ? 30 : -30)],
-                rotate: [0, 360],
-                opacity: [0.3, 0, 0.3],
-              }}
-              transition={{
-                duration: 3 + i * 0.2,
-                repeat: Infinity,
-                ease: "easeOut",
-                delay: i * 0.3,
-              }}
-              className="absolute w-2 h-2 rounded-full"
-              style={{
-                left: `${10 + i * 6}%`,
-                top: `${10 + (i % 3) * 30}%`,
-                backgroundColor: ['#EAB308', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'][i % 5],
-              }}
-            />
-          ))}
+          {/* Confetti effect supprimé */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
