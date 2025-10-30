@@ -49,7 +49,6 @@ export const signupSchema = z.object({
     .max(30, "Maximum 30 caractères")
     .regex(/^[a-zA-Z0-9_-]+$/, "Uniquement lettres, chiffres, - et _"),
   sport: z.string().min(2, "Sport requis").max(50, "Maximum 50 caractères"),
-  referralCode: z.string().optional(), // Code de parrainage optionnel
 })
 
 export const loginSchema = z.object({
