@@ -4,6 +4,10 @@ import { supabase } from "@/lib/supabase"
 import { prisma } from "@/lib/db"
 import sharp from "sharp"
 
+// Configuration de la route
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
