@@ -47,10 +47,10 @@ export async function POST(req: NextRequest) {
 
     // Envoyer un email de confirmation à l'affilié
     try {
-      if (affiliate.applicationEmail) {
+      if (affiliate.user.email) {
         await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
-          to: affiliate.applicationEmail,
+          to: affiliate.user.email,
           subject: '🎉 Votre candidature ambassadeur a été approuvée !',
           html: `
             <!DOCTYPE html>
