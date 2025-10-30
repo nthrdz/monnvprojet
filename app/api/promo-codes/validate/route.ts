@@ -11,12 +11,19 @@ import { stripe } from "@/lib/stripe"
  * 4. Le code sera automatiquement validé ici !
  */
 export async function POST(request: NextRequest) {
+  console.log("============================================================")
+  console.log("🚀 API /api/promo-codes/validate appelée")
+  console.log("============================================================")
+  
   try {
     const { code } = await request.json()
 
-    console.log("🔍 Validation code promo:", code)
+    console.log("📥 Code reçu:", code)
+    console.log("📥 Type:", typeof code)
+    console.log("📥 Longueur:", code?.length)
 
     if (!code) {
+      console.error("❌ Aucun code fourni")
       return NextResponse.json({ 
         error: "Code promo requis",
         valid: false 
@@ -27,12 +34,17 @@ export async function POST(request: NextRequest) {
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("❌ STRIPE_SECRET_KEY non configurée !")
       return NextResponse.json({ 
-        error: "Configuration Stripe manquante",
+        error: "Configuration Stripe manquante. Ajoutez STRIPE_SECRET_KEY dans Vercel.",
         valid: false 
       }, { status: 200 })
     }
 
+    const keyType = process.env.STRIPE_SECRET_KEY.startsWith('sk_live_') ? 'LIVE' : 'TEST'
+    console.log("✅ STRIPE_SECRET_KEY configurée, type:", keyType)
+    console.log("🔑 Clé:", process.env.STRIPE_SECRET_KEY.substring(0, 20) + "...")
+
     console.log("🔗 Connexion à Stripe API...")
+    console.log("🔍 Recherche du code:", code.toUpperCase())
 
     // Rechercher le code promo dans Stripe avec le coupon inclus
     const promoCodes = await stripe.promotionCodes.list({
@@ -43,11 +55,33 @@ export async function POST(request: NextRequest) {
     })
 
     console.log("📊 Résultats Stripe:", promoCodes.data.length, "code(s) trouvé(s)")
+    
+    if (promoCodes.data.length > 0) {
+      const promo = promoCodes.data[0]
+      console.log("✅ Code trouvé:")
+      console.log("   - ID:", promo.id)
+      console.log("   - Code:", promo.code)
+      console.log("   - Actif:", promo.active)
+      console.log("   - Utilisations:", promo.times_redeemed, "/", promo.max_redemptions || "∞")
+      console.log("   - Expire:", promo.expires_at ? new Date(promo.expires_at * 1000).toISOString() : "jamais")
+    }
 
     if (promoCodes.data.length === 0) {
+      console.log("❌ Aucun code trouvé pour:", code.toUpperCase())
+      console.log("💡 Vérifiez dans Stripe Dashboard que:")
+      console.log("   1. Le code existe")
+      console.log("   2. Le code est ACTIF")
+      console.log("   3. Le code n'a pas expiré")
+      console.log("   4. Vous utilisez les bonnes clés Stripe (" + keyType + ")")
+      
       return NextResponse.json({ 
         error: "Code promo invalide ou expiré",
-        valid: false 
+        valid: false,
+        debug: {
+          searchedCode: code.toUpperCase(),
+          stripeKeyType: keyType,
+          hint: "Vérifiez que le code existe et est actif dans Stripe Dashboard"
+        }
       }, { status: 200 }) // 200 au lieu de 404 pour ne pas casser le frontend
     }
 
@@ -93,7 +127,13 @@ export async function POST(request: NextRequest) {
         ? 'première facturation'
         : `${coupon.duration_in_months} mois`
 
-    return NextResponse.json({
+    console.log("✅✅✅ CODE PROMO VALIDE ! ✅✅✅")
+    console.log("📦 Données retournées:")
+    console.log("   - Réduction:", discount)
+    console.log("   - Durée:", duration)
+    console.log("   - ID Stripe:", promoCode.id)
+
+    const responseData = {
       valid: true,
       stripePromoCodeId: promoCode.id,
       stripeCouponId: coupon.id,
@@ -109,7 +149,12 @@ export async function POST(request: NextRequest) {
           ? promoCode.restrictions.minimum_amount / 100 
           : null
       }
-    })
+    }
+    
+    console.log("📤 Envoi de la réponse:", JSON.stringify(responseData, null, 2))
+    console.log("============================================================")
+    
+    return NextResponse.json(responseData)
 
   } catch (error: any) {
     console.error("❌ Erreur validation code promo Stripe:", error)
