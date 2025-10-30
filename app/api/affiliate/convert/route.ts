@@ -130,10 +130,11 @@ export async function POST(req: NextRequest) {
 
     // Envoyer un email de notification à l'affilié
     try {
-      if (referral.affiliate.applicationEmail) {
+      const affiliateEmail = referral.affiliate.user?.email
+      if (affiliateEmail) {
         await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
-          to: referral.affiliate.applicationEmail,
+          to: affiliateEmail,
           subject: '🎉 Nouvelle conversion - Vous avez gagné une commission !',
           html: `
             <!DOCTYPE html>
