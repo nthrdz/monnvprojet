@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: "Code promo invalide ou expiré",
         valid: false 
-      }, { status: 404 })
+      }, { status: 200 }) // 200 au lieu de 404 pour ne pas casser le frontend
     }
 
     const promoCode = promoCodes.data[0]
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: "Ce code promo n'est plus actif",
         valid: false 
-      }, { status: 400 })
+      }, { status: 200 })
     }
 
     // Vérifier la date d'expiration
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: "Ce code promo a expiré",
         valid: false 
-      }, { status: 400 })
+      }, { status: 200 })
     }
 
     // Vérifier les utilisations maximum
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: "Ce code promo a atteint sa limite d'utilisation",
         valid: false 
-      }, { status: 400 })
+      }, { status: 200 })
     }
 
     // Construire la réponse
