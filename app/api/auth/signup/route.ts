@@ -35,22 +35,6 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await hash(validatedData.password, 12)
 
-    // Vérifier s'il y a un code de parrainage
-    let referralId = null
-    if (validatedData.referralCode) {
-      const referral = await prisma.referral.findFirst({
-        where: {
-          referralCode: validatedData.referralCode,
-          status: 'PENDING'
-        },
-        include: { affiliate: true }
-      })
-
-      if (referral && referral.affiliate.status === 'APPROVED') {
-        referralId = referral.id
-      }
-    }
-
     // Create user and profile
     const user = await prisma.user.create({
       data: {
@@ -71,29 +55,6 @@ export async function POST(req: NextRequest) {
         profile: true
       }
     })
-
-    // Traiter le parrainage si applicable
-    if (referralId) {
-      try {
-        // Convertir le parrainage en conversion
-        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/affiliate/convert`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            referralId,
-            userId: user.id,
-            conversionType: 'SIGNUP'
-          })
-        })
-
-        if (response.ok) {
-          console.log('Parrainage converti avec succès')
-        }
-      } catch (error) {
-        console.error('Erreur conversion parrainage:', error)
-        // Ne pas faire échouer l'inscription si le parrainage échoue
-      }
-    }
 
     return NextResponse.json({
       user: {
