@@ -115,8 +115,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Statistiques des clics (temporairement basées sur totalClicks de l'affilié)
-    const totalClicks = affiliate.totalClicks || 0
-    const totalConversions = affiliate.totalConversions || 0
+    const totalClicks = (affiliate as any).totalClicks || 0
+    const totalConversions = (affiliate as any).totalConversions || 0
     const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks * 100).toFixed(2) : '0'
 
     return NextResponse.json({
