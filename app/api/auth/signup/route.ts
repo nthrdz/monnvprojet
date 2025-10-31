@@ -7,6 +7,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const validatedData = signupSchema.parse(body)
+    
+    // 🎯 Récupérer le code de parrainage si présent
+    const referralCode = body.referralCode || null
 
     // Check if email exists
     const existingEmail = await prisma.user.findUnique({
@@ -56,13 +59,34 @@ export async function POST(req: NextRequest) {
       }
     })
 
+    // 🎯 Si un code de parrainage existe, créer la conversion
+    if (referralCode) {
+      try {
+        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+        await fetch(`${baseUrl}/api/affiliate/convert`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            referralCode: referralCode,
+            userId: user.id,
+            planType: 'FREE', // On peut upgrade plus tard
+          })
+        })
+        console.log(`✅ Conversion du parrainage ${referralCode} pour l'utilisateur ${user.id}`)
+      } catch (conversionError) {
+        console.error('❌ Erreur conversion parrainage:', conversionError)
+        // On continue même si la conversion échoue
+      }
+    }
+
     return NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
         username: user.profile?.username
-      }
+      },
+      referralApplied: !!referralCode
     }, { status: 201 })
 
   } catch (error: any) {

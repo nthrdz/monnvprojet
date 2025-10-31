@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -31,6 +31,9 @@ export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   
+  // 🎯 CODE DE PARRAINAGE - Récupérer du localStorage
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  
   // 🎯 CODE PROMO - SYSTÈME SIMPLIFIÉ
   const [promoCode, setPromoCode] = useState("")
   const [isCheckingPromo, setIsCheckingPromo] = useState(false)
@@ -47,6 +50,16 @@ export default function SignupPage() {
       sport: ""
     }
   })
+
+  // 🎯 RÉCUPÉRER LE CODE DE PARRAINAGE DU LOCALSTORAGE
+  useEffect(() => {
+    // Récupérer le code de parrainage stocké par AffiliateTracker
+    const storedReferralCode = localStorage.getItem('referralCode')
+    if (storedReferralCode) {
+      setReferralCode(storedReferralCode)
+      console.log('🎯 Code de parrainage détecté:', storedReferralCode)
+    }
+  }, [])
 
   // 🔍 VÉRIFIER LE CODE PROMO
   const checkPromoCode = async () => {
@@ -110,7 +123,8 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          ...(promoValid && { promoCode: promoCode.trim().toUpperCase() })
+          ...(promoValid && { promoCode: promoCode.trim().toUpperCase() }),
+          ...(referralCode && { referralCode }) // 🎯 AJOUTÉ - Envoyer le code de parrainage
         }),
       })
 
@@ -130,6 +144,12 @@ export default function SignupPage() {
         toast.success("✅ Compte créé avec succès !", {
           duration: 3000
         })
+      }
+      
+      // 🎯 NETTOYER le code de parrainage après inscription
+      if (referralCode) {
+        localStorage.removeItem('referralCode')
+        console.log('🧹 Code de parrainage nettoyé du localStorage')
       }
       
       // Redirection

@@ -43,34 +43,42 @@ const isPromoValidForPlan = (planName: string) => {
     
     try {
       // Mapper les noms de plans vers les valeurs Prisma
-      // Les seuls plans valides sont : FREE, PRO, ELITE
       const planMapping: Record<string, string> = {
-        "Free": "FREE",
         "Pro": "PRO",
         "Elite": "ELITE"
       }
       
       const planValue = planMapping[planName]
       
-      const response = await fetch("/api/upgrade-plan", {
+      console.log("🚀 Création de la session Stripe Checkout...")
+      console.log("   - Plan:", planValue)
+      console.log("   - Cycle:", billingCycle)
+      console.log("   - Code promo:", promoData?.valid ? promoCode : "aucun")
+      
+      // ✅ NOUVEAU : Créer une session Stripe Checkout avec le cycle de facturation
+      const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           plan: planValue,
+          billingCycle: billingCycle, // 'monthly' ou 'yearly'
           promoCode: promoData?.valid ? promoCode : null 
         })
       })
 
-      if (response.ok) {
-        alert(`✅ Plan ${planName} activé avec succès !${promoData?.valid ? ' 🎉 Code promo appliqué !' : ''}`)
-        window.location.href = "/dashboard"
+      const data = await response.json()
+
+      if (response.ok && data.url) {
+        console.log("✅ Session créée, redirection vers Stripe...")
+        // ✅ REDIRIGER VERS STRIPE CHECKOUT
+        window.location.href = data.url
       } else {
-        const error = await response.json()
-        alert(`❌ Erreur: ${error.error}`)
+        console.error("❌ Erreur:", data.error)
+        alert(`❌ Erreur: ${data.error || 'Une erreur est survenue'}`)
       }
     } catch (error) {
-      console.error("Erreur lors de l'upgrade:", error)
-      alert("❌ Une erreur est survenue")
+      console.error("❌ Erreur lors de l'upgrade:", error)
+      alert("❌ Une erreur est survenue lors de la création de la session de paiement")
     } finally {
       setIsUpgrading(false)
     }
