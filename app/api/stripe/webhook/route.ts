@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
       console.log("   - Invoice ID:", invoice.id)
       console.log("   - Customer:", invoice.customer)
       console.log("   - Amount:", invoice.amount_paid / 100, "€")
-      console.log("   - Subscription:", invoice.subscription)
+      console.log("   - Subscription:", (invoice as any).subscription)
       
       // Vous pouvez ajouter une logique pour enregistrer les paiements récurrents
     }
