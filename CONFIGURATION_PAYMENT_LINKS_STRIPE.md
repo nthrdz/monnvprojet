@@ -42,8 +42,10 @@ Activez si vous voulez permettre l'utilisation de codes promo :
 ```
 
 ##### ✅ **After payment** (URLs de redirection)
-- **Success URL** : `https://athlink.fr/dashboard?payment=success`
+- **Success URL** : `https://athlink.fr/dashboard/payment-success` ⚠️ **IMPORTANT**
 - **Cancel URL** : `https://athlink.fr/dashboard/upgrade?payment=cancelled`
+
+**⚠️ Important** : La Success URL DOIT être `/dashboard/payment-success` pour forcer le rafraîchissement de la session et afficher le nouveau plan !
 
 #### **Récurrence** (pour les abonnements)
 - Mode : **Subscription** (abonnement récurrent)
@@ -154,6 +156,13 @@ STRIPE_PRICE_ID_PRO_YEARLY=price_1SLkA2H23JS5N2cDiEmU195J
 
 ## 🧪 Tester le Payment Link
 
+### **⚠️ AVANT DE TESTER : Mettre à jour l'URL de redirection**
+
+Allez dans **Stripe Dashboard** → **Payment Links** → Trouvez votre Payment Link ELITE Mensuel :
+- Cliquez sur **Edit** (ou l'icône crayon)
+- Dans **After payment** → **Success URL**, changez en : `https://athlink.fr/dashboard/payment-success`
+- **Sauvegardez**
+
 ### **Test en production**
 
 1. Allez sur `https://athlink.fr/dashboard/upgrade`
@@ -164,8 +173,10 @@ STRIPE_PRICE_ID_PRO_YEARLY=price_1SLkA2H23JS5N2cDiEmU195J
 6. Utilisez une carte de test Stripe : `4242 4242 4242 4242`
 7. Validez le paiement
 8. Le webhook activera automatiquement votre plan ELITE
-9. Vous recevrez un email de confirmation
-10. Vous serez redirigé vers `/dashboard?payment=success`
+9. Vous serez redirigé vers `/dashboard/payment-success`
+10. **La session se rafraîchit automatiquement** et affiche votre nouveau plan
+11. Vous recevrez un email de confirmation
+12. Redirection automatique vers le dashboard après 3 secondes
 
 ### **Vérifier le webhook**
 

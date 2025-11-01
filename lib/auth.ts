@@ -110,15 +110,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string
         session.user.name = (token.name as string | null) || ""
         session.user.email = token.email as string
+        
+        // 🔄 RAFRAÎCHIR LE PLAN depuis la DB à chaque requête
+        try {
+          const userProfile = await prisma.profile.findUnique({
+            where: { userId: token.id as string },
+            select: { plan: true, username: true }
+          })
+          
+          if (userProfile) {
+            // @ts-ignore - Ajouter le plan à la session
+            session.user.plan = userProfile.plan
+            // @ts-ignore - Ajouter le username à la session
+            session.user.username = userProfile.username
+          }
+        } catch (error) {
+          console.error("Erreur lors du rafraîchissement du plan:", error)
+        }
       }
       return session
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id
         token.email = user.email
         token.name = user.name
       }
+      
+      // 🔄 Rafraîchir le plan si trigger = "update"
+      if (trigger === "update" && token.id) {
+        try {
+          const userProfile = await prisma.profile.findUnique({
+            where: { userId: token.id as string },
+            select: { plan: true }
+          })
+          
+          if (userProfile) {
+            token.plan = userProfile.plan
+          }
+        } catch (error) {
+          console.error("Erreur lors du rafraîchissement du token:", error)
+        }
+      }
+      
       return token
     }
   }
