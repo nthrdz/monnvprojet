@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Utilisateur authentifié:", session.user.id)
 
-    const { plan, promoCode, billingCycle } = await req.json()
-    console.log("📦 Données reçues - Plan:", plan, "Cycle:", billingCycle || "monthly", "PromoCode:", promoCode || "aucun")
+    const { plan, billingCycle } = await req.json()
+    console.log("📦 Données reçues - Plan:", plan, "Cycle:", billingCycle || "monthly")
 
     // ⚠️ IMPORTANT : Créez ces prix dans Stripe Dashboard !
     // 1. Allez sur https://dashboard.stripe.com/products
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true&plan=${plan}&cycle=${cycle}`,
+      success_url: `${process.env.NEXTAUTH_URL}/dashboard/payment-success?plan=${plan}&cycle=${cycle}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/upgrade?canceled=true`,
       metadata: {
         userId: session.user.id,
@@ -100,79 +100,6 @@ export async function POST(req: NextRequest) {
           plan: plan,
           billingCycle: cycle,
         }
-      }
-    }
-
-    // 🎫 Si un code promo est fourni, le valider et l'appliquer
-    if (promoCode) {
-      console.log("🎫 Validation du code promo:", promoCode)
-      
-      try {
-        const promoCodes = await stripe.promotionCodes.list({
-          code: promoCode.toUpperCase(),
-          active: true,
-          limit: 1,
-          expand: ['data.coupon']
-        })
-
-        console.log("📊 Stripe a retourné", promoCodes.data.length, "code(s)")
-
-        if (promoCodes.data.length > 0) {
-          const validatedPromo = promoCodes.data[0]
-          const coupon = (validatedPromo as any).coupon
-
-          // Vérifier que le code promo est encore valide
-          const isValid = validatedPromo.active && 
-            (!validatedPromo.expires_at || validatedPromo.expires_at * 1000 > Date.now()) &&
-            (!validatedPromo.max_redemptions || validatedPromo.times_redeemed < validatedPromo.max_redemptions)
-
-          if (isValid && coupon) {
-            // ✅ APPLIQUER LE CODE PROMO À LA SESSION STRIPE
-            sessionParams.discounts = [
-              {
-                promotion_code: validatedPromo.id,
-              },
-            ]
-
-            // Ajouter le code promo dans les metadata
-            sessionParams.metadata.promoCode = promoCode.toUpperCase()
-            sessionParams.metadata.promoCodeId = validatedPromo.id
-            sessionParams.metadata.couponId = coupon.id
-            
-            if (sessionParams.subscription_data) {
-              sessionParams.subscription_data.metadata.promoCode = promoCode.toUpperCase()
-            }
-
-            const discount = coupon.percent_off 
-              ? `${coupon.percent_off}%`
-              : coupon.amount_off 
-                ? `${(coupon.amount_off / 100).toFixed(2)}€`
-                : "Offre spéciale"
-
-            console.log("✅✅✅ CODE PROMO APPLIQUÉ ! ✅✅✅")
-            console.log("   - Code:", promoCode.toUpperCase())
-            console.log("   - Réduction:", discount)
-            console.log("   - ID Stripe:", validatedPromo.id)
-          } else {
-            console.warn("⚠️ Code promo invalide ou expiré:", promoCode)
-            return NextResponse.json({ 
-              error: 'Code promo invalide ou expiré',
-              code: promoCode.toUpperCase()
-            }, { status: 400 })
-          }
-        } else {
-          console.warn("⚠️ Code promo non trouvé:", promoCode)
-          return NextResponse.json({ 
-            error: 'Code promo non trouvé',
-            code: promoCode.toUpperCase()
-          }, { status: 400 })
-        }
-      } catch (promoError: any) {
-        console.error("❌ Erreur validation code promo:", promoError)
-        return NextResponse.json({ 
-          error: 'Erreur lors de la validation du code promo',
-          details: promoError.message
-        }, { status: 400 })
       }
     }
 

@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Check, Zap, Crown, Sparkles, TrendingUp, Globe, BarChart3, Palette, Link as LinkIcon, Shield } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { PromoCodeField } from "@/components/ui-pro/promo-code-field"
 
 // 🔗 STRIPE PAYMENT LINKS - Liens directs vers les pages de paiement Stripe
 const STRIPE_PAYMENT_LINKS = {
@@ -16,33 +15,7 @@ const STRIPE_PAYMENT_LINKS = {
 
 export default function UpgradePage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
-  const [promoCode, setPromoCode] = useState("")
-  const [promoData, setPromoData] = useState<any>(null)
   const [isUpgrading, setIsUpgrading] = useState(false)
-  
-  const handlePromoValidation = (isValid: boolean, data?: any) => {
-    if (isValid && data) {
-      setPromoData(data)
-    } else {
-      setPromoData(null)
-    }
-  }
-
-  // Vérifier si le code promo s'applique à un plan donné
-const isPromoValidForPlan = (planName: string) => {
-    if (!promoData?.valid) return false
-    
-    // Mapper les noms de plans interface vers Prisma
-    // Les seuls plans valides sont : FREE, PRO, ELITE
-    const planMapping: Record<string, string> = {
-      "Free": "FREE",
-      "Pro": "PRO",
-      "Elite": "ELITE"
-    }
-    
-    const prismaName = planMapping[planName]
-    return promoData.plan === prismaName
-  }
 
   const handleUpgrade = async (planName: string) => {
     if (planName === "Free") return // Ne rien faire pour le plan Free
@@ -87,7 +60,6 @@ const isPromoValidForPlan = (planName: string) => {
       console.log("🚀 Création de la session Stripe Checkout...")
       console.log("   - Plan:", planValue)
       console.log("   - Cycle:", billingCycle)
-      console.log("   - Code promo:", promoData?.valid ? promoCode : "aucun")
       
       // ✅ Créer une session Stripe Checkout avec le cycle de facturation
       const response = await fetch("/api/stripe/create-checkout-session", {
@@ -95,8 +67,7 @@ const isPromoValidForPlan = (planName: string) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           plan: planValue,
-          billingCycle: billingCycle, // 'monthly' ou 'yearly'
-          promoCode: promoData?.valid ? promoCode : null 
+          billingCycle: billingCycle // 'monthly' ou 'yearly'
         })
       })
 
@@ -254,26 +225,6 @@ const isPromoValidForPlan = (planName: string) => {
           </motion.div>
         </div>
 
-        {/* Code Promo Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="max-w-2xl mx-auto mb-12"
-        >
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 mb-6">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">💎 Tu as un code promo ?</h3>
-              <p className="text-sm text-gray-600">Saisis-le pour bénéficier d'avantages exclusifs</p>
-            </div>
-            <PromoCodeField 
-              value={promoCode}
-              onChange={setPromoCode}
-              onValidation={handlePromoValidation}
-            />
-          </div>
-        </motion.div>
-
         {/* Plans Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => (
@@ -327,60 +278,30 @@ const isPromoValidForPlan = (planName: string) => {
                   </div>
                 ) : (
                   <>
-                    {/* Afficher réduction si code promo valide pour ce plan */}
-                    {isPromoValidForPlan(plan.name) && promoData?.type === "plan_upgrade" ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-green-500" />
-                          <span className="text-sm font-bold text-green-600">Code promo appliqué !</span>
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className={`text-3xl font-bold line-through opacity-50 ${
-                            plan.name === "Elite"
-                              ? "text-gray-600"
-                              : plan.highlight ? "text-white/60" : "text-gray-600"
-                          }`}>
-                            {billingCycle === "monthly" ? plan.price.toFixed(2) : (plan.yearlyPrice / 12).toFixed(2)}€
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <span className={`text-5xl font-black ${
-                            plan.name === "Elite"
-                              ? "text-green-600"
-                              : plan.highlight ? "text-white" : "text-green-600"
-                          }`}>
-                            GRATUIT
-                          </span>
-                        </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className={`text-5xl font-black ${
+                        plan.name === "Elite"
+                          ? "text-gray-900"
+                          : plan.highlight ? "text-white" : "text-gray-900"
+                      }`}>
+                        {billingCycle === "monthly" ? plan.price.toFixed(2) : (plan.yearlyPrice / 12).toFixed(2)}€
+                      </span>
+                      <span className={`text-lg ${
+                        plan.name === "Elite"
+                          ? "text-gray-900"
+                          : plan.highlight ? "text-white/80" : "text-gray-600"
+                      }`}>
+                        /mois
+                      </span>
+                    </div>
+                    {billingCycle === "yearly" && (
+                      <div className={`text-sm mt-1 ${
+                        plan.name === "Elite"
+                          ? "text-gray-900"
+                          : plan.highlight ? "text-white/80" : "text-gray-600"
+                      }`}>
+                        {plan.yearlyPrice}€ facturé annuellement
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex items-baseline gap-2">
-                          <span className={`text-5xl font-black ${
-                            plan.name === "Elite"
-                              ? "text-gray-900"
-                              : plan.highlight ? "text-white" : "text-gray-900"
-                          }`}>
-                            {billingCycle === "monthly" ? plan.price.toFixed(2) : (plan.yearlyPrice / 12).toFixed(2)}€
-                          </span>
-                          <span className={`text-lg ${
-                            plan.name === "Elite"
-                              ? "text-gray-900"
-                              : plan.highlight ? "text-white/80" : "text-gray-600"
-                          }`}>
-                            /mois
-                          </span>
-                        </div>
-                        {billingCycle === "yearly" && (
-                          <div className={`text-sm mt-1 ${
-                            plan.name === "Elite"
-                              ? "text-gray-900"
-                              : plan.highlight ? "text-white/80" : "text-gray-600"
-                          }`}>
-                            {plan.yearlyPrice}€ facturé annuellement
-                          </div>
-                        )}
-                      </>
                     )}
                   </>
                 )}
@@ -393,8 +314,6 @@ const isPromoValidForPlan = (planName: string) => {
                 className={`w-full py-4 rounded-xl font-bold text-lg mb-8 transition-all ${
                   plan.current
                     ? "bg-gray-200 text-gray-600 cursor-not-allowed"
-                    : isPromoValidForPlan(plan.name) && promoData?.type === "plan_upgrade"
-                    ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl hover:scale-105"
                     : plan.highlight
                     ? "bg-white text-gray-800 hover:bg-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
                     : "bg-gradient-to-r from-gray-800 to-black text-white hover:shadow-lg hover:scale-105"
@@ -405,8 +324,6 @@ const isPromoValidForPlan = (planName: string) => {
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                     Activation...
                   </span>
-                ) : isPromoValidForPlan(plan.name) && promoData?.type === "plan_upgrade" ? (
-                  `🎉 Activer ${plan.name} GRATUIT`
                 ) : (
                   plan.cta
                 )}

@@ -33,12 +33,6 @@ export default function SignupPage() {
   
   // 🎯 CODE DE PARRAINAGE - Récupérer du localStorage
   const [referralCode, setReferralCode] = useState<string | null>(null)
-  
-  // 🎯 CODE PROMO - SYSTÈME SIMPLIFIÉ
-  const [promoCode, setPromoCode] = useState("")
-  const [isCheckingPromo, setIsCheckingPromo] = useState(false)
-  const [promoValid, setPromoValid] = useState<boolean | null>(null)
-  const [promoDetails, setPromoDetails] = useState<any>(null)
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -61,70 +55,19 @@ export default function SignupPage() {
     }
   }, [])
 
-  // 🔍 VÉRIFIER LE CODE PROMO
-  const checkPromoCode = async () => {
-    if (!promoCode.trim()) {
-      toast.error("Entrez un code promo")
-      return
-    }
-
-    setIsCheckingPromo(true)
-    setPromoValid(null)
-    setPromoDetails(null)
-
-    console.log("🔍 Vérification code promo:", promoCode.trim().toUpperCase())
-
-    try {
-      const res = await fetch("/api/promo-codes/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode.trim().toUpperCase() })
-      })
-
-      const data = await res.json()
-      console.log("📥 Réponse validation:", data)
-
-      if (data.valid) {
-        setPromoValid(true)
-        setPromoDetails(data)
-        toast.success(`✅ Code "${data.code}" valide : ${data.discount}`, {
-          duration: 3000
-        })
-      } else {
-        setPromoValid(false)
-        setPromoDetails(null)
-        toast.error(data.error || "Code promo invalide")
-      }
-    } catch (error) {
-      console.error("❌ Erreur vérification:", error)
-      setPromoValid(false)
-      setPromoDetails(null)
-      toast.error("Erreur lors de la vérification")
-    } finally {
-      setIsCheckingPromo(false)
-    }
-  }
-
   // 📝 INSCRIPTION
   async function onSubmit(values: SignupInput) {
     setIsLoading(true)
     
     try {
-      console.log("📤 Début inscription:", {
-        hasPromo: promoValid,
-        promoCode: promoCode.trim().toUpperCase()
-      })
+      console.log("📤 Début inscription")
 
-      // Choisir l'endpoint selon si code promo valide ou non
-      const endpoint = promoValid ? "/api/promo-codes/apply" : "/api/auth/signup"
-      
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          ...(promoValid && { promoCode: promoCode.trim().toUpperCase() }),
-          ...(referralCode && { referralCode }) // 🎯 AJOUTÉ - Envoyer le code de parrainage
+          ...(referralCode && { referralCode }) // 🎯 Envoyer le code de parrainage si présent
         }),
       })
 
@@ -136,15 +79,9 @@ export default function SignupPage() {
       }
 
       // Message de succès
-      if (promoValid && data.promoApplied) {
-        toast.success(`🎉 Compte créé avec code promo ${data.promoCode} (${data.discount}) !`, {
-          duration: 4000
-        })
-      } else {
-        toast.success("✅ Compte créé avec succès !", {
-          duration: 3000
-        })
-      }
+      toast.success("✅ Compte créé avec succès !", {
+        duration: 3000
+      })
       
       // 🎯 NETTOYER le code de parrainage après inscription
       if (referralCode) {
@@ -299,63 +236,6 @@ export default function SignupPage() {
                   <p className="text-sm text-danger-600 mt-2 font-medium">
                   {form.formState.errors.password.message}
                 </p>
-              )}
-            </div>
-
-            {/* 🎯 CODE PROMO - NOUVEAU DESIGN SIMPLIFIÉ */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 block">
-                Code promo (optionnel)
-              </Label>
-              
-              <div className="flex gap-2">
-                <Input
-                  value={promoCode}
-                  onChange={(e) => {
-                    setPromoCode(e.target.value.toUpperCase())
-                    setPromoValid(null)
-                    setPromoDetails(null)
-                  }}
-                  placeholder="Entrez votre code"
-                  disabled={isCheckingPromo}
-                  className="h-12 px-4 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors uppercase"
-                />
-                <Button
-                  type="button"
-                  onClick={checkPromoCode}
-                  disabled={!promoCode.trim() || isCheckingPromo}
-                  className="h-12 px-6 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50"
-                >
-                  {isCheckingPromo ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    "Vérifier"
-                  )}
-                </Button>
-              </div>
-
-              {/* État du code promo */}
-              {promoValid === true && promoDetails && (
-                <div className="flex items-center gap-2 p-3 bg-green-50 border-2 border-green-500 rounded-xl">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-green-900">
-                      Code valide : {promoDetails.code}
-                    </p>
-                    <p className="text-xs text-green-700">
-                      {promoDetails.discount} • {promoDetails.description}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {promoValid === false && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border-2 border-red-500 rounded-xl">
-                  <X className="w-5 h-5 text-red-600 flex-shrink-0" />
-                  <p className="text-sm font-semibold text-red-900">
-                    Code invalide ou expiré
-                  </p>
-                </div>
               )}
             </div>
 
