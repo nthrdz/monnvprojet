@@ -31,12 +31,28 @@ async function syncStripePayments() {
     // 1. Récupérer tous les checkout sessions réussis
     console.log("📥 Récupération des paiements Stripe...")
     
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 100,
-      expand: ['data.line_items', 'data.line_items.data.price']
-    })
+    let allSessions = []
+    let hasMore = true
+    let startingAfter = undefined
+    
+    // Récupérer toutes les sessions (pagination)
+    while (hasMore) {
+      const response = await stripe.checkout.sessions.list({
+        limit: 100,
+        starting_after: startingAfter,
+        expand: ['data.line_items', 'data.line_items.data.price']
+      })
+      
+      allSessions = allSessions.concat(response.data)
+      hasMore = response.has_more
+      if (hasMore && response.data.length > 0) {
+        startingAfter = response.data[response.data.length - 1].id
+      }
+    }
 
-    console.log(`✅ ${sessions.data.length} sessions trouvées\n`)
+    console.log(`✅ ${allSessions.length} sessions trouvées\n`)
+    
+    const sessions = { data: allSessions }
 
     let updated = 0
     let alreadyCorrect = 0
@@ -91,12 +107,14 @@ async function syncStripePayments() {
       // 5. Mettre à jour le plan
       console.log(`🔄 ${email}: ${currentPlan} → ${expectedPlan} (${amountPaid}€)`)
       
+      const currentStats = user.profile.stats || {}
+      
       await prisma.profile.update({
         where: { id: user.profile.id },
         data: {
           plan: expectedPlan,
           stats: {
-            ...(user.profile.stats as any || {}),
+            ...currentStats,
             stripeCustomerId: session.customer,
             stripeSubscriptionId: session.subscription,
             lastSyncAt: new Date().toISOString(),
