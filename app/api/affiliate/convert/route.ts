@@ -3,9 +3,9 @@ import { prisma } from '@/lib/db'
 import { stripe, STRIPE_CONFIG } from '@/lib/stripe'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(req: NextRequest) {
+  // Initialiser Resend uniquement si la clé est disponible
+  const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
   try {
     const body = await req.json()
     const { 
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     // Envoyer un email de notification à l'affilié
     try {
       const affiliateEmail = referral.affiliate.user?.email
-      if (affiliateEmail) {
+      if (affiliateEmail && resend) {
         await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
           to: affiliateEmail,

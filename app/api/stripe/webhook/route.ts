@@ -4,8 +4,6 @@ import { prisma } from '@/lib/db'
 import Stripe from 'stripe'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 /**
  * Webhook Stripe pour gérer les événements de paiement
  * 
@@ -15,6 +13,9 @@ const resend = new Resend(process.env.RESEND_API_KEY)
  * - customer.subscription.deleted : Annulation d'abonnement
  */
 export async function POST(req: NextRequest) {
+  // Initialiser Resend uniquement si la clé est disponible
+  const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+  
   console.log("============================================================")
   console.log("🎣 WEBHOOK STRIPE REÇU")
   console.log("============================================================")
@@ -123,7 +124,8 @@ export async function POST(req: NextRequest) {
 
       // 📧 Envoyer un email de confirmation
       try {
-        await resend.emails.send({
+        if (resend) {
+          await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
           to: profile.user.email,
           subject: `🎉 Bienvenue dans Athlink ${plan} !`,
@@ -212,6 +214,7 @@ export async function POST(req: NextRequest) {
           `
         })
         console.log("📧 Email de confirmation envoyé à:", profile.user.email)
+        }
       } catch (emailError) {
         console.error("❌ Erreur envoi email:", emailError)
         // On continue même si l'email échoue
@@ -261,7 +264,8 @@ export async function POST(req: NextRequest) {
         
         // Envoyer un email
         try {
-          await resend.emails.send({
+          if (resend) {
+            await resend.emails.send({
             from: 'Athlink <notifications@athlink.fr>',
             to: profile.user.email,
             subject: 'Votre abonnement Athlink a été annulé',
@@ -273,6 +277,7 @@ export async function POST(req: NextRequest) {
               <p><a href="${process.env.NEXTAUTH_URL}/dashboard/upgrade">Réabonnez-vous</a></p>
             `
           })
+          }
         } catch (emailError) {
           console.error("❌ Erreur envoi email annulation:", emailError)
         }

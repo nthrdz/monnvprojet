@@ -3,12 +3,12 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // Email admin autorisés (à adapter selon vos besoins)
 const ADMIN_EMAILS = ['contact@athlink.fr', 'admin@athlink.fr']
 
 export async function POST(req: NextRequest) {
+  // Initialiser Resend uniquement si la clé est disponible
+  const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
   try {
     const session = await auth()
     
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     // Envoyer un email de confirmation à l'affilié
     try {
       const userEmail = affiliate.user.email
-      if (userEmail) {
+      if (userEmail && resend) {
         await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
           to: userEmail,

@@ -3,9 +3,9 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(req: NextRequest) {
+  // Initialiser Resend uniquement si la clé est disponible
+  const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
   try {
     const session = await auth()
     
@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
 
     // Envoyer un email de notification à l'admin
     try {
-      await resend.emails.send({
+      if (resend) {
+        await resend.emails.send({
         from: 'Athlink <notifications@athlink.fr>',
         to: 'contact@athlink.fr',
         replyTo: session.user.email,
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
           </html>
         `
       })
+      }
     } catch (emailError) {
       console.error('Erreur envoi email:', emailError)
       // On continue même si l'email échoue
@@ -144,7 +146,8 @@ export async function POST(req: NextRequest) {
 
     // Envoyer un email de confirmation au candidat
     try {
-      await resend.emails.send({
+      if (resend) {
+        await resend.emails.send({
         from: 'Athlink <notifications@athlink.fr>',
         to: session.user.email,
         subject: '✅ Votre candidature ambassadeur Athlink a été reçue',
@@ -206,6 +209,7 @@ export async function POST(req: NextRequest) {
           </html>
         `
       })
+      }
     } catch (emailError) {
       console.error('Erreur envoi email confirmation:', emailError)
     }
