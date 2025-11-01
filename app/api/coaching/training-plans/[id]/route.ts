@@ -103,7 +103,7 @@ export async function PUT(
       }
     }
 
-    // Gérer le fichier PDF - Version corrigée
+    // Gérer le fichier PDF
     let pdfFileName: string | undefined = plans[planIndex].pdfFileName
     if (pdfFile) {
       pdfFileName = (pdfFile as File).name
