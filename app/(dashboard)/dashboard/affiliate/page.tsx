@@ -13,9 +13,11 @@ export default function AffiliatePage() {
 
   useEffect(() => {
     // Générer le lien d'affilié basé sur le username
-    if (session?.user?.username) {
+    if (session?.user) {
+      // @ts-ignore - username existe dans notre session personnalisée
+      const username = session.user.username || session.user.email?.split('@')[0]
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://athlink.fr'
-      setAffiliateLink(`${baseUrl}/?via=${session.user.username}`)
+      setAffiliateLink(`${baseUrl}/?via=${username}`)
     }
   }, [session])
 
