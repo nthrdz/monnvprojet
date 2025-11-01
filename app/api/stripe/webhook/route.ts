@@ -273,6 +273,160 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 🎯 ÉVÉNEMENT : Abonnement créé (même en trial)
+    else if (event.type === 'customer.subscription.created') {
+      const subscription = event.data.object as Stripe.Subscription
+      
+      console.log("🆕 Nouvel abonnement créé !")
+      console.log("   - Subscription ID:", subscription.id)
+      console.log("   - Customer:", subscription.customer)
+      console.log("   - Status:", subscription.status)
+      console.log("   - Trial End:", subscription.trial_end ? new Date(subscription.trial_end * 1000).toLocaleString('fr-FR') : 'Aucun')
+      
+      // Récupérer le customer pour obtenir l'email
+      const customer = await stripe.customers.retrieve(subscription.customer as string)
+      const customerEmail = (customer as Stripe.Customer).email
+      
+      if (!customerEmail) {
+        console.error("❌ Pas d'email pour le customer:", subscription.customer)
+        return NextResponse.json({ error: 'No customer email' }, { status: 400 })
+      }
+      
+      console.log("   - Email:", customerEmail)
+      
+      // Trouver l'utilisateur par email
+      const user = await prisma.user.findUnique({
+        where: { email: customerEmail },
+        include: { profile: true }
+      })
+      
+      if (!user || !user.profile) {
+        console.error("❌ Utilisateur non trouvé pour l'email:", customerEmail)
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+      
+      console.log("✅ Utilisateur trouvé:", user.email)
+      
+      // Identifier le plan par le Price ID de l'abonnement
+      const priceId = subscription.items.data[0]?.price?.id
+      console.log("💰 Price ID:", priceId)
+      
+      // Mapper Price ID vers Plan
+      const priceIdMapping: Record<string, string> = {
+        [process.env.STRIPE_PRICE_ID_ELITE_MONTHLY || '']: 'ELITE',
+        [process.env.STRIPE_PRICE_ID_ELITE_YEARLY || '']: 'ELITE',
+        [process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '']: 'PRO',
+        [process.env.STRIPE_PRICE_ID_PRO_YEARLY || '']: 'PRO',
+      }
+      
+      const plan = priceId ? priceIdMapping[priceId] : undefined
+      
+      if (!plan) {
+        console.error("❌ Plan non identifié pour Price ID:", priceId)
+        return NextResponse.json({ error: 'Unknown price ID' }, { status: 400 })
+      }
+      
+      console.log("✅ Plan identifié:", plan)
+      
+      // Préparer les données de mise à jour
+      const stats = user.profile.stats as any || {}
+      const updateData: any = {
+        plan: plan as any,
+        stats: {
+          ...stats,
+          stripeCustomerId: subscription.customer as string,
+          stripeSubscriptionId: subscription.id,
+          subscriptionStatus: subscription.status,
+          trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+          activatedAt: new Date().toISOString(),
+        }
+      }
+      
+      // 🎯 METTRE À JOUR LE PLAN DE L'UTILISATEUR (MÊME EN TRIAL !)
+      await prisma.profile.update({
+        where: { userId: user.id },
+        data: updateData
+      })
+      
+      console.log("✅✅✅ PLAN ACTIVÉ (TRIAL OU PAYANT) ! ✅✅✅")
+      console.log("   - Utilisateur:", user.id)
+      console.log("   - Nouveau plan:", plan)
+      console.log("   - Status:", subscription.status)
+      console.log("   - Trial:", subscription.status === 'trialing' ? 'OUI' : 'NON')
+      
+      // 📧 Envoyer un email de confirmation
+      try {
+        if (resend) {
+          const trialMessage = subscription.status === 'trialing' && subscription.trial_end
+            ? `<div class="feature" style="background: #d1ecf1; border-left-color: #0c5460;">
+                <h3 style="margin-top: 0; color: #0c5460;">🎁 Période d'essai activée</h3>
+                <p style="margin: 0; color: #0c5460;">Profitez gratuitement de toutes les fonctionnalités jusqu'au ${new Date(subscription.trial_end * 1000).toLocaleDateString('fr-FR')} !</p>
+              </div>`
+            : ''
+          
+          await resend.emails.send({
+            from: 'Athlink <notifications@athlink.fr>',
+            to: user.email,
+            subject: `🎉 Bienvenue dans Athlink ${plan} !`,
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+                    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .success-box { background: #d4edda; border: 2px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                    .feature { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #667eea; }
+                    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <h1 style="margin: 0;">🎉 Bienvenue dans Athlink ${plan} !</h1>
+                    </div>
+                    <div class="content">
+                      <p>Bonjour ${user.profile.displayName},</p>
+                      
+                      <div class="success-box">
+                        <h2 style="margin: 0 0 10px 0; color: #155724;">✅ Abonnement activé !</h2>
+                        <p style="margin: 0; color: #155724;">Votre plan <strong>${plan}</strong> est maintenant actif</p>
+                      </div>
+                      
+                      ${trialMessage}
+                      
+                      <h3 style="color: #667eea;">🚀 Vos nouvelles fonctionnalités</h3>
+                      
+                      <div class="feature">
+                        <strong>✅ Accès complet</strong>
+                        <p style="margin: 5px 0 0 0; color: #666;">Toutes les fonctionnalités ${plan} disponibles immédiatement</p>
+                      </div>
+                      
+                      <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.NEXTAUTH_URL}/dashboard" 
+                           style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                          Accéder à mon dashboard
+                        </a>
+                      </div>
+                    </div>
+                    <div class="footer">
+                      <p>Athlink - Plateforme de gestion pour athlètes</p>
+                      <p>contact@athlink.fr</p>
+                    </div>
+                  </div>
+                </body>
+              </html>
+            `
+          })
+          console.log("📧 Email de confirmation envoyé à:", user.email)
+        }
+      } catch (emailError) {
+        console.error("❌ Erreur envoi email:", emailError)
+      }
+    }
+
     // 🎯 ÉVÉNEMENT : Renouvellement d'abonnement
     else if (event.type === 'invoice.payment_succeeded') {
       const invoice = event.data.object as Stripe.Invoice
