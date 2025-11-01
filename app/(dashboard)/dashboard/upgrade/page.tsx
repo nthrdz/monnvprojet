@@ -6,6 +6,14 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { PromoCodeField } from "@/components/ui-pro/promo-code-field"
 
+// 🔗 STRIPE PAYMENT LINKS - Liens directs vers les pages de paiement Stripe
+const STRIPE_PAYMENT_LINKS = {
+  ELITE_MONTHLY: "https://buy.stripe.com/00w6oH9iSgu3fbL7WdeQM00",
+  ELITE_YEARLY: null, // À configurer plus tard
+  PRO_MONTHLY: null,  // À configurer plus tard
+  PRO_YEARLY: null,   // À configurer plus tard
+}
+
 export default function UpgradePage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
   const [promoCode, setPromoCode] = useState("")
@@ -42,6 +50,32 @@ const isPromoValidForPlan = (planName: string) => {
     setIsUpgrading(true)
     
     try {
+      // 🔗 NOUVEAU : Vérifier si un Payment Link existe pour ce plan + cycle
+      let paymentLink: string | null = null
+      
+      if (planName === "Elite" && billingCycle === "monthly") {
+        paymentLink = STRIPE_PAYMENT_LINKS.ELITE_MONTHLY
+      } else if (planName === "Elite" && billingCycle === "yearly") {
+        paymentLink = STRIPE_PAYMENT_LINKS.ELITE_YEARLY
+      } else if (planName === "Pro" && billingCycle === "monthly") {
+        paymentLink = STRIPE_PAYMENT_LINKS.PRO_MONTHLY
+      } else if (planName === "Pro" && billingCycle === "yearly") {
+        paymentLink = STRIPE_PAYMENT_LINKS.PRO_YEARLY
+      }
+      
+      // ✅ Si Payment Link existe, rediriger directement
+      if (paymentLink) {
+        console.log("🚀 Redirection vers Stripe Payment Link...")
+        console.log("   - Plan:", planName)
+        console.log("   - Cycle:", billingCycle)
+        console.log("   - Lien:", paymentLink)
+        window.location.href = paymentLink
+        return
+      }
+      
+      // ⚠️ Sinon, utiliser l'ancienne méthode API (pour les liens non configurés)
+      console.log("⚠️ Payment Link non configuré, utilisation de l'API...")
+      
       // Mapper les noms de plans vers les valeurs Prisma
       const planMapping: Record<string, string> = {
         "Pro": "PRO",
@@ -55,7 +89,7 @@ const isPromoValidForPlan = (planName: string) => {
       console.log("   - Cycle:", billingCycle)
       console.log("   - Code promo:", promoData?.valid ? promoCode : "aucun")
       
-      // ✅ NOUVEAU : Créer une session Stripe Checkout avec le cycle de facturation
+      // ✅ Créer une session Stripe Checkout avec le cycle de facturation
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
