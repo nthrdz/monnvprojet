@@ -57,11 +57,12 @@ export async function POST(req: NextRequest) {
       console.log("💰 Checkout session complété !")
       console.log("   - Session ID:", session.id)
       console.log("   - Customer:", session.customer)
+      console.log("   - Customer Email:", session.customer_email)
       console.log("   - Amount:", session.amount_total ? session.amount_total / 100 : 0, "€")
       
-      const userId = session.metadata?.userId
+      let userId = session.metadata?.userId
       const profileId = session.metadata?.profileId
-      const plan = session.metadata?.plan
+      let plan = session.metadata?.plan
       const promoCode = session.metadata?.promoCode
 
       console.log("📋 Metadata:")
@@ -70,9 +71,60 @@ export async function POST(req: NextRequest) {
       console.log("   - Plan:", plan)
       console.log("   - Promo Code:", promoCode || "aucun")
 
+      // 🔍 Si pas de metadata (Payment Link), identifier par email et price
       if (!userId || !plan) {
-        console.error("❌ Metadata manquantes dans la session")
-        return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
+        console.log("⚠️ Pas de metadata - Identification par email et Price ID...")
+        
+        if (!session.customer_email) {
+          console.error("❌ Impossible d'identifier l'utilisateur (pas d'email)")
+          return NextResponse.json({ error: 'Missing customer email' }, { status: 400 })
+        }
+
+        // Trouver l'utilisateur par email
+        const user = await prisma.user.findUnique({
+          where: { email: session.customer_email },
+          include: { profile: true }
+        })
+
+        if (!user || !user.profile) {
+          console.error("❌ Utilisateur non trouvé pour l'email:", session.customer_email)
+          return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+
+        userId = user.id
+        console.log("✅ Utilisateur identifié par email:", user.email)
+
+        // Identifier le plan par le Price ID
+        // Récupérer les line_items car Stripe ne les inclut pas par défaut dans le webhook
+        const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+          expand: ['line_items', 'line_items.data.price']
+        })
+
+        if (fullSession.line_items && fullSession.line_items.data.length > 0) {
+          const priceId = fullSession.line_items.data[0].price?.id
+          console.log("💰 Price ID:", priceId)
+
+          // Mapper Price ID vers Plan
+          const priceIdMapping: Record<string, string> = {
+            [process.env.STRIPE_PRICE_ID_ELITE_MONTHLY || '']: 'ELITE',
+            [process.env.STRIPE_PRICE_ID_ELITE_YEARLY || '']: 'ELITE',
+            [process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '']: 'PRO',
+            [process.env.STRIPE_PRICE_ID_PRO_YEARLY || '']: 'PRO',
+          }
+
+          plan = priceId ? priceIdMapping[priceId] : undefined
+
+          if (!plan) {
+            console.error("❌ Plan non identifié pour Price ID:", priceId)
+            console.error("❌ Price IDs configurés:", Object.keys(priceIdMapping).filter(k => k))
+            return NextResponse.json({ error: 'Unknown price ID' }, { status: 400 })
+          }
+
+          console.log("✅ Plan identifié:", plan)
+        } else {
+          console.error("❌ Pas de line_items dans la session")
+          return NextResponse.json({ error: 'No line items' }, { status: 400 })
+        }
       }
 
       // Récupérer le profil
