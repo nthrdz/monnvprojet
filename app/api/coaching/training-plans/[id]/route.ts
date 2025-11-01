@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 
+// Build timestamp: 2025-11-01T17:40:00Z - Force Vercel rebuild
+
 export async function GET(
   request: NextRequest,
   context: any
