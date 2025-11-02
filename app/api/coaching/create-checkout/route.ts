@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })
     }
 
+    if (!coachProfile) {
+      return NextResponse.json({ error: "Coach non trouvé" }, { status: 404 })
+    }
+
     if (!targetPlan.pdfFileUrl) {
       return NextResponse.json({ error: "Aucun PDF disponible pour ce plan" }, { status: 404 })
     }
