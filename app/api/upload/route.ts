@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { supabase } from "@/lib/supabase"
 import { prisma } from "@/lib/db"
-import sharp from "sharp"
+
+// Import Sharp de manière conditionnelle pour éviter les erreurs Turbopack
+let sharp: any = null
+try {
+  sharp = require("sharp")
+} catch (error) {
+  console.warn("⚠️ Sharp non disponible, compression d'images désactivée")
+}
 
 // Configuration de la route - IMPORTANT : forcer nodejs pour les uploads
 export const runtime = "nodejs"
@@ -101,10 +108,9 @@ export async function POST(req: NextRequest) {
 
     // Optimize image quality for avatars and covers (not videos)
     // Resize to very high resolution (2000px) with maximum quality
-    if (!isVideo && (type === "avatar" || type === "cover")) {
+    if (!isVideo && (type === "avatar" || type === "cover") && sharp) {
       try {
         const targetSize = type === "avatar" ? 2000 : 2400
-        // @ts-ignore - Sharp type issue with Buffer
         buffer = await sharp(buffer)
           .resize(targetSize, type === "avatar" ? 2000 : 800, {
             fit: 'cover',
@@ -117,10 +123,12 @@ export async function POST(req: NextRequest) {
         // If sharp fails, use original buffer
         console.warn("Sharp optimization failed, using original:", sharpError)
       }
+    } else if (!isVideo && (type === "avatar" || type === "cover") && !sharp) {
+      console.warn("⚠️ Sharp non disponible, upload de l'image originale sans optimisation")
     }
 
     // Generate unique filename
-    const fileExt = type === "avatar" || type === "cover" ? "png" : file.name.split('.').pop()
+    const fileExt = (type === "avatar" || type === "cover") && sharp ? "png" : file.name.split('.').pop()
     const fileName = `${profile.id}-${type}-${Date.now()}.${fileExt}`
     const filePath = `${type}s/${fileName}`
 
@@ -128,7 +136,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase.storage
       .from('athlink-images')
       .upload(filePath, buffer, {
-        contentType: type === "avatar" || type === "cover" ? "image/png" : file.type,
+        contentType: (type === "avatar" || type === "cover") && sharp ? "image/png" : file.type,
         upsert: true,
         cacheControl: '31536000' // Cache 1 an
       })
