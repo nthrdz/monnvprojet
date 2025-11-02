@@ -259,19 +259,19 @@ export default function AffiliatePage() {
                 Dashboard complet Rewardful
               </h3>
               <p className="text-white/80 mb-4">
-                Accède à ton dashboard Rewardful pour voir toutes tes statistiques en temps réel, gérer tes paiements et suivre tes conversions.
+                Inscris-toi sur Rewardful pour suivre tes statistiques en temps réel, gérer tes paiements et accéder à ton dashboard affilié complet.
               </p>
               <a
-                href="https://app.getrewardful.com/login"
+                href="https://nathan-rodriguez.getrewardful.com/signup"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
               >
-                Accéder à Rewardful
+                S'inscrire comme affilié
                 <ExternalLink className="w-4 h-4" />
               </a>
               <p className="text-white/60 text-sm mt-3">
-                💡 Connecte-toi avec l'email de ton compte Athlink pour accéder à tes stats
+                💡 Déjà inscrit ? <a href="https://app.getrewardful.com/login" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Connecte-toi ici</a>
               </p>
             </div>
           </div>
