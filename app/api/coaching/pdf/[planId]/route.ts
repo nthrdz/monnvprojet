@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
-import { readFile } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
 
 interface AccessTokenPayload {
   planId: string
@@ -55,35 +52,15 @@ export async function GET(
       }
     }
 
-    if (!targetPlan || !targetPlan.pdfFileName) {
+    if (!targetPlan || !targetPlan.pdfFileUrl) {
       return NextResponse.json({ error: "PDF non trouvé" }, { status: 404 })
     }
 
-    // Construire le chemin du fichier
-    const fileName = String(targetPlan.pdfFileName)
-    const filePath = join(
-      process.cwd(),
-      'public',
-      'uploads',
-      'coaching',
-      String(coachProfileId),
-      fileName
-    )
+    // Le fichier est sur Supabase, rediriger vers l'URL
+    const pdfUrl = targetPlan.pdfFileUrl
 
-    if (!existsSync(filePath)) {
-      return NextResponse.json({ error: "Fichier PDF non trouvé sur le serveur" }, { status: 404 })
-    }
-
-    // Lire et servir le fichier
-    const fileBuffer = await readFile(filePath)
-
-    return new NextResponse(new Uint8Array(fileBuffer) as any, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${targetPlan.title}.pdf"`,
-        'Cache-Control': 'private, max-age=3600' // Cache 1h
-      }
-    })
+    // Rediriger vers l'URL Supabase
+    return NextResponse.redirect(pdfUrl, { status: 302 })
 
   } catch (error) {
     console.error("Erreur lors du service du PDF:", error)

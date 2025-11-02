@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import { existsSync } from "fs"
+import { supabase } from "@/lib/supabase"
 
 // Configuration pour permettre l'upload de fichiers jusqu'à 50MB
 export const runtime = 'nodejs'
@@ -35,6 +33,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 })
     }
 
+    // Vérifier que Supabase est configuré
+    if (!supabase) {
+      console.error("❌ Supabase non configuré")
+      return NextResponse.json({ 
+        error: "Service de stockage non configuré. Veuillez contacter l'administrateur." 
+      }, { status: 500 })
+    }
+
     const formData = await request.formData()
     const pdfFile = formData.get('pdfFile') as File | null
     const planId = formData.get('planId') as string
@@ -57,37 +63,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Le fichier est trop volumineux (max 50MB)" }, { status: 400 })
     }
 
-    // Créer le dossier de stockage s'il n'existe pas
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'coaching', profile.id)
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
     // Générer un nom de fichier unique
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 15)
     const fileName = `plan_${planId}_${timestamp}_${randomString}.pdf`
-    const filePath = join(uploadDir, fileName)
+    const filePath = `coaching/${profile.id}/${fileName}`
 
-    // Sauvegarder le fichier
+    // Convertir le fichier en buffer
     const bytes = await pdfFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
 
-    // Générer l'URL publique
-    const publicUrl = `/uploads/coaching/${profile.id}/${fileName}`
+    // Upload vers Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('athlink-images')
+      .upload(filePath, buffer, {
+        contentType: 'application/pdf',
+        upsert: false,
+        cacheControl: '31536000' // Cache 1 an
+      })
+
+    if (error) {
+      console.error("Erreur Supabase upload:", error)
+      return NextResponse.json({ 
+        error: `Erreur lors de l'upload: ${error.message}` 
+      }, { status: 500 })
+    }
+
+    // Obtenir l'URL publique
+    const { data: urlData } = supabase.storage
+      .from('athlink-images')
+      .getPublicUrl(filePath)
+
+    const publicUrl = urlData.publicUrl
 
     return NextResponse.json({ 
       success: true, 
       fileName: fileName, // Nom du fichier généré
       originalName: pdfFile.name, // Nom original du fichier
-      fileUrl: publicUrl,
+      fileUrl: publicUrl, // URL Supabase
       fileSize: pdfFile.size
     })
 
   } catch (error) {
     console.error("Erreur lors de l'upload du PDF:", error)
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    return NextResponse.json({ 
+      error: `Erreur serveur: ${error instanceof Error ? error.message : 'Erreur inconnue'}` 
+    }, { status: 500 })
   }
 }
 
