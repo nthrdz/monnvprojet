@@ -46,29 +46,38 @@ export default function AffiliatePage() {
           </p>
         </motion.div>
 
-        {/* Info Box */}
+        {/* Info Box - Commission Info */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 mb-8"
+          className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-2xl p-8 mb-8 shadow-md"
         >
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="w-6 h-6 text-white" />
+            <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+              <TrendingUp className="w-7 h-7 text-white" />
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="flex-1">
+              <h3 className="text-2xl font-black text-gray-900 mb-3 flex items-center gap-2">
                 🎉 Gagne 20% de commission récurrente !
               </h3>
-              <p className="text-gray-700 leading-relaxed">
-                Pour chaque athlète qui s'inscrit via ton lien et passe Pro ou Elite, tu gagnes <strong>20% de commission chaque mois</strong> tant qu'il reste abonné.
+              <p className="text-gray-800 leading-relaxed text-lg mb-4">
+                Pour chaque athlète qui s'inscrit via ton lien et passe Pro ou Elite, tu gagnes <span className="font-bold text-blue-700">20% de commission chaque mois</span> tant qu'il reste abonné.
               </p>
-              <ul className="mt-3 space-y-1 text-gray-600">
-                <li>• Plan Pro (9,90€/mois) = <strong>1,98€/mois</strong> de commission</li>
-                <li>• Plan Elite (25,90€/mois) = <strong>5,18€/mois</strong> de commission</li>
-                <li>• Paiements automatiques chaque mois</li>
-              </ul>
+              <div className="space-y-2 text-gray-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">•</span>
+                  <span>Plan Pro (9,90€/mois) = <strong className="text-blue-700">1,98€/mois</strong> de commission</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">•</span>
+                  <span>Plan Elite (25,90€/mois) = <strong className="text-blue-700">5,18€/mois</strong> de commission</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">•</span>
+                  <span><strong>Paiements automatiques</strong> chaque mois</span>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
