@@ -69,6 +69,7 @@ model Profile {
   
   // Social Links
   instagram       String?
+  twitter         String?
   strava          String?
   youtube         String?
   tiktok          String?

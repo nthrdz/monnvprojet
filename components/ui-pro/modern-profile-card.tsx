@@ -11,6 +11,7 @@ interface ModernProfileCardProps {
   avatarUrl: string | null
   sport: string
   instagram: string | null
+  twitter: string | null
   strava: string | null
   youtube: string | null
   tiktok: string | null
@@ -56,6 +57,7 @@ export function ModernProfileCard({
   avatarUrl,
   sport,
   instagram,
+  twitter,
   strava,
   youtube,
   tiktok,
@@ -71,7 +73,7 @@ export function ModernProfileCard({
   const allSocialIcons = [
     { icon: Instagram, url: instagram ? `https://instagram.com/${instagram}` : null },
     { icon: TikTokIcon, url: tiktok ? `https://tiktok.com/@${tiktok}` : null },
-    { icon: XIcon, url: null },
+    { icon: XIcon, url: twitter ? `https://twitter.com/${twitter}` : null },
     { icon: StravaIcon, url: strava },
     { icon: TelegramIcon, url: null },
     { icon: Youtube, url: youtube },

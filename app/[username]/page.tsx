@@ -131,6 +131,7 @@ export default async function ProfilePage({ params }: Props) {
             avatarUrl={profile.avatarUrl}
             sport={displaySport}
             instagram={profile.instagram}
+            twitter={profile.twitter}
             strava={profile.strava}
             youtube={profile.youtube}
             tiktok={profile.tiktok}
