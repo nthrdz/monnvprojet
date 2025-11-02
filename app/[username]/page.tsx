@@ -47,6 +47,9 @@ export default async function ProfilePage({ params }: Props) {
     notFound()
   }
 
+  // Vérifier si le coaching est activé et visible sur le profil public
+  const showCoaching = (profile as any).showCoachingOnProfile && (profile.plan === "COACH" || profile.plan === "ELITE")
+
   // Logique d'affichage du sport
   let displaySport: string = profile.sport
   
@@ -140,7 +143,7 @@ export default async function ProfilePage({ params }: Props) {
             sponsors={profile.sponsors}
             media={profile.media}
             username={username}
-            hasCoachingServices={profile.plan === "COACH" || profile.plan === "ELITE"}
+            hasCoachingServices={showCoaching}
           />
         </div>
         </div>
