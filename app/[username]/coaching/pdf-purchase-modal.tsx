@@ -41,7 +41,8 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
     setError("")
 
     try {
-      const response = await fetch("/api/coaching/access-pdf", {
+      // Créer une session de paiement Stripe
+      const response = await fetch("/api/coaching/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,18 +54,15 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
 
       const result = await response.json()
 
-      if (result.success) {
-        setPaymentSuccess(true)
-        // Rediriger vers le PDF après 2 secondes
-        setTimeout(() => {
-          window.open(result.pdfUrl, '_blank')
-        }, 2000)
+      if (result.url) {
+        // Rediriger vers Stripe Checkout
+        window.location.href = result.url
       } else {
-        setError(result.error || "Erreur lors du paiement")
+        setError(result.error || "Erreur lors de la création de la session de paiement")
+        setIsProcessing(false)
       }
     } catch (error) {
-      setError("Une erreur est survenue")
-    } finally {
+      setError("Une erreur est survenue lors de la création du paiement")
       setIsProcessing(false)
     }
   }
@@ -128,7 +126,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
                 </p>
                 <div className="bg-green-50 rounded-xl p-4">
                   <p className="text-sm text-green-700">
-                    <strong>Accès valide 24h</strong> - Téléchargez votre PDF maintenant
+                    <strong>Accès illimité</strong> - Téléchargez votre PDF à tout moment
                   </p>
                 </div>
               </motion.div>
@@ -149,7 +147,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
                     <span className="text-sm text-gray-500">Coach: {coachName}</span>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-primary-blue-600">{plan.price}€</div>
-                      <div className="text-xs text-gray-500">Accès 24h</div>
+                      <div className="text-xs text-gray-500">Accès illimité</div>
                     </div>
                   </div>
                 </div>
@@ -214,10 +212,10 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
                 <div className="bg-blue-50 rounded-xl p-4 mb-6">
                   <div className="flex items-center gap-2 mb-2">
                     <CreditCard className="w-4 h-4 text-primary-blue-600" />
-                    <span className="text-sm font-medium text-primary-blue-700">Paiement Sécurisé</span>
+                    <span className="text-sm font-medium text-primary-blue-700">Paiement Sécurisé par Stripe</span>
                   </div>
                   <p className="text-xs text-blue-600">
-                    Mode démo - Le paiement est simulé. En production, Stripe sera intégré.
+                    Vous serez redirigé vers la page de paiement sécurisée Stripe. Le PDF vous sera envoyé par email après le paiement.
                   </p>
                 </div>
 
