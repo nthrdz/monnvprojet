@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { toast } from "sonner"
 import { 
   Target, 
   Calendar, 
@@ -16,6 +17,7 @@ import {
   ArrowRight,
   Plus,
   Eye,
+  EyeOff,
   Settings,
   Star,
   Award,
@@ -40,11 +42,20 @@ interface CoachingDashboardClientProps {
   profileId: string
   coachName: string
   username: string
+  showCoachingOnProfile: boolean
 }
 
-export function CoachingDashboardClient({ initialStats, profileId, coachName, username }: CoachingDashboardClientProps) {
+export function CoachingDashboardClient({ 
+  initialStats, 
+  profileId, 
+  coachName, 
+  username, 
+  showCoachingOnProfile: initialShowCoaching 
+}: CoachingDashboardClientProps) {
   const [stats, setStats] = useState<DashboardStats>(initialStats)
   const [isLoading, setIsLoading] = useState(false)
+  const [showCoachingOnProfile, setShowCoachingOnProfile] = useState(initialShowCoaching)
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false)
 
   // Simuler le rechargement des stats
   const refreshStats = async () => {
@@ -52,6 +63,37 @@ export function CoachingDashboardClient({ initialStats, profileId, coachName, us
     // Simuler un délai de chargement
     await new Promise(resolve => setTimeout(resolve, 1000))
     setIsLoading(false)
+  }
+
+  // Toggle visibilité sur profil public
+  const toggleCoachingVisibility = async () => {
+    setIsTogglingVisibility(true)
+    
+    try {
+      const response = await fetch('/api/profile/toggle-coaching-visibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          profileId,
+          showCoachingOnProfile: !showCoachingOnProfile 
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour')
+      }
+
+      setShowCoachingOnProfile(!showCoachingOnProfile)
+      toast.success(
+        !showCoachingOnProfile 
+          ? '✅ Coaching affiché sur ton profil public' 
+          : '👁️ Coaching masqué de ton profil public'
+      )
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour')
+    } finally {
+      setIsTogglingVisibility(false)
+    }
   }
 
   const serviceCards = [
@@ -165,6 +207,60 @@ export function CoachingDashboardClient({ initialStats, profileId, coachName, us
 
   return (
     <div className="space-y-8">
+      {/* Toggle Visibilité Coaching */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl shadow-sm p-6 border border-yellow-200"
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              {showCoachingOnProfile ? (
+                <Eye className="w-5 h-5 text-yellow-600" />
+              ) : (
+                <EyeOff className="w-5 h-5 text-gray-600" />
+              )}
+              <h3 className="text-lg font-bold text-gray-900">
+                Visibilité sur Profil Public
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              {showCoachingOnProfile
+                ? "✅ Ton service de coaching est visible sur ta page publique"
+                : "❌ Ton service de coaching est masqué de ta page publique"}
+            </p>
+          </div>
+          
+          <button
+            onClick={toggleCoachingVisibility}
+            disabled={isTogglingVisibility}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 ${
+              showCoachingOnProfile
+                ? "bg-gray-900 hover:bg-gray-800 text-white"
+                : "bg-yellow-500 hover:bg-yellow-600 text-black"
+            }`}
+          >
+            {isTogglingVisibility ? (
+              <>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Mise à jour...
+              </>
+            ) : showCoachingOnProfile ? (
+              <>
+                <EyeOff className="w-5 h-5" />
+                Masquer
+              </>
+            ) : (
+              <>
+                <Eye className="w-5 h-5" />
+                Afficher
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {quickActions.map((action, index) => {

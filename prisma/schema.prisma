@@ -75,6 +75,7 @@ model Profile {
   
   // Settings
   isPublic        Boolean   @default(true)
+  showCoachingOnProfile Boolean @default(false)
   theme           String    @default("runner-pro")
   
   createdAt       DateTime  @default(now())

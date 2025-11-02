@@ -19,7 +19,8 @@ export default async function CoachingPage() {
       plan: true,
       displayName: true,
       username: true,
-      stats: true
+      stats: true,
+      showCoachingOnProfile: true
     }
   })
 
@@ -145,10 +146,11 @@ export default async function CoachingPage() {
 
       {/* Client Component avec interface ultra-pro */}
       <CoachingDashboardClient 
-        initialStats={dashboardStats}
+        initialStats={dashboardStats} 
         profileId={profile.id}
         coachName={profile.displayName}
         username={profile.username}
+        showCoachingOnProfile={profile.showCoachingOnProfile || false}
       />
     </div>
   )

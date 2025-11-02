@@ -39,11 +39,17 @@ export default async function CoachingPublicPage({ params }: Props) {
       avatarUrl: true,
       plan: true,
       isPublic: true,
-      stats: true
+      stats: true,
+      showCoachingOnProfile: true
     }
   })
 
   if (!profile || !profile.isPublic || (profile.plan !== "COACH" && profile.plan !== "ELITE")) {
+    notFound()
+  }
+
+  // ⚠️ Vérifier si le coaching est activé sur le profil public
+  if (!profile.showCoachingOnProfile) {
     notFound()
   }
 
