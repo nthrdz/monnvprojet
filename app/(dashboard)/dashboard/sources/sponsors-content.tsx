@@ -210,7 +210,10 @@ export function SponsorsContent() {
       const res = await fetch("/api/sponsors/extract-logo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: formData.websiteUrl })
+        body: JSON.stringify({ 
+          websiteUrl: formData.websiteUrl,
+          brandName: formData.name || undefined
+        })
       })
 
       if (res.ok) {
