@@ -109,8 +109,8 @@ export function ModernProfileCard({
             </div>
           )}
           
-          {/* Overlay gradient pour transition douce */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+          {/* Dégradé doux en bas de l'image pour transition harmonieuse */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-60% to-black" />
         </div>
 
         {/* Section informations sur fond noir */}
