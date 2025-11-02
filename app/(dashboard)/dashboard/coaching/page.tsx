@@ -13,15 +13,7 @@ export default async function CoachingPage() {
   }
 
   const profile = await prisma.profile.findUnique({
-    where: { userId: session.user.id },
-    select: {
-      id: true,
-      plan: true,
-      displayName: true,
-      username: true,
-      stats: true,
-      showCoachingOnProfile: true
-    }
+    where: { userId: session.user.id }
   })
 
   if (!profile) {
@@ -32,6 +24,9 @@ export default async function CoachingPage() {
   if (profile.plan !== "COACH" && profile.plan !== "ELITE") {
     redirect("/dashboard")
   }
+
+  // Récupérer la valeur ou false par défaut si le champ n'existe pas encore
+  const showCoachingOnProfile = (profile as any).showCoachingOnProfile ?? false
 
   // Calculer les statistiques depuis les stats JSON
   const stats = profile.stats as any || {}
@@ -150,7 +145,7 @@ export default async function CoachingPage() {
         profileId={profile.id}
         coachName={profile.displayName}
         username={profile.username}
-        showCoachingOnProfile={profile.showCoachingOnProfile || false}
+        showCoachingOnProfile={showCoachingOnProfile}
       />
     </div>
   )

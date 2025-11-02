@@ -32,16 +32,7 @@ export default async function CoachingPublicPage({ params }: Props) {
   const { username } = params
 
   const profile = await prisma.profile.findUnique({
-    where: { username },
-    select: {
-      displayName: true,
-      bio: true,
-      avatarUrl: true,
-      plan: true,
-      isPublic: true,
-      stats: true,
-      showCoachingOnProfile: true
-    }
+    where: { username }
   })
 
   if (!profile || !profile.isPublic || (profile.plan !== "COACH" && profile.plan !== "ELITE")) {
@@ -49,7 +40,9 @@ export default async function CoachingPublicPage({ params }: Props) {
   }
 
   // ⚠️ Vérifier si le coaching est activé sur le profil public
-  if (!profile.showCoachingOnProfile) {
+  // Gestion du cas où le champ n'existe pas encore (migration en attente)
+  const isCoachingVisible = (profile as any).showCoachingOnProfile ?? false
+  if (!isCoachingVisible) {
     notFound()
   }
 
