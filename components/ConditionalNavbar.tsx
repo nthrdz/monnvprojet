@@ -19,8 +19,7 @@ export function ConditionalNavbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Brand left */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-gray-900" />
+        <Link href="/" className="flex items-center">
           <NavBrand />
         </Link>
 
