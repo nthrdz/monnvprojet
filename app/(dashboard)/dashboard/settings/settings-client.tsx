@@ -46,13 +46,11 @@ export function SettingsClient({
 }: SettingsClientProps) {
   // Initialiser avec 'general' par défaut pour éviter les erreurs d'hydratation
   const [activeTab, setActiveTab] = useState<'general' | 'analytics'>('general')
-  const [customDomain, setCustomDomain] = useState(initialCustomDomain)
   const [notifications, setNotifications] = useState({
     email: true,
     push: false
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
 
   // Vérifier l'URL après le montage du composant
   useEffect(() => {
@@ -69,16 +67,7 @@ export function SettingsClient({
   // Hook pour les notifications temps réel
   const realtimeNotifications = useRealtimeNotifications(userPlan)
 
-  const canAccessCustomDomain = canUserAccessFeature(planEnum, "customDomain")
   const canAccessRealtimeNotifications = canUserAccessFeature(planEnum, "realtimeNotifications")
-
-  // Vérifier les changements
-  useEffect(() => {
-    const hasChanged = 
-      customDomain !== initialCustomDomain
-    
-    setHasChanges(hasChanged)
-  }, [customDomain, initialCustomDomain])
 
   const handleSaveSettings = async () => {
     setIsLoading(true)
@@ -90,16 +79,13 @@ export function SettingsClient({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          customDomain: customDomain || null
+          // Sauvegarde des paramètres (notifications, etc.)
         }),
       })
 
       if (!response.ok) {
         throw new Error('Erreur lors de la sauvegarde')
       }
-
-      // Réinitialiser les changements
-      setHasChanges(false)
       
       // Afficher un message de succès
       alert("Paramètres sauvegardés avec succès!")
@@ -113,12 +99,10 @@ export function SettingsClient({
   }
 
   const handleResetSettings = () => {
-    setCustomDomain(initialCustomDomain)
     setNotifications({
       email: true,
       push: false
     })
-    setHasChanges(false)
   }
 
   const handleUpgradePlan = async (newPlan: "FREE" | "PRO" | "ELITE") => {
@@ -185,95 +169,6 @@ export function SettingsClient({
           {/* Paramètres généraux */}
           <div className="lg:col-span-2 space-y-6">
 
-        {/* Domaine personnalisé */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="w-5 h-5" />
-              Domaine personnalisé
-              {!canAccessCustomDomain && (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                  Elite uniquement
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {canAccessCustomDomain ? (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="custom-domain">Votre domaine</Label>
-                  <Input
-                    id="custom-domain"
-                    placeholder="monprofil.com"
-                    value={customDomain}
-                    onChange={(e) => setCustomDomain(e.target.value)}
-                    className="mt-2"
-                  />
-                  <p className="text-sm text-gray-600 mt-1">
-                    Configurez votre domaine personnalisé pour un profil plus professionnel.
-                  </p>
-                  {customDomain !== initialCustomDomain && (
-                    <p className="text-sm text-green-600 mt-1">
-                      ✓ Domaine modifié - Sauvegardez pour appliquer les changements
-                    </p>
-                  )}
-                </div>
-                {/* Configuration DNS */}
-                <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-900 border border-yellow-400 rounded-lg">
-                  <h4 className="font-semibold text-yellow-400 mb-3 flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    Configuration DNS requise
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-200">
-                      Pour connecter votre domaine personnalisé, ajoutez cet enregistrement DNS chez votre hébergeur :
-                    </p>
-                    
-                    <div className="bg-black/50 rounded-md p-3 border border-white/10">
-                      <div className="grid grid-cols-3 gap-3 text-xs">
-                        <div>
-                          <p className="text-gray-400 mb-1">Type</p>
-                          <p className="font-mono text-yellow-300 font-semibold">CNAME</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 mb-1">Nom</p>
-                          <p className="font-mono text-yellow-300 font-semibold">@</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 mb-1">Valeur</p>
-                          <p className="font-mono text-yellow-300 font-semibold">athlink.app</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-xs text-gray-300 space-y-1">
-                      <p>• La propagation DNS peut prendre jusqu'à 24-48h</p>
-                      <p>• Vérifiez que votre domaine n'a pas d'enregistrement A existant</p>
-                      <p>• Si vous utilisez un sous-domaine (ex: profil.votredomaine.com), remplacez @ par le sous-domaine</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Globe className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-                  Domaine personnalisé
-                </h3>
-                <p className="text-yellow-700 mb-4">
-                  Les domaines personnalisés sont disponibles uniquement avec le plan Elite.
-                </p>
-                <Button className="bg-yellow-600 hover:bg-yellow-700">
-                  Upgrade vers Elite
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-
         {/* Notifications */}
         <Card>
           <CardHeader>
@@ -324,36 +219,6 @@ export function SettingsClient({
 
       {/* Actions */}
       <div className="space-y-6">
-        {/* Actions rapides */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button 
-              onClick={handleSaveSettings} 
-              className="w-full"
-              disabled={!hasChanges || isLoading}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {isLoading ? "Sauvegarde..." : "Sauvegarder"}
-            </Button>
-            
-            <Button 
-              onClick={handleResetSettings} 
-              variant="outline" 
-              className="w-full"
-              disabled={!hasChanges || isLoading}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Réinitialiser
-            </Button>
-          </CardContent>
-        </Card>
-
         {/* Badge Code Promo */}
         {promoCodeUsed && (
           <PromoBadge 
