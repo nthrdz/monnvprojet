@@ -261,17 +261,28 @@ export default function AffiliatePage() {
               <p className="text-white/80 mb-4">
                 Inscris-toi sur Rewardful pour suivre tes statistiques en temps réel, gérer tes paiements et accéder à ton dashboard affilié complet.
               </p>
-              <a
-                href="https://nathan-rodriguez.getrewardful.com/signup"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
-              >
-                S'inscrire comme affilié
-                <ExternalLink className="w-4 h-4" />
-              </a>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="https://nathan-rodriguez.getrewardful.com/signup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
+                >
+                  S'inscrire comme affilié
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://app.getrewardful.com/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-bold transition-all border-2 border-white/30"
+                >
+                  Connecte-toi ici
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
               <p className="text-white/60 text-sm mt-3">
-                💡 Déjà inscrit ? <a href="https://app.getrewardful.com/login" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Connecte-toi ici</a>
+                💡 Accède à ton dashboard Rewardful pour voir tes stats et commissions
               </p>
             </div>
           </div>
