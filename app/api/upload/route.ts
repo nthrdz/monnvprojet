@@ -38,6 +38,14 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    // Vérifier que Supabase est configuré
+    if (!supabase) {
+      console.error("❌ Supabase non configuré - Variables d'environnement manquantes")
+      return NextResponse.json({ 
+        error: "Service de stockage non configuré. Veuillez contacter l'administrateur." 
+      }, { status: 500 })
+    }
+
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
