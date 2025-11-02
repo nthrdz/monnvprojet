@@ -62,15 +62,18 @@ export async function POST(req: NextRequest) {
       
       // 🎯 Vérifier si c'est un achat de plan de coaching
       if (session.metadata?.type === 'coaching_plan_purchase') {
+        // Extract metadata for TypeScript type safety
+        const metadata = session.metadata
+        
         console.log("💳 Achat de plan de coaching détecté !")
-        console.log("   - Plan ID:", session.metadata.planId)
-        console.log("   - Coach:", session.metadata.coachUsername)
-        console.log("   - Client:", session.metadata.clientName)
-        console.log("   - Email:", session.metadata.clientEmail)
-        console.log("   - Prix:", session.metadata.planPrice, "€")
+        console.log("   - Plan ID:", metadata.planId)
+        console.log("   - Coach:", metadata.coachUsername)
+        console.log("   - Client:", metadata.clientName)
+        console.log("   - Email:", metadata.clientEmail)
+        console.log("   - Prix:", metadata.planPrice, "€")
         
         const coachProfile = await prisma.profile.findUnique({
-          where: { id: session.metadata.coachProfileId },
+          where: { id: metadata.coachProfileId },
           select: { id: true, stats: true, displayName: true }
         })
         
@@ -86,13 +89,13 @@ export async function POST(req: NextRequest) {
         
         const purchase = {
           id: `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          planId: session.metadata.planId,
-          planTitle: session.metadata.planTitle,
-          clientEmail: session.metadata.clientEmail,
-          clientName: session.metadata.clientName,
-          amount: parseFloat(session.metadata.planPrice),
-          pdfFileUrl: session.metadata.pdfFileUrl,
-          pdfFileName: session.metadata.pdfFileName,
+          planId: metadata.planId,
+          planTitle: metadata.planTitle,
+          clientEmail: metadata.clientEmail,
+          clientName: metadata.clientName,
+          amount: parseFloat(metadata.planPrice),
+          pdfFileUrl: metadata.pdfFileUrl,
+          pdfFileName: metadata.pdfFileName,
           purchasedAt: new Date().toISOString(),
           status: 'completed',
           stripeSessionId: session.id,
@@ -103,7 +106,7 @@ export async function POST(req: NextRequest) {
         
         // Mettre à jour le compteur d'abonnés du plan
         const updatedPlans = trainingPlans.map((plan: any) => {
-          if (plan.id === session.metadata.planId) {
+          if (plan.id === metadata.planId) {
             return {
               ...plan,
               _count: {
@@ -129,16 +132,16 @@ export async function POST(req: NextRequest) {
         console.log("✅✅✅ ACHAT ENREGISTRÉ ! ✅✅✅")
         console.log("   - Purchase ID:", purchase.id)
         console.log("   - Coach:", coachProfile.displayName)
-        console.log("   - Client:", session.metadata.clientName)
-        console.log("   - Montant:", session.metadata.planPrice, "€")
+        console.log("   - Client:", metadata.clientName)
+        console.log("   - Montant:", metadata.planPrice, "€")
         
         // 📧 Envoyer un email au client avec l'accès au PDF
         try {
           if (resend) {
             await resend.emails.send({
               from: 'Athlink <notifications@athlink.fr>',
-              to: session.metadata.clientEmail,
-              subject: `✅ Votre plan d'entraînement "${session.metadata.planTitle}"`,
+              to: metadata.clientEmail,
+              subject: `✅ Votre plan d'entraînement "${metadata.planTitle}"`,
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -159,19 +162,19 @@ export async function POST(req: NextRequest) {
                         <h1 style="margin: 0;">🎉 Achat confirmé !</h1>
                       </div>
                       <div class="content">
-                        <p>Bonjour ${session.metadata.clientName},</p>
+                        <p>Bonjour ${metadata.clientName},</p>
                         
                         <div class="success-box">
                           <h2 style="margin: 0 0 10px 0; color: #155724;">✅ Paiement réussi</h2>
-                          <p style="margin: 0; color: #155724;">Vous avez accès au plan <strong>"${session.metadata.planTitle}"</strong></p>
+                          <p style="margin: 0; color: #155724;">Vous avez accès au plan <strong>"${metadata.planTitle}"</strong></p>
                         </div>
                         
                         <h3 style="color: #667eea;">📄 Votre Plan d'Entraînement</h3>
                         <p><strong>Coach :</strong> ${coachProfile.displayName}</p>
-                        <p><strong>Prix payé :</strong> ${session.metadata.planPrice}€</p>
+                        <p><strong>Prix payé :</strong> ${metadata.planPrice}€</p>
                         
                         <div style="text-align: center; margin: 30px 0;">
-                          <a href="${session.metadata.pdfFileUrl}" 
+                          <a href="${metadata.pdfFileUrl}" 
                              class="btn">
                             📥 Télécharger le PDF
                           </a>
@@ -190,7 +193,7 @@ export async function POST(req: NextRequest) {
                 </html>
               `
             })
-            console.log("📧 Email envoyé au client:", session.metadata.clientEmail)
+            console.log("📧 Email envoyé au client:", metadata.clientEmail)
           }
         } catch (emailError) {
           console.error("❌ Erreur envoi email client:", emailError)
@@ -210,16 +213,16 @@ export async function POST(req: NextRequest) {
               await resend.emails.send({
                 from: 'Athlink <notifications@athlink.fr>',
                 to: coachUser.email,
-                subject: `💰 Nouvelle vente : ${session.metadata.planTitle}`,
+                subject: `💰 Nouvelle vente : ${metadata.planTitle}`,
                 html: `
                   <h2>🎉 Nouvelle vente !</h2>
                   <p>Bonjour ${coachProfile.displayName},</p>
                   <p>Vous avez vendu un plan d'entraînement :</p>
                   <ul>
-                    <li><strong>Plan :</strong> ${session.metadata.planTitle}</li>
-                    <li><strong>Client :</strong> ${session.metadata.clientName}</li>
-                    <li><strong>Email :</strong> ${session.metadata.clientEmail}</li>
-                    <li><strong>Prix :</strong> ${session.metadata.planPrice}€</li>
+                    <li><strong>Plan :</strong> ${metadata.planTitle}</li>
+                    <li><strong>Client :</strong> ${metadata.clientName}</li>
+                    <li><strong>Email :</strong> ${metadata.clientEmail}</li>
+                    <li><strong>Prix :</strong> ${metadata.planPrice}€</li>
                   </ul>
                   <p>Le client a reçu un email avec le lien de téléchargement du PDF.</p>
                   <p><a href="${process.env.NEXTAUTH_URL}/dashboard/coaching">Voir mes ventes</a></p>
