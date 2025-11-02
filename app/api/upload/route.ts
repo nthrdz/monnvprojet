@@ -4,9 +4,10 @@ import { supabase } from "@/lib/supabase"
 import { prisma } from "@/lib/db"
 import sharp from "sharp"
 
-// Configuration de la route
+// Configuration de la route - IMPORTANT : forcer nodejs pour les uploads
 export const runtime = "nodejs"
 export const maxDuration = 60
+export const dynamic = 'force-dynamic'
 
 // Répondre aux requêtes OPTIONS (préflight) pour éviter les 405
 export async function OPTIONS() {
@@ -15,9 +16,17 @@ export async function OPTIONS() {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization"
-    }
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
   })
+}
+
+// Désactiver GET pour forcer POST
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST to upload files." },
+    { status: 405 }
+  )
 }
 
 export async function POST(req: NextRequest) {
