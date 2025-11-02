@@ -183,7 +183,7 @@ export default function AffiliatePage() {
                 Accède à ton dashboard Rewardful pour voir toutes tes statistiques en temps réel, gérer tes paiements et suivre tes conversions.
               </p>
               <a
-                href="https://www.getrewardful.com/affiliate"
+                href="https://athlink.getrewardful.com/signup"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
@@ -191,6 +191,9 @@ export default function AffiliatePage() {
                 Accéder à Rewardful
                 <ExternalLink className="w-4 h-4" />
               </a>
+              <p className="text-white/60 text-sm mt-3">
+                💡 Première visite ? Crée ton compte affilié avec l'email de ton compte Athlink
+              </p>
             </div>
           </div>
         </motion.div>
