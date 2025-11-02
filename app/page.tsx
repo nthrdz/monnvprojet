@@ -1301,11 +1301,8 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-12 lg:gap-16 mb-16">
             {/* Logo */}
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-yellow-500 via-black to-yellow-600 flex items-center justify-center">
-                  <span className="text-white font-black text-lg">A</span>
-              </div>
-                <span className="font-light text-2xl tracking-tight">Athlink</span>
+              <div className="mb-6">
+                <span className="font-black text-3xl tracking-tight">Athlink</span>
               </div>
               <p className="text-gray-400 text-sm font-light leading-relaxed">
                 Le profil digital conçu pour les athlètes
