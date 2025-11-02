@@ -1334,6 +1334,8 @@ export default function Home() {
             <div>
               <h3 className="font-medium text-lg mb-6 text-white">Légal</h3>
               <ul className="space-y-3 text-sm text-gray-400">
+                <li><Link href="/mentions-legales" className="hover:text-white transition-colors duration-300 font-light">Mentions légales</Link></li>
+                <li><Link href="/cgv" className="hover:text-white transition-colors duration-300 font-light">CGV</Link></li>
                 <li><Link href="/confidentialite" className="hover:text-white transition-colors duration-300 font-light">Confidentialité</Link></li>
                 <li><Link href="/conditions" className="hover:text-white transition-colors duration-300 font-light">Conditions</Link></li>
               </ul>
