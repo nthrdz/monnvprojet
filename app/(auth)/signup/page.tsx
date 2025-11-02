@@ -308,24 +308,24 @@ export default function SignupPage() {
       </div>
 
       {/* Right Panel - Hero */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary-600 via-quaternary-600 to-tertiary-600 items-center justify-center p-16 relative overflow-hidden">
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-gray-50 via-white to-gray-100 items-center justify-center p-16 relative overflow-hidden">
         {/* Animated Background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-gray-900 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-gray-800 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-lg text-white">
+        <div className="relative z-10 max-w-lg">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
               Ton parcours commence ici
             </h2>
-            <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-8">
+            <p className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-8">
               Crée ton profil athlète professionnel et partage tes performances avec le monde.
             </p>
 
@@ -344,10 +344,10 @@ export default function SignupPage() {
                   transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-5 h-5" />
+                  <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-lg font-medium">{feature}</span>
+                  <span className="text-lg font-medium text-gray-900">{feature}</span>
                 </motion.div>
               ))}
             </div>
