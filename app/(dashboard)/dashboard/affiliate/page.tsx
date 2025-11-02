@@ -3,17 +3,25 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
-import { Users, Link as LinkIcon, TrendingUp, DollarSign, Copy, CheckCircle, ExternalLink } from "lucide-react"
+import { Users, Link as LinkIcon, TrendingUp, DollarSign, Copy, CheckCircle, ExternalLink, Lock } from "lucide-react"
 import Link from "next/link"
 
 export default function AffiliatePage() {
   const { data: session } = useSession()
   const [copied, setCopied] = useState(false)
   const [affiliateLink, setAffiliateLink] = useState("")
+  const [userPlan, setUserPlan] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Générer le lien d'affilié basé sur le username
+    // Vérifier le plan de l'utilisateur
     if (session?.user) {
+      // @ts-ignore
+      const plan = session.user.plan
+      setUserPlan(plan)
+      setIsLoading(false)
+
+      // Générer le lien d'affilié basé sur le username
       // @ts-ignore - username existe dans notre session personnalisée
       const username = session.user.username || session.user.email?.split('@')[0]
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://athlink.fr'
@@ -27,6 +35,68 @@ export default function AffiliatePage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  // Si le plan n'est pas PRO ou ELITE, afficher un message de restriction
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (userPlan !== 'PRO' && userPlan !== 'ELITE') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-12 text-center"
+        >
+          <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lock className="w-10 h-10 text-gray-600" />
+          </div>
+          
+          <h1 className="text-3xl font-black text-gray-900 mb-4">
+            Programme Ambassadeur réservé aux plans PRO et ELITE
+          </h1>
+          
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            Le programme ambassadeur avec <strong>40% de commission récurrente</strong> est exclusivement disponible pour les membres PRO et ELITE.
+          </p>
+
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-6 mb-8">
+            <p className="text-gray-800 font-semibold mb-4">
+              🎉 Deviens ambassadeur et gagne jusqu'à <span className="text-blue-700 font-black">10,36€/mois</span> par parrainage ELITE !
+            </p>
+            <ul className="text-left text-gray-700 space-y-2 max-w-md mx-auto">
+              <li>• <strong>40%</strong> de commission récurrente</li>
+              <li>• Paiements automatiques chaque mois</li>
+              <li>• Dashboard Rewardful complet</li>
+              <li>• Support prioritaire</li>
+            </ul>
+          </div>
+
+          <Link
+            href="/dashboard/upgrade"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-black text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Passer PRO ou ELITE
+            <TrendingUp className="w-5 h-5" />
+          </Link>
+
+          <div className="mt-6">
+            <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 font-medium">
+              ← Retour au dashboard
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -59,19 +129,19 @@ export default function AffiliatePage() {
             </div>
             <div className="flex-1">
               <h3 className="text-2xl font-black text-gray-900 mb-3 flex items-center gap-2">
-                🎉 Gagne 20% de commission récurrente !
+                🎉 Gagne 40% de commission récurrente !
               </h3>
               <p className="text-gray-800 leading-relaxed text-lg mb-4">
-                Pour chaque athlète qui s'inscrit via ton lien et passe Pro ou Elite, tu gagnes <span className="font-bold text-blue-700">20% de commission chaque mois</span> tant qu'il reste abonné.
+                Pour chaque athlète qui s'inscrit via ton lien et passe Pro ou Elite, tu gagnes <span className="font-bold text-blue-700">40% de commission chaque mois</span> tant qu'il reste abonné.
               </p>
               <div className="space-y-2 text-gray-800">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">•</span>
-                  <span>Plan Pro (9,90€/mois) = <strong className="text-blue-700">1,98€/mois</strong> de commission</span>
+                  <span>Plan Pro (9,90€/mois) = <strong className="text-blue-700">3,96€/mois</strong> de commission</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">•</span>
-                  <span>Plan Elite (25,90€/mois) = <strong className="text-blue-700">5,18€/mois</strong> de commission</span>
+                  <span>Plan Elite (25,90€/mois) = <strong className="text-blue-700">10,36€/mois</strong> de commission</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">•</span>
