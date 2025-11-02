@@ -20,8 +20,8 @@ export default async function CoachingPage() {
     redirect("/dashboard")
   }
 
-  // Vérifier que l'utilisateur a le plan COACH ou ELITE
-  if (profile.plan !== "COACH" && profile.plan !== "ELITE") {
+  // Vérifier que l'utilisateur a le plan ELITE (qui inclut le coaching)
+  if (profile.plan !== "ELITE") {
     redirect("/dashboard")
   }
 
@@ -71,7 +71,7 @@ export default async function CoachingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center shadow-lg">
                   <Target className="w-6 h-6 text-black" />
                 </div>
-                <PlanBadge plan="COACH" size="lg" />
+                <PlanBadge plan="ELITE" size="lg" />
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 text-gray-900">

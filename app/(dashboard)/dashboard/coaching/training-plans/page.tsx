@@ -21,7 +21,7 @@ export default async function TrainingPlansPage() {
     }
   })
 
-  if (!profile || (profile.plan !== "COACH" && profile.plan !== "ELITE")) {
+  if (!profile || profile.plan !== "ELITE") {
     redirect("/dashboard")
   }
 
@@ -65,7 +65,7 @@ export default async function TrainingPlansPage() {
                 Crée et vends tes programmes personnalisés
               </p>
             </div>
-            <PlanBadge plan="COACH" size="lg" />
+            <PlanBadge plan="ELITE" size="lg" />
           </div>
         </div>
       </div>

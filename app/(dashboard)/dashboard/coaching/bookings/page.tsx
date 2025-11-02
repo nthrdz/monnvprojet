@@ -21,7 +21,7 @@ export default async function BookingsPage() {
     }
   })
 
-  if (!profile || (profile.plan !== "COACH" && profile.plan !== "ELITE")) {
+  if (!profile || profile.plan !== "ELITE") {
     redirect("/dashboard")
   }
 
@@ -71,7 +71,7 @@ export default async function BookingsPage() {
                 Gère ton calendrier et tes bookings clients
               </p>
             </div>
-            <PlanBadge plan="COACH" size="lg" />
+            <PlanBadge plan="ELITE" size="lg" />
           </div>
         </div>
       </div>

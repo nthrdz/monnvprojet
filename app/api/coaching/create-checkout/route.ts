@@ -10,13 +10,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Données manquantes" }, { status: 400 })
     }
 
-    // Récupérer le plan d'entraînement
+    // Récupérer les profils ELITE (qui ont accès au coaching)
     const profiles = await prisma.profile.findMany({
       where: { 
-        OR: [
-          { plan: "COACH" },
-          { plan: "ELITE" }
-        ]
+        plan: "ELITE",
+        showCoachingOnProfile: true
       },
       select: { id: true, stats: true, username: true, displayName: true }
     })
