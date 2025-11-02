@@ -60,6 +60,183 @@ export async function POST(req: NextRequest) {
       console.log("   - Customer Email:", session.customer_email)
       console.log("   - Amount:", session.amount_total ? session.amount_total / 100 : 0, "€")
       
+      // 🎯 Vérifier si c'est un achat de plan de coaching
+      if (session.metadata?.type === 'coaching_plan_purchase') {
+        console.log("💳 Achat de plan de coaching détecté !")
+        console.log("   - Plan ID:", session.metadata.planId)
+        console.log("   - Coach:", session.metadata.coachUsername)
+        console.log("   - Client:", session.metadata.clientName)
+        console.log("   - Email:", session.metadata.clientEmail)
+        console.log("   - Prix:", session.metadata.planPrice, "€")
+        
+        const coachProfile = await prisma.profile.findUnique({
+          where: { id: session.metadata.coachProfileId },
+          select: { id: true, stats: true, displayName: true }
+        })
+        
+        if (!coachProfile) {
+          console.error("❌ Profil coach non trouvé")
+          return NextResponse.json({ error: 'Coach not found' }, { status: 404 })
+        }
+        
+        // Enregistrer l'achat dans les stats du coach
+        const stats = coachProfile.stats as any || {}
+        const purchases = stats.purchases || []
+        const trainingPlans = stats.trainingPlans || []
+        
+        const purchase = {
+          id: `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          planId: session.metadata.planId,
+          planTitle: session.metadata.planTitle,
+          clientEmail: session.metadata.clientEmail,
+          clientName: session.metadata.clientName,
+          amount: parseFloat(session.metadata.planPrice),
+          pdfFileUrl: session.metadata.pdfFileUrl,
+          pdfFileName: session.metadata.pdfFileName,
+          purchasedAt: new Date().toISOString(),
+          status: 'completed',
+          stripeSessionId: session.id,
+          accessExpiresAt: null
+        }
+        
+        purchases.push(purchase)
+        
+        // Mettre à jour le compteur d'abonnés du plan
+        const updatedPlans = trainingPlans.map((plan: any) => {
+          if (plan.id === session.metadata.planId) {
+            return {
+              ...plan,
+              _count: {
+                ...plan._count,
+                subscribers: (plan._count?.subscribers || 0) + 1
+              }
+            }
+          }
+          return plan
+        })
+        
+        await prisma.profile.update({
+          where: { id: coachProfile.id },
+          data: {
+            stats: {
+              ...stats,
+              purchases,
+              trainingPlans: updatedPlans
+            }
+          }
+        })
+        
+        console.log("✅✅✅ ACHAT ENREGISTRÉ ! ✅✅✅")
+        console.log("   - Purchase ID:", purchase.id)
+        console.log("   - Coach:", coachProfile.displayName)
+        console.log("   - Client:", session.metadata.clientName)
+        console.log("   - Montant:", session.metadata.planPrice, "€")
+        
+        // 📧 Envoyer un email au client avec l'accès au PDF
+        try {
+          if (resend) {
+            await resend.emails.send({
+              from: 'Athlink <notifications@athlink.fr>',
+              to: session.metadata.clientEmail,
+              subject: `✅ Votre plan d'entraînement "${session.metadata.planTitle}"`,
+              html: `
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <style>
+                      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+                      .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                      .success-box { background: #d4edda; border: 2px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                      .btn { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+                      .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="header">
+                        <h1 style="margin: 0;">🎉 Achat confirmé !</h1>
+                      </div>
+                      <div class="content">
+                        <p>Bonjour ${session.metadata.clientName},</p>
+                        
+                        <div class="success-box">
+                          <h2 style="margin: 0 0 10px 0; color: #155724;">✅ Paiement réussi</h2>
+                          <p style="margin: 0; color: #155724;">Vous avez accès au plan <strong>"${session.metadata.planTitle}"</strong></p>
+                        </div>
+                        
+                        <h3 style="color: #667eea;">📄 Votre Plan d'Entraînement</h3>
+                        <p><strong>Coach :</strong> ${coachProfile.displayName}</p>
+                        <p><strong>Prix payé :</strong> ${session.metadata.planPrice}€</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                          <a href="${session.metadata.pdfFileUrl}" 
+                             class="btn">
+                            📥 Télécharger le PDF
+                          </a>
+                        </div>
+                        
+                        <p style="color: #666; font-size: 14px;">
+                          💡 <strong>Astuce :</strong> Enregistrez ce PDF sur votre appareil pour y accéder à tout moment.
+                        </p>
+                      </div>
+                      <div class="footer">
+                        <p>Athlink - Plateforme de coaching pour athlètes</p>
+                        <p>contact@athlink.fr</p>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+              `
+            })
+            console.log("📧 Email envoyé au client:", session.metadata.clientEmail)
+          }
+        } catch (emailError) {
+          console.error("❌ Erreur envoi email client:", emailError)
+        }
+        
+        // 📧 Notifier le coach de la vente
+        try {
+          if (resend) {
+            const coachUser = await prisma.user.findFirst({
+              where: { 
+                profile: { id: coachProfile.id }
+              },
+              select: { email: true }
+            })
+            
+            if (coachUser) {
+              await resend.emails.send({
+                from: 'Athlink <notifications@athlink.fr>',
+                to: coachUser.email,
+                subject: `💰 Nouvelle vente : ${session.metadata.planTitle}`,
+                html: `
+                  <h2>🎉 Nouvelle vente !</h2>
+                  <p>Bonjour ${coachProfile.displayName},</p>
+                  <p>Vous avez vendu un plan d'entraînement :</p>
+                  <ul>
+                    <li><strong>Plan :</strong> ${session.metadata.planTitle}</li>
+                    <li><strong>Client :</strong> ${session.metadata.clientName}</li>
+                    <li><strong>Email :</strong> ${session.metadata.clientEmail}</li>
+                    <li><strong>Prix :</strong> ${session.metadata.planPrice}€</li>
+                  </ul>
+                  <p>Le client a reçu un email avec le lien de téléchargement du PDF.</p>
+                  <p><a href="${process.env.NEXTAUTH_URL}/dashboard/coaching">Voir mes ventes</a></p>
+                `
+              })
+              console.log("📧 Email envoyé au coach")
+            }
+          }
+        } catch (emailError) {
+          console.error("❌ Erreur envoi email coach:", emailError)
+        }
+        
+        console.log("✅ Webhook coaching traité avec succès")
+        return NextResponse.json({ received: true })
+      }
+      
+      // 🎯 Sinon, c'est un paiement d'abonnement normal (PRO/ELITE)
       let userId = session.metadata?.userId
       const profileId = session.metadata?.profileId
       let plan = session.metadata?.plan
@@ -490,183 +667,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🎯 ÉVÉNEMENT : Paiement réussi pour un plan de coaching
-    else if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as any
-      
-      // Vérifier si c'est un achat de plan de coaching
-      if (session.metadata?.type === 'coaching_plan_purchase') {
-        console.log("💳 Achat de plan de coaching détecté !")
-        console.log("   - Session ID:", session.id)
-        console.log("   - Plan ID:", session.metadata.planId)
-        console.log("   - Coach:", session.metadata.coachUsername)
-        console.log("   - Client:", session.metadata.clientName)
-        console.log("   - Email:", session.metadata.clientEmail)
-        console.log("   - Prix:", session.metadata.planPrice, "€")
-        
-        const coachProfile = await prisma.profile.findUnique({
-          where: { id: session.metadata.coachProfileId },
-          select: { id: true, stats: true, displayName: true }
-        })
-        
-        if (!coachProfile) {
-          console.error("❌ Profil coach non trouvé")
-          return NextResponse.json({ error: 'Coach not found' }, { status: 404 })
-        }
-        
-        // Enregistrer l'achat dans les stats du coach
-        const stats = coachProfile.stats as any || {}
-        const purchases = stats.purchases || []
-        const trainingPlans = stats.trainingPlans || []
-        
-        const purchase = {
-          id: `purchase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          planId: session.metadata.planId,
-          planTitle: session.metadata.planTitle,
-          clientEmail: session.metadata.clientEmail,
-          clientName: session.metadata.clientName,
-          amount: parseFloat(session.metadata.planPrice),
-          pdfFileUrl: session.metadata.pdfFileUrl,
-          pdfFileName: session.metadata.pdfFileName,
-          purchasedAt: new Date().toISOString(),
-          status: 'completed',
-          stripeSessionId: session.id,
-          accessExpiresAt: null // Accès illimité pour l'instant
-        }
-        
-        purchases.push(purchase)
-        
-        // Mettre à jour le compteur d'abonnés du plan
-        const updatedPlans = trainingPlans.map((plan: any) => {
-          if (plan.id === session.metadata.planId) {
-            return {
-              ...plan,
-              _count: {
-                ...plan._count,
-                subscribers: (plan._count?.subscribers || 0) + 1
-              }
-            }
-          }
-          return plan
-        })
-        
-        await prisma.profile.update({
-          where: { id: coachProfile.id },
-          data: {
-            stats: {
-              ...stats,
-              purchases,
-              trainingPlans: updatedPlans
-            }
-          }
-        })
-        
-        console.log("✅✅✅ ACHAT ENREGISTRÉ ! ✅✅✅")
-        console.log("   - Purchase ID:", purchase.id)
-        console.log("   - Coach:", coachProfile.displayName)
-        console.log("   - Client:", session.metadata.clientName)
-        console.log("   - Montant:", session.metadata.planPrice, "€")
-        
-        // 📧 Envoyer un email au client avec l'accès au PDF
-        try {
-          if (resend) {
-            await resend.emails.send({
-              from: 'Athlink <notifications@athlink.fr>',
-              to: session.metadata.clientEmail,
-              subject: `✅ Votre plan d'entraînement "${session.metadata.planTitle}"`,
-              html: `
-                <!DOCTYPE html>
-                <html>
-                  <head>
-                    <style>
-                      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
-                      .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                      .success-box { background: #d4edda; border: 2px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-                      .btn { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
-                      .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="container">
-                      <div class="header">
-                        <h1 style="margin: 0;">🎉 Achat confirmé !</h1>
-                      </div>
-                      <div class="content">
-                        <p>Bonjour ${session.metadata.clientName},</p>
-                        
-                        <div class="success-box">
-                          <h2 style="margin: 0 0 10px 0; color: #155724;">✅ Paiement réussi</h2>
-                          <p style="margin: 0; color: #155724;">Vous avez accès au plan <strong>"${session.metadata.planTitle}"</strong></p>
-                        </div>
-                        
-                        <h3 style="color: #667eea;">📄 Votre Plan d'Entraînement</h3>
-                        <p><strong>Coach :</strong> ${coachProfile.displayName}</p>
-                        <p><strong>Prix payé :</strong> ${session.metadata.planPrice}€</p>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
-                          <a href="${session.metadata.pdfFileUrl}" 
-                             class="btn">
-                            📥 Télécharger le PDF
-                          </a>
-                        </div>
-                        
-                        <p style="color: #666; font-size: 14px;">
-                          💡 <strong>Astuce :</strong> Enregistrez ce PDF sur votre appareil pour y accéder à tout moment.
-                        </p>
-                      </div>
-                      <div class="footer">
-                        <p>Athlink - Plateforme de coaching pour athlètes</p>
-                        <p>contact@athlink.fr</p>
-                      </div>
-                    </div>
-                  </body>
-                </html>
-              `
-            })
-            console.log("📧 Email envoyé au client:", session.metadata.clientEmail)
-          }
-        } catch (emailError) {
-          console.error("❌ Erreur envoi email client:", emailError)
-        }
-        
-        // 📧 Notifier le coach de la vente
-        try {
-          if (resend) {
-            const coachUser = await prisma.user.findFirst({
-              where: { id: coachProfile.id },
-              select: { email: true }
-            })
-            
-            if (coachUser) {
-              await resend.emails.send({
-                from: 'Athlink <notifications@athlink.fr>',
-                to: coachUser.email,
-                subject: `💰 Nouvelle vente : ${session.metadata.planTitle}`,
-                html: `
-                  <h2>🎉 Nouvelle vente !</h2>
-                  <p>Bonjour ${coachProfile.displayName},</p>
-                  <p>Vous avez vendu un plan d'entraînement :</p>
-                  <ul>
-                    <li><strong>Plan :</strong> ${session.metadata.planTitle}</li>
-                    <li><strong>Client :</strong> ${session.metadata.clientName}</li>
-                    <li><strong>Email :</strong> ${session.metadata.clientEmail}</li>
-                    <li><strong>Prix :</strong> ${session.metadata.planPrice}€</li>
-                  </ul>
-                  <p>Le client a reçu un email avec le lien de téléchargement du PDF.</p>
-                  <p><a href="${process.env.NEXTAUTH_URL}/dashboard/coaching">Voir mes ventes</a></p>
-                `
-              })
-              console.log("📧 Email envoyé au coach")
-            }
-          }
-        } catch (emailError) {
-          console.error("❌ Erreur envoi email coach:", emailError)
-        }
-      }
-    }
-
     console.log("✅ Webhook traité avec succès")
     console.log("============================================================")
     
@@ -688,4 +688,3 @@ export async function POST(req: NextRequest) {
 
 // Important : Désactiver le parsing automatique du body pour les webhooks Stripe
 export const dynamic = 'force-dynamic'
-
