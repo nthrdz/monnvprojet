@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Rewardful Tracking</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #4CAF50;
+    }
+    .test-section h2 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 10px 10px 0;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .success {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    .error {
+      color: #f44336;
+      font-weight: bold;
+    }
+    .info {
+      color: #2196F3;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .link-box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      border: 2px solid #4CAF50;
+      margin: 15px 0;
+    }
+    .link-box input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Test Rewardful Tracking</h1>
+    
+    <!-- Test 1 : Vérifier le script Rewardful -->
+    <div class="test-section">
+      <h2>Test 1 : Script Rewardful chargé</h2>
+      <p>Vérifie si le script Rewardful est bien chargé sur la page.</p>
+      <button onclick="checkRewardfulScript()">🔍 Vérifier le script</button>
+      <div id="script-result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- Test 2 : Vérifier le paramètre via -->
+    <div class="test-section">
+      <h2>Test 2 : Paramètre ?via= détecté</h2>
+      <p>Vérifie si un paramètre <code>?via=</code> est présent dans l'URL.</p>
+      <button onclick="checkViaParameter()">🔍 Vérifier ?via=</button>
+      <div id="via-result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- Test 3 : Vérifier les cookies -->
+    <div class="test-section">
+      <h2>Test 3 : Cookies Rewardful</h2>
+      <p>Vérifie si Rewardful a créé des cookies de tracking.</p>
+      <button onclick="checkRewardfulCookies()">🍪 Vérifier les cookies</button>
+      <div id="cookies-result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- Test 4 : Générer des liens de test -->
+    <div class="test-section">
+      <h2>Test 4 : Liens de test</h2>
+      <p>Clique sur ces liens pour tester le tracking :</p>
+      <div class="link-box">
+        <strong>Lien Nathan :</strong><br>
+        <input type="text" value="https://www.athlink.fr/?via=nnthrdz" readonly onclick="this.select()">
+        <button onclick="window.open('https://www.athlink.fr/?via=nnthrdz', '_blank')">🔗 Ouvrir dans un nouvel onglet</button>
+      </div>
+      <p class="info">💡 Ouvre le lien dans une fenêtre de navigation privée pour simuler un nouvel utilisateur !</p>
+    </div>
+
+    <!-- Test 5 : Simuler une conversion -->
+    <div class="test-section">
+      <h2>Test 5 : Simuler une conversion</h2>
+      <p>Teste l'appel API Rewardful (nécessite la clé API).</p>
+      <button onclick="testConversion()">🎯 Tester la conversion</button>
+      <div id="conversion-result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="test-section" style="border-left-color: #2196F3;">
+      <h2 style="color: #2196F3;">📋 Instructions</h2>
+      <ol>
+        <li>Exécute les tests 1, 2 et 3 sur cette page</li>
+        <li>Ouvre le lien de test dans une fenêtre de navigation privée</li>
+        <li>Vérifie dans le dashboard Rewardful que le clic est enregistré</li>
+        <li>Inscris-toi avec un email de test et passe au plan PRO/ELITE</li>
+        <li>Vérifie que la commission apparaît dans Rewardful</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Test 1 : Vérifier le script Rewardful
+    function checkRewardfulScript() {
+      const resultDiv = document.getElementById('script-result');
+      resultDiv.style.display = 'block';
+      
+      // Vérifier si la fonction rewardful existe
+      if (typeof window.rewardful !== 'undefined') {
+        resultDiv.innerHTML = `
+          <p class="success">✅ Script Rewardful chargé !</p>
+          <p class="info">La fonction <code>rewardful()</code> est disponible.</p>
+        `;
+      } else {
+        resultDiv.innerHTML = `
+          <p class="error">❌ Script Rewardful non chargé</p>
+          <p>Assure-toi que le script Rewardful est bien dans <code>app/layout.tsx</code> et que <code>NEXT_PUBLIC_REWARDFUL_API_KEY</code> est défini.</p>
+        `;
+      }
+    }
+
+    // Test 2 : Vérifier le paramètre via
+    function checkViaParameter() {
+      const resultDiv = document.getElementById('via-result');
+      resultDiv.style.display = 'block';
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const viaParam = urlParams.get('via');
+      
+      if (viaParam) {
+        resultDiv.innerHTML = `
+          <p class="success">✅ Paramètre ?via= détecté !</p>
+          <p class="info">Affilié : <code>${viaParam}</code></p>
+          <p>Rewardful devrait enregistrer ce clic et créer un cookie.</p>
+        `;
+      } else {
+        resultDiv.innerHTML = `
+          <p class="error">❌ Aucun paramètre ?via= dans l'URL</p>
+          <p>Pour tester le tracking, ouvre un lien comme : <code>https://www.athlink.fr/?via=nnthrdz</code></p>
+        `;
+      }
+    }
+
+    // Test 3 : Vérifier les cookies Rewardful
+    function checkRewardfulCookies() {
+      const resultDiv = document.getElementById('cookies-result');
+      resultDiv.style.display = 'block';
+      
+      const cookies = document.cookie.split(';').map(c => c.trim());
+      const rewardfulCookies = cookies.filter(c => 
+        c.includes('rewardful') || c.includes('referral') || c.includes('affiliate')
+      );
+      
+      if (rewardfulCookies.length > 0) {
+        resultDiv.innerHTML = `
+          <p class="success">✅ Cookies de tracking trouvés !</p>
+          <p class="info">Cookies détectés :</p>
+          <ul>
+            ${rewardfulCookies.map(c => `<li><code>${c}</code></li>`).join('')}
+          </ul>
+        `;
+      } else {
+        resultDiv.innerHTML = `
+          <p class="error">❌ Aucun cookie de tracking trouvé</p>
+          <p>Clique d'abord sur un lien avec <code>?via=</code> pour créer un cookie.</p>
+        `;
+      }
+    }
+
+    // Test 5 : Simuler une conversion
+    function testConversion() {
+      const resultDiv = document.getElementById('conversion-result');
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <p class="info">⏳ Test de conversion en cours...</p>
+      `;
+
+      // Note : Pour tester une vraie conversion, il faut passer par Stripe
+      // Ce test simule juste l'appel API
+      resultDiv.innerHTML = `
+        <p class="success">✅ Test préparé</p>
+        <p class="info">Pour tester une conversion réelle :</p>
+        <ol>
+          <li>Clique sur un lien affilié (<code>?via=nnthrdz</code>)</li>
+          <li>Inscris-toi avec un nouvel email</li>
+          <li>Va sur <code>/dashboard/upgrade</code></li>
+          <li>Utilise une carte de test Stripe : <code>4242 4242 4242 4242</code></li>
+          <li>Vérifie dans Rewardful que la commission est créditée</li>
+        </ol>
+      `;
+    }
+
+    // Auto-exécuter le test du paramètre via au chargement
+    window.addEventListener('load', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('via')) {
+        setTimeout(() => {
+          checkViaParameter();
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>
+
