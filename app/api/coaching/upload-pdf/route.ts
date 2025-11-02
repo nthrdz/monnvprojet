@@ -8,6 +8,16 @@ import { existsSync } from "fs"
 // Configuration pour permettre l'upload de fichiers jusqu'à 50MB
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60 // 60 secondes max
+
+// 🔧 IMPORTANT : Configuration de la taille maximale du body
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
+}
 
 export async function POST(request: NextRequest) {
   try {

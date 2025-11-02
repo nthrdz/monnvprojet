@@ -83,6 +83,13 @@ export function TrainingPlansClient({ initialPlans, profileId }: TrainingPlansCl
       let pdfFileUrl = null
       let pdfFileName = null
       if (formData.pdfFile) {
+        // Vérifier la taille du fichier AVANT d'envoyer (max 50MB)
+        const maxSize = 50 * 1024 * 1024 // 50MB en bytes
+        if (formData.pdfFile.size > maxSize) {
+          alert(`❌ Fichier trop volumineux !\n\nTaille du fichier : ${(formData.pdfFile.size / 1024 / 1024).toFixed(2)} MB\nTaille maximale : 50 MB\n\nMerci de réduire la taille du fichier PDF avant de le télécharger.`)
+          return
+        }
+
         const uploadFormData = new FormData()
         uploadFormData.append('pdfFile', formData.pdfFile)
         uploadFormData.append('planId', `temp_${Date.now()}`) // ID temporaire
@@ -93,8 +100,19 @@ export function TrainingPlansClient({ initialPlans, profileId }: TrainingPlansCl
         })
 
         if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json()
-          alert(`Erreur upload PDF: ${errorData.error}`)
+          // Gérer spécifiquement l'erreur 413 (fichier trop gros)
+          if (uploadResponse.status === 413) {
+            alert(`❌ Fichier trop volumineux !\n\nLe serveur a refusé le fichier car il dépasse la limite de taille autorisée (50 MB).\n\nTaille actuelle : ${(formData.pdfFile.size / 1024 / 1024).toFixed(2)} MB\n\nMerci de compresser ou réduire la taille du fichier PDF.`)
+            return
+          }
+          
+          // Autres erreurs
+          try {
+            const errorData = await uploadResponse.json()
+            alert(`Erreur upload PDF: ${errorData.error}`)
+          } catch {
+            alert(`Erreur upload PDF: Erreur serveur (${uploadResponse.status})`)
+          }
           return
         }
 
