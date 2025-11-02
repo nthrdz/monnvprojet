@@ -254,7 +254,19 @@ export function ModernProfileCard({
                         
                         {/* Informations de l'événement */}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white text-sm truncate">{race.name}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium text-white text-sm truncate flex-1">{race.name}</p>
+                            {/* Badge passé/à venir */}
+                            {new Date(race.date) < new Date() ? (
+                              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-gray-500/30 text-gray-300 border border-gray-400/30 whitespace-nowrap">
+                                Passé
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-green-500/30 text-green-300 border border-green-400/30 whitespace-nowrap">
+                                À venir
+                              </span>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2 mt-1">
                             <p className="text-gray-300 text-xs">
                               {new Date(race.date).toLocaleDateString('fr-FR', { 
