@@ -367,6 +367,37 @@ export function TrainingPlansClient({ initialPlans, profileId }: TrainingPlansCl
               </div>
             </div>
 
+            {/* PDF Indicator */}
+            {plan.pdfFileUrl ? (
+              <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">PDF disponible</p>
+                      <p className="text-xs text-blue-700">{plan.pdfFileName || 'Programme.pdf'}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={plan.pdfFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    title="Télécharger le PDF"
+                  >
+                    <Upload className="w-4 h-4 rotate-180" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <p className="text-sm text-gray-500">Aucun PDF attaché</p>
+                </div>
+              </div>
+            )}
+
             {/* Category */}
             <div className="mb-4">
               <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
