@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { sendBookingNotification } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,17 +66,20 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // TODO: Envoyer un email de notification au coach
-    // await sendEmailNotification(coach.user.email, {
-    //   subject: `Nouvelle demande de réservation de ${clientName}`,
-    //   body: `
-    //     Nouvelle demande de réservation:
-    //     Client: ${clientName}
-    //     Email: ${clientEmail}
-    //     Service: ${service}
-    //     Message: ${message}
-    //   `
-    // })
+    // 📧 Envoyer un email de notification au coach
+    try {
+      await sendBookingNotification(
+        coach.user.email,
+        clientName,
+        clientEmail,
+        service,
+        message
+      )
+      console.log('✅ Email de notification envoyé au coach:', coach.user.email)
+    } catch (emailError) {
+      console.error('❌ Erreur envoi email notification:', emailError)
+      // On ne bloque pas la réservation si l'email échoue
+    }
 
     return NextResponse.json({ 
       success: true,

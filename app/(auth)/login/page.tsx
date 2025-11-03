@@ -24,11 +24,12 @@ import { loginSchema, type LoginInput } from "@/lib/validations"
 import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowRight, Zap } from "lucide-react"
+import { ArrowRight, Zap, Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -114,13 +115,26 @@ export default function LoginPage() {
               <Label htmlFor="password" className="text-sm font-semibold text-gray-700 mb-2 block">
                 Mot de passe
               </Label>
-              <Input 
-                id="password" 
-                type="password"
-                {...form.register("password")} 
-                placeholder="••••••••"
-                className="h-12 px-4 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors"
-              />
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type={showPassword ? "text" : "password"}
+                  {...form.register("password")} 
+                  placeholder="••••••••"
+                  className="h-12 px-4 pr-12 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               {form.formState.errors.password && (
                 <p className="text-sm text-danger-600 mt-2 font-medium">
                   {form.formState.errors.password.message}

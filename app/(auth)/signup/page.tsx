@@ -11,7 +11,7 @@ import { signupSchema, type SignupInput } from "@/lib/validations"
 import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowRight, Check, X, Loader2 } from "lucide-react"
+import { ArrowRight, Check, X, Loader2, Eye, EyeOff } from "lucide-react"
 
 // Local Zod resolver
 const zodResolver = (schema: any) => async (values: unknown) => {
@@ -30,15 +30,18 @@ const zodResolver = (schema: any) => async (values: unknown) => {
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   
   // 🎯 CODE DE PARRAINAGE - Récupérer du localStorage
   const [referralCode, setReferralCode] = useState<string | null>(null)
 
-  const form = useForm<SignupInput>({
+  const form = useForm<SignupInput & { confirmPassword: string }>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       name: "",
       username: "",
       sport: ""
@@ -56,10 +59,17 @@ export default function SignupPage() {
   }, [])
 
   // 📝 INSCRIPTION
-  async function onSubmit(values: SignupInput) {
+  async function onSubmit(values: SignupInput & { confirmPassword: string }) {
     setIsLoading(true)
     
     try {
+      // Vérifier que les mots de passe correspondent
+      if (values.password !== values.confirmPassword) {
+        toast.error("Les mots de passe ne correspondent pas")
+        setIsLoading(false)
+        return
+      }
+
       console.log("📤 Début inscription")
 
       const res = await fetch("/api/auth/signup", {
@@ -224,17 +234,62 @@ export default function SignupPage() {
               <Label htmlFor="password" className="text-sm font-semibold text-gray-700 mb-2 block">
                 Mot de passe
               </Label>
-              <Input 
-                id="password" 
-                type="password"
-                {...form.register("password")} 
-                placeholder="••••••••"
-                className="h-12 px-4 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors"
-              />
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type={showPassword ? "text" : "password"}
+                  {...form.register("password")} 
+                  placeholder="••••••••"
+                  className="h-12 px-4 pr-12 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               <p className="text-xs text-gray-500 mt-2">Minimum 8 caractères</p>
               {form.formState.errors.password && (
                   <p className="text-sm text-danger-600 mt-2 font-medium">
                   {form.formState.errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirmer mot de passe */}
+            <div>
+              <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 mb-2 block">
+                Confirmer le mot de passe
+              </Label>
+              <div className="relative">
+                <Input 
+                  id="confirmPassword" 
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...form.register("confirmPassword")} 
+                  placeholder="••••••••"
+                  className="h-12 px-4 pr-12 rounded-xl border-2 border-gray-200 focus:border-primary-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              {form.formState.errors.confirmPassword && (
+                  <p className="text-sm text-danger-600 mt-2 font-medium">
+                  {form.formState.errors.confirmPassword.message}
                 </p>
               )}
             </div>

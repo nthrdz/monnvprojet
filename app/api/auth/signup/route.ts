@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { signupSchema, mapSportToEnum, createStatsWithOriginalSport } from "@/lib/validations"
+import { sendWelcomeEmail } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -77,6 +78,15 @@ export async function POST(req: NextRequest) {
         console.error('❌ Erreur conversion parrainage:', conversionError)
         // On continue même si la conversion échoue
       }
+    }
+
+    // 📧 Envoyer l'email de bienvenue
+    try {
+      await sendWelcomeEmail(user.email, user.name || 'Athlète')
+      console.log('✅ Email de bienvenue envoyé à:', user.email)
+    } catch (emailError) {
+      console.error('❌ Erreur envoi email de bienvenue:', emailError)
+      // On ne bloque pas l'inscription si l'email échoue
     }
 
     return NextResponse.json({
