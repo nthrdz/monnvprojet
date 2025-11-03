@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Link2, Trophy, Award, Plus, BarChart3 } from "lucide-react"
+import { Link2, Trophy, Award, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LiensContent } from "./liens-content"
 import { CompetitionsContent } from "./competitions-content"
@@ -112,19 +112,9 @@ export default function SourcesPage() {
         transition={{ delay: 0.1, duration: 0.5 }}
         className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm"
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Sources</h1>
-            <p className="text-gray-600">Gérez vos liens, compétitions et partenaires en un seul endroit</p>
-          </div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span className="text-sm font-medium">Analytics</span>
-          </motion.div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sources</h1>
+          <p className="text-gray-600">Gérez vos liens, compétitions et partenaires en un seul endroit</p>
         </div>
       </motion.div>
 

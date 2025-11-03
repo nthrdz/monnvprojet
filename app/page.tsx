@@ -398,7 +398,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 mb-6 tracking-tight"
               >
-                Analytics avancées
+                Programme Ambassadeur
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -407,12 +407,12 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed"
               >
-                Analyse tes performances avec des données précises et une heatmap interactive
+                Gagne des commissions récurrentes en parrainant de nouveaux athlètes sur Athlink
               </motion.p>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-              {/* Analytics Screenshot with Apple-style design */}
+              {/* Analytics Screenshot */}
               <motion.div
                 initial={{ opacity: 0, x: -60 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -429,108 +429,16 @@ export default function Home() {
                     scale: 1.02,
                     transition: { duration: 0.3, ease: "easeOut" }
                   }}
-                  className="relative"
+                  className="relative rounded-3xl overflow-hidden shadow-2xl"
                 >
-                  {/* Main device frame */}
-                  <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-gray-900/10 p-6 border border-gray-200/50">
-                    {/* Device header */}
-                    <div className="flex items-center gap-2 mb-6">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                        <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                        </div>
-                      <div className="flex-1 text-center">
-                        <div className="w-32 h-6 bg-gray-200 rounded-full mx-auto"></div>
-                        </div>
-                        </div>
-
-                    {/* Analytics content */}
-                    <div className="space-y-6">
-                      {/* Stats Cards */}
-                      <div className="grid grid-cols-3 gap-4">
-                        {[
-                          { value: "208", label: "Total clics" },
-                          { value: "10.4", label: "Moyenne" },
-                          { value: "20", label: "Zone active" }
-                        ].map((stat, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.5 + i * 0.1 }}
-                            className="bg-white rounded-2xl p-4 border border-gray-100 text-center"
-                          >
-                            <div className="text-2xl font-medium text-gray-900 mb-1">{stat.value}</div>
-                            <div className="text-sm text-gray-600">{stat.label}</div>
-                          </motion.div>
-                        ))}
-                      </div>
-                      
-                      {/* Heatmap visualization */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.8 }}
-                        className="bg-gray-50 rounded-2xl p-6"
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-medium text-gray-900">Carte de chaleur</h4>
-                            <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">Intensité</span>
-                            <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                whileInView={{ width: "70%" }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 1, duration: 0.8 }}
-                                className="h-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-400"
-                              />
-                              </div>
-                            </div>
-                          </div>
-                        <div className="bg-gray-200 rounded-xl h-32 flex items-center justify-center">
-                          <span className="text-gray-500 text-sm">Visualisation heatmap</span>
-                          </div>
-                      </motion.div>
-
-                      {/* Top zones */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 1.1 }}
-                        className="bg-gray-50 rounded-2xl p-6"
-                      >
-                        <h4 className="font-medium text-gray-900 mb-4">Top 5 zones</h4>
-                        <div className="space-y-3">
-                          {[
-                            { rank: 1, name: "Liens", clicks: 20, color: "bg-yellow-400" },
-                            { rank: 2, name: "Liens", clicks: 19, color: "bg-gray-400" },
-                            { rank: 3, name: "Sponsors", clicks: 17, color: "bg-gray-400" },
-                            { rank: 4, name: "Sponsors", clicks: 17, color: "bg-gray-400" },
-                            { rank: 5, name: "Sponsors", clicks: 16, color: "bg-gray-400" }
-                          ].map((item, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0, x: -20 }}
-                              whileInView={{ opacity: 1, x: 0 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: 1.2 + i * 0.1 }}
-                              className="flex items-center gap-3"
-                            >
-                              <div className={`w-6 h-6 ${item.color} rounded-full flex items-center justify-center text-white text-xs font-medium`}>
-                                {item.rank}
-                        </div>
-                              <span className="text-sm text-gray-700">{item.name} - {item.clicks} clics</span>
-                            </motion.div>
-                          ))}
-                            </div>
-                      </motion.div>
-                  </div>
-                </div>
+                  <Image
+                    src="/uploads/hero/3.png"
+                    alt="Programme Ambassadeur - Gagne 40% de commission récurrente"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto"
+                    unoptimized
+                  />
                 </motion.div>
               </motion.div>
 
@@ -554,7 +462,7 @@ export default function Home() {
                     transition={{ delay: 0.6 }}
                     className="text-3xl sm:text-4xl font-light text-gray-900 mb-6 tracking-tight"
                   >
-                    Analyse tes performances
+                    Gagne 40% de commission
                   </motion.h3>
                   
                   <motion.p
@@ -564,7 +472,7 @@ export default function Home() {
                     transition={{ delay: 0.7 }}
                     className="text-xl text-gray-600 font-light leading-relaxed mb-8"
                   >
-                    Comprends ton audience avec des <span className="font-medium text-gray-900">analytics professionnelles</span> et optimise ton profil.
+                    Deviens ambassadeur Athlink et gagne des <span className="font-medium text-gray-900">commissions récurrentes</span> chaque mois.
                   </motion.p>
 
                   <motion.div
@@ -575,10 +483,10 @@ export default function Home() {
                     className="space-y-6"
                   >
                     {[
-                      { title: "Heatmap des clics", desc: "Visualise les zones les plus actives de ton profil" },
-                      { title: "Statistiques détaillées", desc: "Total de clics, moyennes par zone, performances" },
-                      { title: "Top 5 des zones", desc: "Identifie tes contenus les plus performants" },
-                      { title: "Export de données", desc: "Analyse tes performances hors ligne en PDF" }
+                      { title: "40% de commission", desc: "Pour chaque athlète qui s'inscrit via ton lien et passe Pro ou Elite" },
+                      { title: "Revenus récurrents", desc: "Gagne des commissions chaque mois tant qu'ils restent abonnés" },
+                      { title: "Plan Pro : 3,96€/mois", desc: "Pour un abonnement à 9,90€/mois" },
+                      { title: "Plan Elite : 10,36€/mois", desc: "Pour un abonnement à 25,90€/mois" }
                     ].map((feature, i) => (
                       <motion.div
                         key={i}
@@ -652,7 +560,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 mb-6 tracking-tight"
               >
-                Gestion des sponsors
+                Exemple de profil Athlink
               </motion.h2>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
@@ -661,7 +569,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed"
               >
-                Gère tes partenaires et sponsors avec codes promo
+                Découvre à quoi ressemble un profil complet avec liens, événements et informations
               </motion.p>
             </motion.div>
 
@@ -686,7 +594,7 @@ export default function Home() {
                     transition={{ delay: 0.4 }}
                     className="text-3xl sm:text-4xl font-light text-gray-900 mb-6 tracking-tight"
                   >
-                    Monétise ton influence
+                    Un profil professionnel
                   </motion.h3>
                   
                   <motion.p
@@ -696,7 +604,7 @@ export default function Home() {
                     transition={{ delay: 0.5 }}
                     className="text-xl text-gray-600 font-light leading-relaxed mb-8"
                   >
-                    Transforme ta passion en <span className="font-medium text-gray-900">opportunités commerciales</span> avec un système de gestion complet.
+                    Crée ton <span className="font-medium text-gray-900">link-in-bio personnalisé</span> pour partager tes liens, événements et sponsors en un seul endroit.
                   </motion.p>
 
                   <motion.div
@@ -707,10 +615,10 @@ export default function Home() {
                     className="space-y-6"
                   >
                     {[
-                      { title: "Extraction automatique de logos", desc: "Récupère les logos depuis les sites web" },
-                      { title: "Codes promo personnalisés", desc: "Crée et partage des réductions exclusives" },
-                      { title: "Formulaire intuitif", desc: "Ajoute un sponsor en quelques clics" },
-                      { title: "Gestion complète", desc: "Édite, supprime et organise tes partenariats" }
+                      { title: "Liens personnalisés", desc: "Partage tous tes liens importants en un seul endroit" },
+                      { title: "Événements à venir", desc: "Affiche tes prochaines compétitions avec countdown" },
+                      { title: "Sponsors et partenaires", desc: "Mets en avant tes sponsors avec logos et codes promo" },
+                      { title: "Design personnalisable", desc: "Choisis ton thème et personnalise ton profil" }
                     ].map((feature, i) => (
                       <motion.div
                         key={i}
@@ -731,7 +639,7 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Sponsors Screenshot with Apple-style design */}
+              {/* Sponsors Screenshot */}
               <motion.div
                 initial={{ opacity: 0, x: 60 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -748,98 +656,16 @@ export default function Home() {
                     scale: 1.02,
                     transition: { duration: 0.3, ease: "easeOut" }
                   }}
-                  className="relative"
+                  className="relative rounded-3xl overflow-hidden shadow-2xl"
                 >
-                  {/* Main device frame */}
-                  <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-gray-900/10 p-6 border border-gray-200/50">
-                    {/* Device header */}
-                    <div className="flex items-center gap-2 mb-6">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                        <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                      </div>
-                      <div className="flex-1 text-center">
-                        <div className="w-32 h-6 bg-gray-200 rounded-full mx-auto"></div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="space-y-6">
-                        <div>
-                        <h3 className="text-2xl font-medium text-gray-900 mb-2">Mes sponsors</h3>
-                        <p className="text-gray-600 font-light">Gère tes partenaires et sponsors avec codes promo</p>
-                        </div>
-
-                      {/* Form mockup */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.8 }}
-                        className="bg-gray-50 rounded-2xl p-6"
-                      >
-                        <h4 className="font-medium text-gray-900 mb-4">Ajouter un sponsor</h4>
-                        
-                        <div className="space-y-4">
-                          {/* Form fields */}
-                          {[
-                            { label: "Nom du sponsor", placeholder: "Nike, Adidas...", type: "text" },
-                            { label: "Site web", placeholder: "https://example.com", type: "text", hasButton: true },
-                            { label: "Code promo", placeholder: "ATHLETE20", type: "text" }
-                          ].map((field, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0, y: 10 }}
-                              whileInView={{ opacity: 1, y: 0 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: 0.9 + i * 0.1 }}
-                            >
-                              <label className="block text-sm font-medium text-gray-700 mb-2">{field.label}</label>
-                          <div className="flex gap-2">
-                            <input 
-                                  type={field.type}
-                                  placeholder={field.placeholder}
-                                  className="flex-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
-                              disabled
-                            />
-                                {field.hasButton && (
-                                  <button className="px-4 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-medium">
-                                    Extraire
-                            </button>
-                                )}
-                          </div>
-                            </motion.div>
-                          ))}
-                          
-                          {/* Upload area */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 1.2 }}
-                          >
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Logo du sponsor</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center bg-white">
-                            <p className="text-sm text-gray-600">Choisir un fichier</p>
-                            <p className="text-xs text-gray-500 mt-1">Aucun fichier choisi</p>
-                          </div>
-                          </motion.div>
-                          
-                          {/* Submit button */}
-                          <motion.button
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 1.3 }}
-                            className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
-                          >
-                          Ajouter
-                          </motion.button>
-                      </div>
-                      </motion.div>
-                  </div>
-                </div>
+                  <Image
+                    src="/uploads/hero/4.png"
+                    alt="Exemple de profil Athlink - Liens, événements et sponsors"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto"
+                    unoptimized
+                  />
                 </motion.div>
               </motion.div>
             </div>
