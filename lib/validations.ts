@@ -81,6 +81,7 @@ export const profileUpdateSchema = z.object({
   location: z.string().max(100, "Maximum 100 caractères").nullable().optional(),
   sport: z.string().min(2, "Minimum 2 caractères").max(50, "Maximum 50 caractères").optional(),
   instagram: z.string().max(100).nullable().optional(),
+  twitter: z.string().max(100).nullable().optional(),
   strava: z.union([z.string().url("URL invalide"), z.literal(""), z.null()]).optional(),
   youtube: z.union([z.string().url("URL invalide"), z.literal(""), z.null()]).optional(),
   tiktok: z.string().max(100).nullable().optional(),
