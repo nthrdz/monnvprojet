@@ -7,25 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { signupFormSchema, type SignupFormInput } from "@/lib/validations"
 import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Check, X, Loader2, Eye, EyeOff } from "lucide-react"
-
-// Local Zod resolver
-const zodResolver = (schema: any) => async (values: unknown) => {
-  const result = schema.safeParse(values)
-  if (result.success) {
-    return { values: result.data, errors: {} }
-  }
-  const fieldErrors: Record<string, any> = {}
-  for (const issue of result.error.issues) {
-    const path = issue.path.join('.')
-    fieldErrors[path] = { type: 'validation', message: issue.message }
-  }
-  return { values: {}, errors: fieldErrors }
-}
 
 export default function SignupPage() {
   const router = useRouter()
