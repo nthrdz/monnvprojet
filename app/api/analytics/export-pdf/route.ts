@@ -3,6 +3,10 @@ import { prisma } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 import jsPDF from "jspdf"
 
+// Force Node.js runtime (jsPDF requires Node.js APIs)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
       _sum: { clicks: true }
     })
 
-    // Calculer les totaux avec précision
+    // Calculer les totaux
     const totalViews = analytics.reduce((sum, day) => sum + (day.views || 0), 0)
     const totalUniqueViews = analytics.reduce((sum, day) => sum + (day.uniqueViews || 0), 0)
     const totalClicks = linkClicks._sum.clicks || 0
@@ -53,352 +57,197 @@ export async function POST(request: NextRequest) {
     // Calculer la moyenne par jour
     const avgViewsPerDay = days > 0 ? Math.round(totalViews / days) : 0
     const avgUniquePerDay = days > 0 ? Math.round(totalUniqueViews / days) : 0
+    const avgClicksPerDay = days > 0 ? Math.round(totalClicks / days) : 0
 
     // Créer le PDF (format A4)
     const pdf = new jsPDF()
     
-    // Configuration des couleurs (RGB)
-    const colors = {
-      primary: [31, 41, 55],      // gray-800
-      secondary: [107, 114, 128], // gray-500
-      accent: [239, 68, 68],      // red-500
-      success: [16, 185, 129],    // emerald-500
-      blue: [59, 130, 246],       // blue-500
-      orange: [245, 158, 11]      // amber-500
-    }
+    // Couleurs simples
+    const primary = [17, 24, 39]   // gray-900
+    const secondary = [107, 114, 128] // gray-500  
+    const accent = [59, 130, 246]  // blue-500
 
-    // Fonction helper pour définir les couleurs
-    const setColor = (color: number[]) => pdf.setTextColor(color[0], color[1], color[2])
-    const setDrawColor = (color: number[]) => pdf.setDrawColor(color[0], color[1], color[2])
-    const setFillColor = (color: number[]) => pdf.setFillColor(color[0], color[1], color[2])
-
-    // === EN-TÊTE ===
-    // Logo/Titre principal
-    pdf.setFontSize(22)
-    setColor(colors.accent)
+    // === EN-TÊTE SIMPLE ===
+    pdf.setFontSize(24)
+    pdf.setTextColor(...primary)
     pdf.text('ATHLINK', 20, 25)
     
-    pdf.setFontSize(14)
-    setColor(colors.primary)
+    pdf.setFontSize(12)
     pdf.text('Rapport de Performance', 20, 35)
     
-    // Informations du profil
     pdf.setFontSize(10)
-    setColor(colors.secondary)
+    pdf.setTextColor(...secondary)
     pdf.text(`${profile.displayName} (@${profile.username})`, 20, 43)
-    pdf.text(`${days} derniers jours • ${new Date().toLocaleDateString('fr-FR')}`, 20, 50)
+    pdf.text(`${days} derniers jours • ${new Date().toLocaleDateString('fr-FR')}`, 20, 49)
 
     // Ligne de séparation
-    setDrawColor(colors.accent)
-    pdf.setLineWidth(1)
-    pdf.line(20, 55, 190, 55)
+    pdf.setDrawColor(...accent)
+    pdf.setLineWidth(0.5)
+    pdf.line(20, 54, 190, 54)
 
-    // === STATISTIQUES PRINCIPALES ===
-    let yPos = 70
+    // === STATISTIQUES PRINCIPALES EN GRAND ===
+    let yPos = 65
 
-    // Titre section
-    pdf.setFontSize(12)
-    setColor(colors.primary)
-    pdf.text('PERFORMANCE GLOBALE', 20, yPos)
-    yPos += 12
-
-    // Grille des statistiques principales (2x2)
+    // 4 stats en ligne
     const stats = [
-      { 
-        label: 'VUES TOTALES', 
-        value: totalViews.toLocaleString('fr-FR'), 
-        color: colors.accent,
-        subtitle: `${avgViewsPerDay}/jour`
-      },
-      { 
-        label: 'VISITEURS UNIQUES', 
-        value: totalUniqueViews.toLocaleString('fr-FR'), 
-        color: colors.success,
-        subtitle: `${avgUniquePerDay}/jour`
-      },
-      { 
-        label: 'CLICS TOTAL', 
-        value: totalClicks.toLocaleString('fr-FR'), 
-        color: colors.blue,
-        subtitle: `${Math.round(totalClicks / Math.max(days, 1))}/jour`
-      },
-      { 
-        label: 'TAUX DE CLIC', 
-        value: `${clickRate.toFixed(1)}%`, 
-        color: colors.orange,
-        subtitle: `${Math.round(totalClicks / Math.max(totalViews, 1) * 100)}% efficace`
-      }
+      { label: 'Vues', value: totalViews, sub: `${avgViewsPerDay}/j` },
+      { label: 'Visiteurs', value: totalUniqueViews, sub: `${avgUniquePerDay}/j` },
+      { label: 'Clics', value: totalClicks, sub: `${avgClicksPerDay}/j` },
+      { label: 'Taux clic', value: `${clickRate.toFixed(1)}%`, sub: clickRate > 3 ? 'Bon' : 'Moyen' }
     ]
 
-    // Affichage en grille 2x2 avec espacement optimisé
-    stats.forEach((stat, index) => {
-      const x = 20 + (index % 2) * 90
-      const y = yPos + Math.floor(index / 2) * 32
-
-      // Cadre de la stat avec ombre légère
-      pdf.setLineWidth(0.5)
-      setDrawColor(stat.color)
-      pdf.rect(x, y, 85, 28)
-
+    stats.forEach((stat, i) => {
+      const x = 20 + (i * 45)
+      
       // Label
-      pdf.setFontSize(8)
-      setColor(colors.secondary)
-      pdf.text(stat.label, x + 5, y + 8)
-
-      // Valeur principale
-      pdf.setFontSize(16)
-      setColor(stat.color)
-      pdf.text(stat.value, x + 5, y + 18)
-
+      pdf.setFontSize(9)
+      pdf.setTextColor(...secondary)
+      pdf.text(stat.label, x, yPos)
+      
+      // Valeur en grand
+      pdf.setFontSize(20)
+      pdf.setTextColor(...accent)
+      pdf.text(String(stat.value), x, yPos + 10)
+      
       // Sous-titre
-      pdf.setFontSize(7)
-      setColor(colors.secondary)
-      pdf.text(stat.subtitle, x + 5, y + 24)
+      pdf.setFontSize(8)
+      pdf.setTextColor(...secondary)
+      pdf.text(stat.sub, x, yPos + 17)
     })
 
-    yPos += 70
+    yPos += 35
 
-    // === TOP 5 DES LIENS ===
+    // === GRAPHIQUE D'ÉVOLUTION SIMPLE ===
+    pdf.setFontSize(11)
+    pdf.setTextColor(...primary)
+    pdf.text('Évolution des vues', 20, yPos)
+    yPos += 8
+
+    // Créer un graphique simple en ligne
+    const graphX = 20
+    const graphY = yPos
+    const graphWidth = 170
+    const graphHeight = 40
+
+    // Cadre du graphique
+    pdf.setDrawColor(...secondary)
+    pdf.setLineWidth(0.3)
+    pdf.rect(graphX, graphY, graphWidth, graphHeight)
+
+    // Lignes horizontales de grille
+    for (let i = 1; i <= 3; i++) {
+      const y = graphY + (graphHeight / 4) * i
+      pdf.setDrawColor(200, 200, 200)
+      pdf.setLineWidth(0.1)
+      pdf.line(graphX, y, graphX + graphWidth, y)
+    }
+
+    // Tracer les points si on a des données
+    if (analytics.length > 1) {
+      const maxViews = Math.max(...analytics.map(a => a.views || 0), 1)
+      const pointSpacing = graphWidth / Math.max(analytics.length - 1, 1)
+
+      pdf.setDrawColor(...accent)
+      pdf.setLineWidth(1.5)
+
+      // Tracer les lignes entre les points
+      analytics.forEach((point, index) => {
+        if (index < analytics.length - 1) {
+          const x1 = graphX + (index * pointSpacing)
+          const y1 = graphY + graphHeight - ((point.views || 0) / maxViews) * graphHeight
+          const x2 = graphX + ((index + 1) * pointSpacing)
+          const y2 = graphY + graphHeight - ((analytics[index + 1].views || 0) / maxViews) * graphHeight
+
+          pdf.line(x1, y1, x2, y2)
+        }
+
+        // Ajouter un point
+        const x = graphX + (index * pointSpacing)
+        const y = graphY + graphHeight - ((point.views || 0) / maxViews) * graphHeight
+        pdf.setFillColor(...accent)
+        pdf.circle(x, y, 1.5, 'F')
+      })
+    }
+
+    // Labels des axes
+    pdf.setFontSize(7)
+    pdf.setTextColor(...secondary)
+    pdf.text('0', graphX - 5, graphY + graphHeight + 2)
+    if (analytics.length > 0) {
+      const maxViews = Math.max(...analytics.map(a => a.views || 0))
+      pdf.text(String(maxViews), graphX - 5, graphY + 3)
+    }
+
+    yPos += graphHeight + 15
+
+    // === TOP 3 DES LIENS ===
+    pdf.setFontSize(11)
+    pdf.setTextColor(...primary)
+    pdf.text('Top 3 des liens', 20, yPos)
+    yPos += 10
+
     if (profile.links.length > 0) {
-      pdf.setFontSize(12)
-      setColor(colors.primary)
-      pdf.text('TOP 5 DES LIENS', 20, yPos)
-      yPos += 12
-
-      // Top 5 des liens triés
       const topLinks = profile.links
         .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-        .slice(0, 5)
+        .slice(0, 3)
 
       topLinks.forEach((link, index) => {
         const clicks = link.clicks || 0
-        const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100) : 0
-        
-        // Nom du lien (tronqué intelligemment)
         let linkName = link.title
-        if (linkName.length > 30) {
-          linkName = linkName.substring(0, 27) + '...'
+        if (linkName.length > 40) {
+          linkName = linkName.substring(0, 37) + '...'
         }
-        
-        // Rang et nom
+
         pdf.setFontSize(9)
-        setColor(colors.primary)
-        pdf.text(`${index + 1}. ${linkName}`, 20, yPos)
-        
-        // Valeurs alignées à droite
-        pdf.text(clicks.toString(), 140, yPos)
-        pdf.text(`${percentage.toFixed(1)}%`, 165, yPos)
-        
-        // Barre de progression visuelle
-        const barWidth = Math.max(1, (percentage / 100) * 35)
-        setFillColor(colors.accent)
-        pdf.rect(20, yPos + 1, barWidth, 2, 'F')
-        
-        yPos += 6
+        pdf.setTextColor(...primary)
+        pdf.text(`${index + 1}. ${linkName}`, 25, yPos)
+        pdf.text(`${clicks} clics`, 170, yPos, { align: 'right' })
+
+        yPos += 7
       })
-    }
-
-    // === ANALYSE DE PERFORMANCE ===
-    yPos += 6
-    pdf.setFontSize(10)
-    setColor(colors.primary)
-    pdf.text('ANALYSE DE PERFORMANCE', 20, yPos)
-    yPos += 8
-
-    // Calculer des métriques avancées
-    const conversionRate = totalViews > 0 ? ((totalClicks / totalViews) * 100) : 0
-    const engagementScore = Math.min(100, Math.round((totalClicks * 2 + totalUniqueViews) / Math.max(totalViews, 1) * 10))
-    const growthRate = analytics.length > 1 ? 
-      Math.round(((analytics[analytics.length - 1]?.views || 0) - (analytics[0]?.views || 0)) / Math.max(analytics[0]?.views || 1, 1) * 100) : 0
-    
-    // Métriques de performance en grille 2x2
-    const performanceMetrics = [
-      { 
-        label: 'TAUX DE CONVERSION', 
-        value: `${conversionRate.toFixed(1)}%`, 
-        color: conversionRate > 5 ? colors.success : conversionRate > 2 ? colors.orange : colors.accent,
-        description: conversionRate > 5 ? 'Excellent' : conversionRate > 2 ? 'Correct' : 'À améliorer'
-      },
-      { 
-        label: 'SCORE ENGAGEMENT', 
-        value: `${engagementScore}/100`, 
-        color: engagementScore > 70 ? colors.success : engagementScore > 40 ? colors.orange : colors.accent,
-        description: engagementScore > 70 ? 'Fort' : engagementScore > 40 ? 'Modéré' : 'Faible'
-      },
-      { 
-        label: 'CROISSANCE', 
-        value: `${growthRate > 0 ? '+' : ''}${growthRate}%`, 
-        color: growthRate > 10 ? colors.success : growthRate > 0 ? colors.orange : colors.accent,
-        description: growthRate > 10 ? 'En hausse' : growthRate > 0 ? 'Stable' : 'En baisse'
-      },
-      { 
-        label: 'RÉTENTION', 
-        value: `${totalUniqueViews > 0 ? ((totalUniqueViews / totalViews) * 100).toFixed(0) : 0}%`, 
-        color: (totalUniqueViews / Math.max(totalViews, 1)) > 0.6 ? colors.success : colors.orange,
-        description: (totalUniqueViews / Math.max(totalViews, 1)) > 0.6 ? 'Bonne' : 'Moyenne'
-      }
-    ]
-
-    // Affichage en grille 2x2 compacte
-    performanceMetrics.forEach((metric, index) => {
-      const x = 20 + (index % 2) * 90
-      const y = yPos + Math.floor(index / 2) * 20
-
-      // Cadre de la métrique
-      pdf.setLineWidth(0.3)
-      setDrawColor(metric.color)
-      pdf.rect(x, y, 85, 16)
-
-      // Label
-      pdf.setFontSize(7)
-      setColor(colors.secondary)
-      pdf.text(metric.label, x + 3, y + 5)
-
-      // Valeur
-      pdf.setFontSize(12)
-      setColor(metric.color)
-      pdf.text(metric.value, x + 3, y + 12)
-
-      // Description
-      pdf.setFontSize(6)
-      setColor(colors.secondary)
-      pdf.text(metric.description, x + 3, y + 15)
-    })
-
-    // === CONSEILS D'OPTIMISATION ===
-    yPos += 45
-    
-    // Titre principal de la section
-    pdf.setFontSize(12)
-    setColor(colors.accent)
-    pdf.text('💡 CONSEILS D\'OPTIMISATION', 20, yPos)
-    yPos += 12
-
-    // Ligne de séparation
-    setDrawColor(colors.accent)
-    pdf.setLineWidth(0.5)
-    pdf.line(20, yPos - 2, 190, yPos - 2)
-    yPos += 8
-
-    // Générer des conseils basés sur l'analyse (toujours afficher au moins 2 conseils)
-    const advice = []
-    
-    // Toujours afficher des conseils basés sur les performances réelles
-    const retentionRate = (totalUniqueViews / Math.max(totalViews, 1)) * 100
-    
-    // Conseil 1: Basé sur le taux de conversion
-    advice.push({
-      priority: 1,
-      icon: '🎯',
-      title: 'OPTIMISER VOS TITRES',
-      problem: `Taux de clic: ${conversionRate.toFixed(1)}% (objectif: >3%)`,
-      description: 'Améliorez l\'attractivité de vos titres pour générer plus de clics:',
-      tips: [
-        'Utilisez des verbes d\'action: "Découvrir", "Télécharger", "Voir"',
-        'Ajoutez des émojis pertinents: 🏃‍♂️ 📱 🏆',
-        'Créez de l\'urgence: "Nouveau", "Limité", "Exclusif"'
-      ]
-    })
-    
-    // Conseil 2: Basé sur l'engagement
-    advice.push({
-      priority: 2,
-      icon: '💬',
-      title: 'AUGMENTER L\'ENGAGEMENT',
-      problem: `Score engagement: ${engagementScore}/100 (objectif: >50)`,
-      description: 'Créez plus d\'interaction avec votre audience:',
-      tips: [
-        'Posez des questions directes: "Quel est votre objectif?"',
-        'Créez du contenu interactif: sondages, quiz, défis',
-        'Répondez rapidement aux commentaires'
-      ]
-    })
-    
-    // Conseil 3: Basé sur la croissance (si applicable)
-    if (analytics.length > 1) {
-      advice.push({
-        priority: 3,
-        icon: '📈',
-        title: 'BOOSTER LA VISIBILITÉ',
-        problem: `Croissance: ${growthRate > 0 ? '+' : ''}${growthRate}%`,
-        description: 'Attirez plus de nouveaux visiteurs:',
-        tips: [
-          'Publiez 3-5 fois par semaine minimum',
-          'Utilisez les hashtags pertinents: #running #fitness',
-          'Collaborez avec d\'autres athlètes'
-        ]
-      })
-    }
-    
-    // Conseil 4: Basé sur la rétention
-    advice.push({
-      priority: 4,
-      icon: '🔄',
-      title: 'FIDÉLISER VOS VISITEURS',
-      problem: `Rétention: ${retentionRate.toFixed(0)}% (objectif: >70%)`,
-      description: 'Faites revenir vos visiteurs:',
-      tips: [
-        'Créez du contenu en série: "Jour 1", "Jour 2"...',
-        'Établissez une routine: "Mardi Performance"',
-        'Offrez du contenu exclusif'
-      ]
-    })
-    
-    // Afficher les 2 premiers conseils avec un design simplifié
-    advice.slice(0, 2).forEach((item, index) => {
-      if (yPos > 230) return // Éviter les débordements
-      
-      // Titre du conseil
+    } else {
       pdf.setFontSize(9)
-      setColor(colors.accent)
-      pdf.text(`${item.icon} ${item.title}`, 20, yPos)
-      
-      // Problème identifié
-      pdf.setFontSize(7)
-      setColor(colors.secondary)
-      pdf.text(item.problem, 20, yPos + 6)
-      
-      // Description
-      pdf.setFontSize(7)
-      setColor(colors.primary)
-      pdf.text(item.description, 20, yPos + 12)
-      
-      // Tips
-      pdf.setFontSize(6)
-      setColor(colors.secondary)
-      item.tips.forEach((tip, tipIndex) => {
-        pdf.text(`• ${tip}`, 22, yPos + 18 + (tipIndex * 4))
-      })
-      
-      yPos += 18 + (item.tips.length * 4) + 12
-    })
+      pdf.setTextColor(...secondary)
+      pdf.text('Aucun lien actif', 25, yPos)
+      yPos += 7
+    }
 
-    // === INFORMATIONS COMPLÉMENTAIRES ===
-    yPos += 15
+    yPos += 8
+
+    // === CONSEILS SIMPLES ===
+    pdf.setFontSize(11)
+    pdf.setTextColor(...primary)
+    pdf.text('Recommandations', 20, yPos)
+    yPos += 8
+
+    // 2 conseils simples et directs
+    const tips = []
     
-    // Informations sur la période et la performance
-    pdf.setFontSize(8)
-    setColor(colors.secondary)
+    if (clickRate < 3) {
+      tips.push('Améliorez vos titres : utilisez des verbes d\'action et des émojis')
+    } else {
+      tips.push('Continuez à créer du contenu engageant pour votre audience')
+    }
     
-    const periodInfo = []
-    if (days === 1) periodInfo.push('Période: Dernière 24h')
-    else if (days === 7) periodInfo.push('Période: 7 derniers jours')
-    else if (days === 30) periodInfo.push('Période: 30 derniers jours')
-    else periodInfo.push(`Période: ${days} derniers jours`)
-    
-    periodInfo.push(`Performance: ${clickRate > 5 ? 'Excellente' : clickRate > 2 ? 'Bonne' : 'À améliorer'}`)
-    periodInfo.push(`Engagement: ${totalClicks > 100 ? 'Fort' : totalClicks > 20 ? 'Modéré' : 'Faible'}`)
-    
-    periodInfo.forEach((info, index) => {
-      pdf.text(`• ${info}`, 20, yPos + (index * 4))
+    if (totalClicks < 20) {
+      tips.push('Partagez votre profil sur vos réseaux sociaux pour plus de visibilité')
+    } else {
+      tips.push('Analysez vos liens les plus cliqués pour optimiser votre stratégie')
+    }
+
+    tips.forEach((tip, index) => {
+      pdf.setFontSize(9)
+      pdf.setTextColor(...primary)
+      pdf.text(`${index + 1}. ${tip}`, 25, yPos)
+      yPos += 7
     })
 
     // === PIED DE PAGE ===
-    const footerY = 275
-    pdf.setFontSize(7)
-    setColor(colors.secondary)
-    pdf.text('Généré par Athlink • athlink.com', 20, footerY)
-    pdf.text(`Rapport créé le ${new Date().toLocaleString('fr-FR')}`, 120, footerY)
+    const footerY = 280
+    pdf.setFontSize(8)
+    pdf.setTextColor(...secondary)
+    pdf.text('athlink.fr', 20, footerY)
+    pdf.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 170, footerY, { align: 'right' })
 
     // Convertir en buffer
     const pdfBuffer = Buffer.from(pdf.output('arraybuffer'))
