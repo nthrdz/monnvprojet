@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { ConditionalNavbar } from "@/components/ConditionalNavbar";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { AffiliateTracker } from "@/components/affiliate-tracker";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
           {children}
           <Toaster position="top-center" richColors />
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   );
