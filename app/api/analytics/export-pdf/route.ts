@@ -62,10 +62,10 @@ export async function POST(request: NextRequest) {
     // Créer le PDF (format A4)
     const pdf = new jsPDF()
     
-    // Couleurs simples
-    const primary = [17, 24, 39]   // gray-900
-    const secondary = [107, 114, 128] // gray-500  
-    const accent = [59, 130, 246]  // blue-500
+    // Couleurs simples (tuple pour TypeScript)
+    const primary: [number, number, number] = [17, 24, 39]   // gray-900
+    const secondary: [number, number, number] = [107, 114, 128] // gray-500  
+    const accent: [number, number, number] = [59, 130, 246]  // blue-500
 
     // === EN-TÊTE SIMPLE ===
     pdf.setFontSize(24)
