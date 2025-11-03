@@ -59,6 +59,14 @@ export const signupSchema = z.object({
   sport: z.string().min(2, "Sport requis").max(50, "Maximum 50 caractères"),
 })
 
+// Schema pour le formulaire d'inscription (avec confirmation de mot de passe)
+export const signupFormSchema = signupSchema.extend({
+  confirmPassword: z.string().min(8, "Minimum 8 caractères"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+})
+
 export const loginSchema = z.object({
   email: z.string().email("Email invalide"),
   password: z.string().min(1, "Mot de passe requis"),
@@ -126,6 +134,7 @@ export const mediaSchema = z.object({
 })
 
 export type SignupInput = z.infer<typeof signupSchema>
+export type SignupFormInput = z.infer<typeof signupFormSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type LinkInput = z.infer<typeof linkSchema>
 export type LinkUpdateInput = z.infer<typeof linkUpdateSchema>

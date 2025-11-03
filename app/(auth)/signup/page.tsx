@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
-import { signupSchema, type SignupInput } from "@/lib/validations"
+import { signupFormSchema, type SignupFormInput } from "@/lib/validations"
 import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -36,8 +36,8 @@ export default function SignupPage() {
   // 🎯 CODE DE PARRAINAGE - Récupérer du localStorage
   const [referralCode, setReferralCode] = useState<string | null>(null)
 
-  const form = useForm<SignupInput & { confirmPassword: string }>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<SignupFormInput>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -59,17 +59,10 @@ export default function SignupPage() {
   }, [])
 
   // 📝 INSCRIPTION
-  async function onSubmit(values: SignupInput & { confirmPassword: string }) {
+  async function onSubmit(values: SignupFormInput) {
     setIsLoading(true)
     
     try {
-      // Vérifier que les mots de passe correspondent
-      if (values.password !== values.confirmPassword) {
-        toast.error("Les mots de passe ne correspondent pas")
-        setIsLoading(false)
-        return
-      }
-
       console.log("📤 Début inscription")
 
       const res = await fetch("/api/auth/signup", {
