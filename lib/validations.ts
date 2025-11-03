@@ -2,10 +2,18 @@ import { z } from "zod"
 
 // Fonction pour mapper les sports libres vers l'enum Prisma
 export function mapSportToEnum(sport: string): "RUNNING" | "CYCLING" | "TRIATHLON" | "SWIMMING" | "SKIING" | "OTHER" {
+  const sportUpper = sport.toUpperCase()
   const sportLower = sport.toLowerCase()
   
-  // Mapping intelligent des sports
-  if (sportLower.includes("course") || sportLower.includes("running") || sportLower.includes("marathon") || sportLower.includes("trail")) {
+  // 1. Si c'est déjà une valeur exacte de l'enum Prisma, on la retourne directement
+  if (sportUpper === "RUNNING" || sportUpper === "CYCLING" || sportUpper === "TRIATHLON" || 
+      sportUpper === "SWIMMING" || sportUpper === "SKIING" || sportUpper === "OTHER") {
+    return sportUpper as "RUNNING" | "CYCLING" | "TRIATHLON" | "SWIMMING" | "SKIING" | "OTHER"
+  }
+  
+  // 2. Mapping intelligent des sports similaires
+  if (sportLower.includes("course") || sportLower.includes("running") || sportLower.includes("marathon") || 
+      sportLower.includes("trail") || sportUpper === "TRAIL") {
     return "RUNNING"
   }
   if (sportLower.includes("cycl") || sportLower.includes("vélo") || sportLower.includes("bike") || sportLower.includes("vtt")) {
@@ -21,7 +29,7 @@ export function mapSportToEnum(sport: string): "RUNNING" | "CYCLING" | "TRIATHLO
     return "SKIING"
   }
   
-  // Pour tous les autres sports (football, basketball, tennis, etc.)
+  // 3. Pour tous les autres sports (FITNESS, CROSSFIT, CLIMBING, HIKING, football, basketball, etc.)
   return "OTHER"
 }
 

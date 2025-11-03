@@ -46,7 +46,15 @@ export function ProfileContent() {
     try {
       const res = await fetch("/api/profile")
       const data = await res.json()
-      setProfile(data.profile)
+      
+      // 🎯 Récupérer le sport original depuis les stats
+      const originalSport = getOriginalSportFromStats(data.profile.stats)
+      const profileWithOriginalSport = {
+        ...data.profile,
+        sport: originalSport || data.profile.sport
+      }
+      
+      setProfile(profileWithOriginalSport)
     } catch (error) {
       toast.error("Erreur lors du chargement du profil")
     } finally {
