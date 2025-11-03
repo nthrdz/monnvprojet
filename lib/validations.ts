@@ -85,6 +85,8 @@ export const profileUpdateSchema = z.object({
   strava: z.union([z.string().url("URL invalide"), z.literal(""), z.null()]).optional(),
   youtube: z.union([z.string().url("URL invalide"), z.literal(""), z.null()]).optional(),
   tiktok: z.string().max(100).nullable().optional(),
+  telegram: z.string().max(100).nullable().optional(),
+  whatsapp: z.string().max(20).nullable().optional(),
   theme: z.string().optional(),
   isPublic: z.boolean().optional(),
   customDomain: z.union([z.string().max(100, "Maximum 100 caractères"), z.literal(""), z.null()]).optional(),

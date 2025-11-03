@@ -73,6 +73,8 @@ model Profile {
   strava          String?
   youtube         String?
   tiktok          String?
+  telegram        String?
+  whatsapp        String?
   
   // Settings
   isPublic        Boolean   @default(true)
