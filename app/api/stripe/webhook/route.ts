@@ -342,15 +342,16 @@ export async function POST(req: NextRequest) {
         console.log("🎫 Code promo utilisé:", promoCode)
       }
 
-      // 🎯 METTRE À JOUR LE PLAN DE L'UTILISATEUR
+      // 🎯 METTRE À JOUR LE PLAN DE L'UTILISATEUR (ACTIVATION IMMÉDIATE)
+      // ⚡ L'utilisateur bascule immédiatement sur le nouveau plan, même en période d'essai
       await prisma.profile.update({
         where: { userId },
         data: updateData
       })
 
-      console.log("✅✅✅ PLAN ACTIVÉ AVEC SUCCÈS ! ✅✅✅")
+      console.log("✅✅✅ PLAN ACTIVÉ IMMÉDIATEMENT ! ✅✅✅")
       console.log("   - Utilisateur:", userId)
-      console.log("   - Nouveau plan:", plan)
+      console.log("   - Nouveau plan:", plan, "(activé instantanément)")
       console.log("   - Customer ID:", session.customer)
       console.log("   - Subscription ID:", session.subscription)
 

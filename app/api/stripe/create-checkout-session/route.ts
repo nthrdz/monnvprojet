@@ -101,6 +101,8 @@ export async function POST(req: NextRequest) {
         billingCycle: cycle,
       },
       subscription_data: {
+        // ⚡ Pas de période d'essai - activation immédiate
+        trial_period_days: 0,
         metadata: {
           userId: session.user.id,
           profileId: profile.id,

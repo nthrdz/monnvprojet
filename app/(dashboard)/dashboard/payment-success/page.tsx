@@ -17,26 +17,50 @@ export default function PaymentSuccessPage() {
       try {
         console.log("🔄 Rafraîchissement de la session après paiement...")
         
-        // Attendre 2 secondes pour que le webhook ait le temps de s'exécuter
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        // ⚡ Attendre 1 seconde puis essayer plusieurs fois
+        // Le webhook Stripe met généralement 0.5-2 secondes à s'exécuter
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // Forcer le rafraîchissement de la session NextAuth
-        const updatedSession = await update()
+        // Essayer jusqu'à 5 fois avec un délai croissant
+        let attempts = 0
+        let updatedSession = null
         
-        console.log("✅ Session rafraîchie:", updatedSession)
-        
-        // @ts-ignore
-        if (updatedSession?.user?.plan) {
+        while (attempts < 5) {
+          console.log(`🔄 Tentative ${attempts + 1}/5...`)
+          
+          // Forcer le rafraîchissement de la session NextAuth
+          updatedSession = await update()
+          
           // @ts-ignore
-          setPlan(updatedSession.user.plan)
+          const currentPlan = updatedSession?.user?.plan
+          
+          console.log(`📊 Plan actuel:`, currentPlan)
+          
+          // @ts-ignore
+          if (currentPlan && currentPlan !== 'FREE') {
+            // Plan activé !
+            // @ts-ignore
+            setPlan(currentPlan)
+            console.log("✅ Plan activé:", currentPlan)
+            break
+          }
+          
+          attempts++
+          
+          // Attendre avant la prochaine tentative (délai croissant)
+          if (attempts < 5) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempts))
+          }
         }
         
         setIsRefreshing(false)
         
-        // Rediriger vers le dashboard après 3 secondes
+        // Rediriger vers le dashboard après 2 secondes
         setTimeout(() => {
           router.push('/dashboard')
-        }, 3000)
+          // Forcer un rechargement complet pour être sûr
+          window.location.reload()
+        }, 2000)
         
       } catch (error) {
         console.error("❌ Erreur lors du rafraîchissement:", error)
@@ -44,6 +68,7 @@ export default function PaymentSuccessPage() {
         // Rediriger quand même
         setTimeout(() => {
           router.push('/dashboard')
+          window.location.reload()
         }, 2000)
       }
     }
@@ -71,11 +96,11 @@ export default function PaymentSuccessPage() {
               </motion.div>
               
               <h1 className="text-2xl font-black text-gray-900 mb-3">
-                Activation en cours...
+                Activation immédiate en cours...
               </h1>
               
               <p className="text-gray-600 mb-6">
-                Nous activons votre nouveau plan. Un instant...
+                Votre paiement est confirmé ! Nous basculons immédiatement vers votre nouveau plan...
               </p>
               
               <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
