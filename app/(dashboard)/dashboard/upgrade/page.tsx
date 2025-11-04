@@ -4,13 +4,15 @@ import { useState } from "react"
 import { Check, Zap, Crown, Sparkles, TrendingUp, Globe, BarChart3, Palette, Link as LinkIcon, Shield } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { DebugPlan } from "./debug-plan"
 
-// 🔗 STRIPE PAYMENT LINKS - Liens directs vers les pages de paiement Stripe
+// ❌ DÉSACTIVATION DES PAYMENT LINKS - On utilise l'API pour avoir les metadata
+// Cela permet au webhook d'identifier l'utilisateur et d'activer le plan immédiatement
 const STRIPE_PAYMENT_LINKS = {
-  ELITE_MONTHLY: "https://buy.stripe.com/00w6oH9iSgu3fbL7WdeQM00",
-  ELITE_YEARLY: null, // À configurer plus tard
-  PRO_MONTHLY: null,  // À configurer plus tard
-  PRO_YEARLY: null,   // À configurer plus tard
+  ELITE_MONTHLY: null, // Désactivé - on utilise l'API
+  ELITE_YEARLY: null,
+  PRO_MONTHLY: null,
+  PRO_YEARLY: null,
 }
 
 export default function UpgradePage() {
@@ -450,6 +452,9 @@ export default function UpgradePage() {
           </Link>
         </div>
       </div>
+      
+      {/* Debug Panel (development only) */}
+      <DebugPlan />
     </div>
   )
 }
