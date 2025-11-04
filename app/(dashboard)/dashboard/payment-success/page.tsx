@@ -17,16 +17,15 @@ export default function PaymentSuccessPage() {
       try {
         console.log("🔄 Rafraîchissement de la session après paiement...")
         
-        // ⚡ Attendre 1 seconde puis essayer plusieurs fois
-        // Le webhook Stripe met généralement 0.5-2 secondes à s'exécuter
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // ⚡ Attendre 2 secondes pour laisser le webhook Stripe s'exécuter
+        await new Promise(resolve => setTimeout(resolve, 2000))
         
-        // Essayer jusqu'à 5 fois avec un délai croissant
+        // Essayer jusqu'à 8 fois avec un délai croissant
         let attempts = 0
         let updatedSession = null
         
-        while (attempts < 5) {
-          console.log(`🔄 Tentative ${attempts + 1}/5...`)
+        while (attempts < 8) {
+          console.log(`🔄 Tentative ${attempts + 1}/8...`)
           
           // Forcer le rafraîchissement de la session NextAuth
           updatedSession = await update()
@@ -47,28 +46,25 @@ export default function PaymentSuccessPage() {
           
           attempts++
           
-          // Attendre avant la prochaine tentative (délai croissant)
-          if (attempts < 5) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempts))
+          // Attendre avant la prochaine tentative (délai croissant: 1.5s, 3s, 4.5s, etc.)
+          if (attempts < 8) {
+            await new Promise(resolve => setTimeout(resolve, 1500 * attempts))
           }
         }
         
         setIsRefreshing(false)
         
-        // Rediriger vers le dashboard après 2 secondes
+        // Rediriger vers le dashboard après 2 secondes avec rechargement complet
         setTimeout(() => {
-          router.push('/dashboard')
-          // Forcer un rechargement complet pour être sûr
-          window.location.reload()
+          window.location.href = '/dashboard'
         }, 2000)
         
       } catch (error) {
         console.error("❌ Erreur lors du rafraîchissement:", error)
         setIsRefreshing(false)
-        // Rediriger quand même
+        // Rediriger quand même avec rechargement complet
         setTimeout(() => {
-          router.push('/dashboard')
-          window.location.reload()
+          window.location.href = '/dashboard'
         }, 2000)
       }
     }
@@ -143,7 +139,7 @@ export default function PaymentSuccessPage() {
         
         <div className="text-center mt-6">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => window.location.href = '/dashboard'}
             className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
           >
             Aller au dashboard maintenant →
