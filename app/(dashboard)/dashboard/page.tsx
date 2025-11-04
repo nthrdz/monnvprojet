@@ -9,6 +9,10 @@ import { RaceLogo } from "@/components/ui-pro/race-logo"
 import { PlanBadge } from "@/components/ui-pro/plan-badge"
 import { canUserAccessFeature, getUserFeatureLimit } from "@/lib/features"
 
+// Force dynamic rendering pour toujours recharger depuis la DB
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function DashboardPage() {
   const session = await auth()
   

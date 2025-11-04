@@ -1,99 +1,111 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
-import { CheckCircle2, Loader2, Sparkles } from "lucide-react"
+import { CheckCircle2, Loader2, Sparkles, AlertCircle } from "lucide-react"
 
 export default function PaymentSuccessPage() {
-  const { data: session, update } = useSession()
-  const [isRefreshing, setIsRefreshing] = useState(true)
+  const [step, setStep] = useState(1)
   const [plan, setPlan] = useState<string | null>(null)
+  const [countdown, setCountdown] = useState(3)
 
   useEffect(() => {
-    const refreshSession = async () => {
+    const processPaymentSuccess = async () => {
       try {
-        console.log("🔄 Vérification du plan après paiement...")
+        console.log("🎉 Paiement réussi - Début de la procédure d'activation...")
         
-        // ⚡ Attendre 3 secondes pour laisser le webhook Stripe s'exécuter
+        // ÉTAPE 1 : Attendre que le webhook Stripe s'exécute (3 secondes)
+        console.log("⏳ ÉTAPE 1/3 : Attente du webhook Stripe...")
         await new Promise(resolve => setTimeout(resolve, 3000))
         
-        // Essayer jusqu'à 10 fois avec un délai croissant
-        let attempts = 0
-        let planActivated = false
+        // ÉTAPE 2 : Vérifier le plan dans la DB (jusqu'à 10 tentatives)
+        console.log("🔍 ÉTAPE 2/3 : Vérification du plan dans la base de données...")
+        setStep(2)
         
-        while (attempts < 10 && !planActivated) {
+        let planDetected = false
+        let attempts = 0
+        const maxAttempts = 10
+        
+        while (attempts < maxAttempts && !planDetected) {
           attempts++
-          console.log(`🔄 Vérification ${attempts}/10...`)
+          console.log(`🔄 Tentative ${attempts}/${maxAttempts}...`)
           
           try {
-            // Vérifier directement avec l'API au lieu de NextAuth
-            const response = await fetch('/api/profile', {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+            // Appeler l'API de refresh qui lit directement depuis la DB
+            const response = await fetch('/api/auth/refresh-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               cache: 'no-store',
             })
             
             if (response.ok) {
               const data = await response.json()
-              const currentPlan = data.profile?.plan
+              console.log(`📊 Réponse API:`, data)
               
-              console.log(`📊 Plan actuel dans la DB:`, currentPlan)
-              
-              if (currentPlan && currentPlan !== 'FREE') {
-                // Plan activé !
-                setPlan(currentPlan)
-                console.log("✅ Plan activé dans la DB:", currentPlan)
-                planActivated = true
+              if (data.plan && data.plan !== 'FREE') {
+                planDetected = true
+                setPlan(data.plan)
+                console.log(`✅ PLAN DÉTECTÉ: ${data.plan}`)
                 break
               }
+            } else {
+              console.warn(`⚠️ API response not OK:`, response.status)
             }
           } catch (apiError) {
-            console.error("❌ Erreur API:", apiError)
+            console.error(`❌ Erreur API (tentative ${attempts}):`, apiError)
           }
           
-          // Attendre avant la prochaine tentative (délai croissant: 2s, 4s, 6s, etc.)
-          if (attempts < 10 && !planActivated) {
-            await new Promise(resolve => setTimeout(resolve, 2000 * attempts))
+          // Attendre 2 secondes entre chaque tentative
+          if (attempts < maxAttempts && !planDetected) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
           }
         }
         
-        setIsRefreshing(false)
+        if (!planDetected) {
+          console.warn("⚠️ Plan non détecté après toutes les tentatives")
+        }
         
-        // Attendre 2 secondes pour montrer le message de succès
-        setTimeout(async () => {
-          console.log("🚀 Redirection vers dashboard avec rechargement complet...")
-          
-          // Forcer NextAuth à recharger depuis la DB
-          try {
-            await update()
-            console.log("✅ Session NextAuth mise à jour")
-          } catch (e) {
-            console.error("❌ Erreur update session:", e)
-          }
-          
-          // Attendre un peu pour que la mise à jour soit propagée
-          setTimeout(() => {
-            console.log("🔄 Rechargement complet de la page...")
-            // Utiliser replace pour un vrai hard reload sans historique
-            window.location.replace('/dashboard')
-          }, 1000)
+        // ÉTAPE 3 : Redirection avec rechargement complet
+        console.log("🚀 ÉTAPE 3/3 : Redirection vers le dashboard...")
+        setStep(3)
+        
+        // Compte à rebours visuel
+        for (let i = 3; i > 0; i--) {
+          setCountdown(i)
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        
+        // REDIRECTION ULTRA-FORCÉE
+        console.log("🔄 REDIRECTION FORCÉE avec suppression du cache...")
+        
+        // Supprimer tous les caches possibles
+        if ('caches' in window) {
+          const cacheNames = await caches.keys()
+          await Promise.all(cacheNames.map(name => caches.delete(name)))
+        }
+        
+        // Forcer un hard reload avec timestamp pour bypass le cache
+        const timestamp = Date.now()
+        window.location.href = `/dashboard?_t=${timestamp}`
+        
+        // Fallback : si la redirection ne marche pas, forcer après 2s
+        setTimeout(() => {
+          window.location.replace(`/dashboard?_t=${timestamp}`)
         }, 2000)
         
       } catch (error) {
-        console.error("❌ Erreur lors de la vérification:", error)
-        setIsRefreshing(false)
-        // Rediriger quand même avec rechargement complet
+        console.error("❌ ERREUR CRITIQUE:", error)
+        setStep(4) // Étape d'erreur
+        
+        // Rediriger quand même après 5 secondes
         setTimeout(() => {
           window.location.replace('/dashboard')
-        }, 2000)
+        }, 5000)
       }
     }
 
-    refreshSession()
-  }, [update])
+    processPaymentSuccess()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
@@ -104,7 +116,9 @@ export default function PaymentSuccessPage() {
         className="max-w-md w-full"
       >
         <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
-          {isRefreshing ? (
+          
+          {/* ÉTAPE 1 : Paiement confirmé */}
+          {step === 1 && (
             <>
               <motion.div
                 animate={{ rotate: 360 }}
@@ -115,19 +129,53 @@ export default function PaymentSuccessPage() {
               </motion.div>
               
               <h1 className="text-2xl font-black text-gray-900 mb-3">
-                Activation immédiate en cours...
+                ✅ Paiement confirmé !
               </h1>
               
               <p className="text-gray-600 mb-6">
-                Votre paiement est confirmé ! Nous basculons immédiatement vers votre nouveau plan...
+                Votre paiement a été reçu. Activation de votre nouveau plan en cours...
               </p>
               
               <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                 <Sparkles className="w-4 h-4 animate-pulse" />
-                <span>Synchronisation avec votre compte</span>
+                <span>Synchronisation avec Stripe</span>
               </div>
             </>
-          ) : (
+          )}
+          
+          {/* ÉTAPE 2 : Vérification du plan */}
+          {step === 2 && (
+            <>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="mx-auto w-20 h-20 mb-6"
+              >
+                <Loader2 className="w-20 h-20 text-blue-500" />
+              </motion.div>
+              
+              <h1 className="text-2xl font-black text-gray-900 mb-3">
+                🔍 Vérification en cours...
+              </h1>
+              
+              <p className="text-gray-600 mb-6">
+                Nous vérifions l'activation de votre plan dans notre système.
+                {plan && (
+                  <span className="block mt-2 text-green-600 font-bold">
+                    ✅ Plan {plan} détecté !
+                  </span>
+                )}
+              </p>
+              
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                <span>Connexion à la base de données</span>
+              </div>
+            </>
+          )}
+          
+          {/* ÉTAPE 3 : Redirection */}
+          {step === 3 && (
             <>
               <motion.div
                 initial={{ scale: 0 }}
@@ -139,37 +187,76 @@ export default function PaymentSuccessPage() {
               </motion.div>
               
               <h1 className="text-3xl font-black text-gray-900 mb-3">
-                🎉 Paiement réussi !
+                🎉 C'est parti !
               </h1>
               
               {plan && (
-                <div className="inline-block bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full font-bold mb-4">
+                <div className="inline-block bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-bold text-lg mb-4 shadow-lg">
                   Plan {plan} activé ✅
                 </div>
               )}
               
               <p className="text-gray-600 mb-6">
-                Votre nouveau plan est maintenant actif ! Vous allez être redirigé vers votre dashboard.
+                Votre nouveau plan est maintenant actif !
               </p>
               
-              <div className="flex items-center justify-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Redirection automatique dans 3 secondes...</span>
+              <div className="text-center">
+                <div className="text-6xl font-black text-green-500 mb-2">
+                  {countdown}
+                </div>
+                <p className="text-sm text-gray-500">
+                  Redirection automatique vers votre dashboard...
+                </p>
               </div>
+            </>
+          )}
+          
+          {/* ÉTAPE 4 : Erreur (fallback) */}
+          {step === 4 && (
+            <>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                className="mx-auto w-20 h-20 mb-6"
+              >
+                <AlertCircle className="w-20 h-20 text-orange-500" />
+              </motion.div>
+              
+              <h1 className="text-2xl font-black text-gray-900 mb-3">
+                ⚠️ Petit délai...
+              </h1>
+              
+              <p className="text-gray-600 mb-6">
+                Votre paiement est bien enregistré, mais l'activation prend un peu plus de temps que prévu.
+              </p>
+              
+              <p className="text-sm text-gray-500 mb-4">
+                Redirection automatique dans quelques secondes...
+              </p>
+              
+              <button
+                onClick={() => window.location.replace('/dashboard')}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-bold transition-colors"
+              >
+                Aller au dashboard maintenant →
+              </button>
             </>
           )}
         </div>
         
+        {/* Bouton manuel (toujours visible) */}
         <div className="text-center mt-6">
           <button
-            onClick={() => window.location.replace('/dashboard')}
-            className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
+            onClick={() => {
+              console.log("🖱️ Clic manuel sur redirection")
+              window.location.replace('/dashboard')
+            }}
+            className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors underline"
           >
-            Aller au dashboard maintenant →
+            Accéder au dashboard manuellement
           </button>
         </div>
       </motion.div>
     </div>
   )
 }
-
