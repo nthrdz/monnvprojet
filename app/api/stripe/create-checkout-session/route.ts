@@ -87,6 +87,13 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       success_url: `${process.env.NEXTAUTH_URL}/dashboard/payment-success?plan=${plan}&cycle=${cycle}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/upgrade?canceled=true`,
+      
+      // ✅ Activer les codes promo dans le terminal de paiement
+      allow_promotion_codes: true,
+      
+      // ❌ Désactiver Stripe Link (paiement classique uniquement)
+      payment_method_types: ['card'],
+      
       metadata: {
         userId: session.user.id,
         profileId: profile.id,
