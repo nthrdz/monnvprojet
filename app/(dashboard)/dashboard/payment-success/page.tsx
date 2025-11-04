@@ -1,13 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react"
 
 export default function PaymentSuccessPage() {
-  const router = useRouter()
   const { data: session, update } = useSession()
   const [isRefreshing, setIsRefreshing] = useState(true)
   const [plan, setPlan] = useState<string | null>(null)
@@ -49,9 +47,6 @@ export default function PaymentSuccessPage() {
                 setPlan(currentPlan)
                 console.log("✅ Plan activé dans la DB:", currentPlan)
                 planActivated = true
-                
-                // Forcer la mise à jour de la session NextAuth
-                await update()
                 break
               }
             }
@@ -67,19 +62,33 @@ export default function PaymentSuccessPage() {
         
         setIsRefreshing(false)
         
-        // Rediriger vers le dashboard après 1 seconde avec rechargement complet
-        setTimeout(() => {
-          console.log("🚀 Redirection vers dashboard...")
-          window.location.href = '/dashboard'
-        }, 1000)
+        // Attendre 2 secondes pour montrer le message de succès
+        setTimeout(async () => {
+          console.log("🚀 Redirection vers dashboard avec rechargement complet...")
+          
+          // Forcer NextAuth à recharger depuis la DB
+          try {
+            await update()
+            console.log("✅ Session NextAuth mise à jour")
+          } catch (e) {
+            console.error("❌ Erreur update session:", e)
+          }
+          
+          // Attendre un peu pour que la mise à jour soit propagée
+          setTimeout(() => {
+            console.log("🔄 Rechargement complet de la page...")
+            // Utiliser replace pour un vrai hard reload sans historique
+            window.location.replace('/dashboard')
+          }, 1000)
+        }, 2000)
         
       } catch (error) {
         console.error("❌ Erreur lors de la vérification:", error)
         setIsRefreshing(false)
         // Rediriger quand même avec rechargement complet
         setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1000)
+          window.location.replace('/dashboard')
+        }, 2000)
       }
     }
 
@@ -153,7 +162,7 @@ export default function PaymentSuccessPage() {
         
         <div className="text-center mt-6">
           <button
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => window.location.replace('/dashboard')}
             className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
           >
             Aller au dashboard maintenant →
