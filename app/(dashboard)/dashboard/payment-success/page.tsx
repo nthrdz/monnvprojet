@@ -15,62 +15,76 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     const refreshSession = async () => {
       try {
-        console.log("🔄 Rafraîchissement de la session après paiement...")
+        console.log("🔄 Vérification du plan après paiement...")
         
-        // ⚡ Attendre 2 secondes pour laisser le webhook Stripe s'exécuter
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        // ⚡ Attendre 3 secondes pour laisser le webhook Stripe s'exécuter
+        await new Promise(resolve => setTimeout(resolve, 3000))
         
-        // Essayer jusqu'à 8 fois avec un délai croissant
+        // Essayer jusqu'à 10 fois avec un délai croissant
         let attempts = 0
-        let updatedSession = null
+        let planActivated = false
         
-        while (attempts < 8) {
-          console.log(`🔄 Tentative ${attempts + 1}/8...`)
+        while (attempts < 10 && !planActivated) {
+          attempts++
+          console.log(`🔄 Vérification ${attempts}/10...`)
           
-          // Forcer le rafraîchissement de la session NextAuth
-          updatedSession = await update()
-          
-          // @ts-ignore
-          const currentPlan = updatedSession?.user?.plan
-          
-          console.log(`📊 Plan actuel:`, currentPlan)
-          
-          // @ts-ignore
-          if (currentPlan && currentPlan !== 'FREE') {
-            // Plan activé !
-            // @ts-ignore
-            setPlan(currentPlan)
-            console.log("✅ Plan activé:", currentPlan)
-            break
+          try {
+            // Vérifier directement avec l'API au lieu de NextAuth
+            const response = await fetch('/api/profile', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              cache: 'no-store',
+            })
+            
+            if (response.ok) {
+              const data = await response.json()
+              const currentPlan = data.profile?.plan
+              
+              console.log(`📊 Plan actuel dans la DB:`, currentPlan)
+              
+              if (currentPlan && currentPlan !== 'FREE') {
+                // Plan activé !
+                setPlan(currentPlan)
+                console.log("✅ Plan activé dans la DB:", currentPlan)
+                planActivated = true
+                
+                // Forcer la mise à jour de la session NextAuth
+                await update()
+                break
+              }
+            }
+          } catch (apiError) {
+            console.error("❌ Erreur API:", apiError)
           }
           
-          attempts++
-          
-          // Attendre avant la prochaine tentative (délai croissant: 1.5s, 3s, 4.5s, etc.)
-          if (attempts < 8) {
-            await new Promise(resolve => setTimeout(resolve, 1500 * attempts))
+          // Attendre avant la prochaine tentative (délai croissant: 2s, 4s, 6s, etc.)
+          if (attempts < 10 && !planActivated) {
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempts))
           }
         }
         
         setIsRefreshing(false)
         
-        // Rediriger vers le dashboard après 2 secondes avec rechargement complet
+        // Rediriger vers le dashboard après 1 seconde avec rechargement complet
         setTimeout(() => {
+          console.log("🚀 Redirection vers dashboard...")
           window.location.href = '/dashboard'
-        }, 2000)
+        }, 1000)
         
       } catch (error) {
-        console.error("❌ Erreur lors du rafraîchissement:", error)
+        console.error("❌ Erreur lors de la vérification:", error)
         setIsRefreshing(false)
         // Rediriger quand même avec rechargement complet
         setTimeout(() => {
           window.location.href = '/dashboard'
-        }, 2000)
+        }, 1000)
       }
     }
 
     refreshSession()
-  }, [update, router])
+  }, [update])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
