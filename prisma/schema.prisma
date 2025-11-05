@@ -37,6 +37,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
+  // Réinitialisation du mot de passe
+  resetPasswordToken    String?   @unique
+  resetPasswordExpires  DateTime?
+  
   profile       Profile?
   accounts      Account[]
   sessions      Session[]
