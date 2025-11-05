@@ -3,38 +3,21 @@
 -- Date: 2025-11-05
 -- ============================================================
 
--- 1. Créer les ENUMS
-DO $$ BEGIN
-    CREATE TYPE "AffiliateStatus" AS ENUM ('PENDING', 'APPROVED', 'SUSPENDED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+-- 1. Supprimer les anciens enums s'ils existent (pour éviter les conflits)
+DROP TYPE IF EXISTS "AffiliateStatus" CASCADE;
+DROP TYPE IF EXISTS "ReferralStatus" CASCADE;
+DROP TYPE IF EXISTS "ConversionType" CASCADE;
+DROP TYPE IF EXISTS "CommissionType" CASCADE;
+DROP TYPE IF EXISTS "CommissionStatus" CASCADE;
 
-DO $$ BEGIN
-    CREATE TYPE "ReferralStatus" AS ENUM ('PENDING', 'CONVERTED', 'EXPIRED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+-- 2. Créer les ENUMS
+CREATE TYPE "AffiliateStatus" AS ENUM ('PENDING', 'APPROVED', 'SUSPENDED');
+CREATE TYPE "ReferralStatus" AS ENUM ('PENDING', 'CONVERTED', 'EXPIRED');
+CREATE TYPE "ConversionType" AS ENUM ('SIGNUP', 'UPGRADE', 'PAYMENT');
+CREATE TYPE "CommissionType" AS ENUM ('REFERRAL', 'BONUS', 'MANUAL');
+CREATE TYPE "CommissionStatus" AS ENUM ('PENDING', 'PAID', 'CANCELLED');
 
-DO $$ BEGIN
-    CREATE TYPE "ConversionType" AS ENUM ('SIGNUP', 'UPGRADE', 'PAYMENT');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-    CREATE TYPE "CommissionType" AS ENUM ('REFERRAL', 'BONUS', 'MANUAL');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-    CREATE TYPE "CommissionStatus" AS ENUM ('PENDING', 'PAID', 'CANCELLED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
--- 2. Créer la table Affiliate
+-- 3. Créer la table Affiliate
 CREATE TABLE IF NOT EXISTS "Affiliate" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -57,7 +40,7 @@ CREATE TABLE IF NOT EXISTS "Affiliate" (
     CONSTRAINT "Affiliate_pkey" PRIMARY KEY ("id")
 );
 
--- 3. Créer la table AffiliateClick
+-- 4. Créer la table AffiliateClick
 CREATE TABLE IF NOT EXISTS "AffiliateClick" (
     "id" TEXT NOT NULL,
     "affiliateId" TEXT NOT NULL,
@@ -78,7 +61,7 @@ CREATE TABLE IF NOT EXISTS "AffiliateClick" (
     CONSTRAINT "AffiliateClick_pkey" PRIMARY KEY ("id")
 );
 
--- 4. Créer la table Referral
+-- 5. Créer la table Referral
 CREATE TABLE IF NOT EXISTS "Referral" (
     "id" TEXT NOT NULL,
     "affiliateId" TEXT NOT NULL,
@@ -104,7 +87,7 @@ CREATE TABLE IF NOT EXISTS "Referral" (
     CONSTRAINT "Referral_pkey" PRIMARY KEY ("id")
 );
 
--- 5. Créer la table Commission
+-- 6. Créer la table Commission
 CREATE TABLE IF NOT EXISTS "Commission" (
     "id" TEXT NOT NULL,
     "affiliateId" TEXT NOT NULL,
@@ -126,12 +109,12 @@ CREATE TABLE IF NOT EXISTS "Commission" (
     CONSTRAINT "Commission_pkey" PRIMARY KEY ("id")
 );
 
--- 6. Créer les contraintes UNIQUE
+-- 7. Créer les contraintes UNIQUE
 CREATE UNIQUE INDEX IF NOT EXISTS "Affiliate_userId_key" ON "Affiliate"("userId");
 CREATE UNIQUE INDEX IF NOT EXISTS "Affiliate_affiliateCode_key" ON "Affiliate"("affiliateCode");
 CREATE UNIQUE INDEX IF NOT EXISTS "Affiliate_stripeAccountId_key" ON "Affiliate"("stripeAccountId");
 
--- 7. Créer les INDEX pour les performances
+-- 8. Créer les INDEX pour les performances
 CREATE INDEX IF NOT EXISTS "Affiliate_affiliateCode_idx" ON "Affiliate"("affiliateCode");
 CREATE INDEX IF NOT EXISTS "Affiliate_status_idx" ON "Affiliate"("status");
 CREATE INDEX IF NOT EXISTS "Affiliate_stripeAccountId_idx" ON "Affiliate"("stripeAccountId");
@@ -152,7 +135,7 @@ CREATE INDEX IF NOT EXISTS "Commission_status_idx" ON "Commission"("status");
 CREATE INDEX IF NOT EXISTS "Commission_type_idx" ON "Commission"("type");
 CREATE INDEX IF NOT EXISTS "Commission_stripeTransferId_idx" ON "Commission"("stripeTransferId");
 
--- 8. Créer les FOREIGN KEY constraints
+-- 9. Créer les FOREIGN KEY constraints
 ALTER TABLE "Affiliate" DROP CONSTRAINT IF EXISTS "Affiliate_userId_fkey";
 ALTER TABLE "Affiliate" ADD CONSTRAINT "Affiliate_userId_fkey" 
     FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -177,13 +160,13 @@ ALTER TABLE "Commission" DROP CONSTRAINT IF EXISTS "Commission_referralId_fkey";
 ALTER TABLE "Commission" ADD CONSTRAINT "Commission_referralId_fkey" 
     FOREIGN KEY ("referralId") REFERENCES "Referral"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
--- 9. Activer RLS (Row Level Security) - Optionnel mais recommandé
+-- 10. Activer RLS (Row Level Security) - Optionnel mais recommandé
 ALTER TABLE "Affiliate" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AffiliateClick" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Referral" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
 
--- 10. Créer des policies RLS de base (tu peux les ajuster selon tes besoins)
+-- 11. Créer des policies RLS de base (tu peux les ajuster selon tes besoins)
 -- Les utilisateurs peuvent voir leurs propres données d'affiliation
 DROP POLICY IF EXISTS "Users can view own affiliate data" ON "Affiliate";
 CREATE POLICY "Users can view own affiliate data" ON "Affiliate" 
