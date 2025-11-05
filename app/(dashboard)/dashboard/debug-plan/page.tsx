@@ -43,7 +43,7 @@ export default function DebugPlanPage() {
             <pre>{JSON.stringify(session, null, 2)}</pre>
           </div>
           <div className="mt-4">
-            <p className="font-bold">Plan dans NextAuth: <span className="text-blue-600">{session?.user?.plan || "Non défini"}</span></p>
+            <p className="font-bold">Plan dans NextAuth: <span className="text-blue-600">{(session?.user as any)?.plan || "Non défini"}</span></p>
           </div>
         </div>
         
