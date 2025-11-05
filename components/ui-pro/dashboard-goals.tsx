@@ -180,8 +180,6 @@ export function DashboardGoals({
             unit: goal.unit,
             color: goal.color === 'primary' ? 'blue' : 
                    goal.color === 'accent' ? 'orange' : 'green',
-            icon: goal.id === 'views' ? 'V' : 
-                  goal.id === 'sponsors' ? 'S' : 'E',
             description: goal.id === 'views' ? 'Visiteurs uniques ce mois' :
                          goal.id === 'sponsors' ? 'Partenaires actifs' :
                          'Clics sur vos liens'
