@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Trouver l'affilié de l'utilisateur
-    const affiliate = await prisma.affiliate.findUnique({
+    // Trouver ou créer l'affilié de l'utilisateur
+    let affiliate = await prisma.affiliate.findUnique({
       where: { userId: session.user.id },
       include: {
         referrals: {
@@ -38,19 +38,72 @@ export async function GET(req: NextRequest) {
       }
     })
 
+    // 🎁 CRÉATION AUTOMATIQUE du profil affilié si l'utilisateur est PRO/ELITE
     if (!affiliate) {
-      // Si l'utilisateur n'est pas encore affilié, retourner des stats vides
-      return NextResponse.json({
-        totalReferrals: 0,
-        totalConversions: 0,
-        totalEarnings: 0,
-        totalClicks: 0,
-        commissionRate: 0.40,
-        status: 'NOT_REGISTERED',
-        referrals: [],
-        commissions: [],
-        recentConversions: []
+      console.log('🎁 Création automatique du profil affilié pour:', session.user.id)
+      
+      // Récupérer le profil pour le username
+      const userProfile = await prisma.profile.findUnique({
+        where: { userId: session.user.id },
+        select: { username: true, plan: true }
       })
+
+      // Vérifier que l'utilisateur est bien PRO ou ELITE
+      if (!userProfile || (userProfile.plan !== 'PRO' && userProfile.plan !== 'ELITE')) {
+        return NextResponse.json({
+          totalReferrals: 0,
+          totalConversions: 0,
+          totalEarnings: 0,
+          totalClicks: 0,
+          commissionRate: 0.40,
+          status: 'NOT_ELIGIBLE',
+          referrals: [],
+          commissions: [],
+          recentConversions: []
+        })
+      }
+
+      // Générer un code affilié unique basé sur le username
+      let affiliateCode = userProfile.username.toLowerCase()
+      
+      // Vérifier si le code existe déjà
+      const existingAffiliate = await prisma.affiliate.findUnique({
+        where: { affiliateCode }
+      })
+
+      if (existingAffiliate) {
+        // Ajouter un suffixe aléatoire si le code existe déjà
+        affiliateCode = `${userProfile.username}_${Math.random().toString(36).substring(2, 8)}`.toLowerCase()
+      }
+
+      // Créer le profil affilié automatiquement
+      affiliate = await prisma.affiliate.create({
+        data: {
+          userId: session.user.id,
+          affiliateCode: affiliateCode,
+          status: 'APPROVED',
+          commissionRate: 0.40,
+          approvedAt: new Date()
+        },
+        include: {
+          referrals: {
+            include: {
+              referredUser: {
+                include: {
+                  profile: true
+                }
+              }
+            },
+            orderBy: { createdAt: 'desc' }
+          },
+          commissions: {
+            orderBy: { createdAt: 'desc' },
+            take: 10
+          }
+        }
+      })
+
+      console.log('✅ Profil affilié créé automatiquement:', affiliate.affiliateCode)
     }
 
     // Calculer les conversions récentes (30 derniers jours)

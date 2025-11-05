@@ -19,13 +19,61 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Lien Rewardful invalide' }, { status: 400 })
     }
 
-    // Vérifier que l'utilisateur a un profil affilié
-    const affiliate = await prisma.affiliate.findUnique({
+    // Vérifier que l'utilisateur a un profil affilié, sinon le créer
+    let affiliate = await prisma.affiliate.findUnique({
       where: { userId: session.user.id }
     })
 
+    // 🎁 CRÉATION AUTOMATIQUE du profil affilié si nécessaire
     if (!affiliate) {
-      return NextResponse.json({ error: 'Profil affilié non trouvé' }, { status: 404 })
+      console.log('🎁 Création automatique du profil affilié pour:', session.user.id)
+      
+      // Récupérer le profil pour le username
+      const userProfile = await prisma.profile.findUnique({
+        where: { userId: session.user.id },
+        select: { username: true, plan: true }
+      })
+
+      // Vérifier que l'utilisateur est bien PRO ou ELITE
+      if (!userProfile || (userProfile.plan !== 'PRO' && userProfile.plan !== 'ELITE')) {
+        return NextResponse.json({ 
+          error: 'Seuls les utilisateurs PRO et ELITE peuvent devenir affiliés' 
+        }, { status: 403 })
+      }
+
+      // Générer un code affilié unique basé sur le username
+      let affiliateCode = userProfile.username.toLowerCase()
+      
+      // Vérifier si le code existe déjà
+      const existingAffiliate = await prisma.affiliate.findUnique({
+        where: { affiliateCode }
+      })
+
+      if (existingAffiliate) {
+        // Ajouter un suffixe aléatoire si le code existe déjà
+        affiliateCode = `${userProfile.username}_${Math.random().toString(36).substring(2, 8)}`.toLowerCase()
+      }
+
+      // Créer le profil affilié automatiquement
+      affiliate = await prisma.affiliate.create({
+        data: {
+          userId: session.user.id,
+          affiliateCode: affiliateCode,
+          status: 'APPROVED',
+          commissionRate: 0.40,
+          approvedAt: new Date(),
+          rewardfulAffiliateLink: rewardfulLink // Sauvegarder le lien dès la création
+        }
+      })
+
+      console.log('✅ Profil affilié créé automatiquement avec lien Rewardful:', affiliate.affiliateCode)
+
+      return NextResponse.json({
+        success: true,
+        message: 'Profil affilié créé et lien Rewardful sauvegardé avec succès',
+        rewardfulLink: affiliate.rewardfulAffiliateLink,
+        affiliateCode: affiliate.affiliateCode
+      })
     }
 
     // Mettre à jour le lien Rewardful
