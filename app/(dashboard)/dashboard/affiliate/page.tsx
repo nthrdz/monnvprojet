@@ -256,170 +256,76 @@ export default function AffiliatePage() {
           </div>
         </motion.div>
 
-        {/* Affiliate Link */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg p-8 mb-8"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <LinkIcon className="w-6 h-6 text-gray-800" />
-            <h2 className="text-2xl font-bold text-gray-900">Ton lien d'ambassadeur</h2>
-          </div>
-          
-          <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-4">
-            <code className="text-sm text-gray-700 flex-1 overflow-x-auto">
-              {affiliateLink || "Chargement..."}
-            </code>
-            <button
-              onClick={copyLink}
-              disabled={!affiliateLink}
-              className="px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-lg font-semibold flex items-center gap-2 transition-all disabled:opacity-50"
-            >
-              {copied ? (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  Copié !
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copier
-                </>
-              )}
-            </button>
-          </div>
+        {/* Affiliate Link - Uniquement Rewardful */}
+        {stats?.rewardfulAffiliateLink && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <LinkIcon className="w-6 h-6 text-gray-800" />
+              <h2 className="text-2xl font-bold text-gray-900">Ton lien d'ambassadeur Rewardful</h2>
+            </div>
+            
+            <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-4">
+              <code className="text-sm text-gray-700 flex-1 overflow-x-auto">
+                {affiliateLink || "https://athlink.fr/?via=nathan"}
+              </code>
+              <button
+                onClick={copyLink}
+                className="px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-lg font-semibold flex items-center gap-2 transition-all"
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Copié !
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copier
+                  </>
+                )}
+              </button>
+            </div>
 
-          <p className="text-sm text-gray-500 mt-3">
-            Partage ce lien sur tes réseaux sociaux, dans tes stories, ou directement à tes amis athlètes !
-          </p>
-        </motion.div>
+            <p className="text-sm text-gray-500 mt-3">
+              Partage ce lien sur tes réseaux sociaux, dans tes stories, ou directement à tes amis athlètes !
+            </p>
+            <p className="text-xs text-gray-400 mt-2">
+              🎯 Toutes tes statistiques et commissions sont gérées par Rewardful
+            </p>
+          </motion.div>
+        )}
 
-        {/* Stats Preview */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Message: Stats sur Rewardful */}
+        {stats?.rewardfulAffiliateLink && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-xl shadow-md p-6"
+            className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 mb-8 text-center"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-5 h-5 text-blue-500" />
-              <span className="text-sm font-semibold text-gray-600">Parrainages</span>
-            </div>
-            {isLoadingStats ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                <p className="text-lg text-gray-500">Chargement...</p>
-              </div>
-            ) : (
-              <>
-                <p className="text-3xl font-black text-gray-900">
-                  {stats?.totalReferrals || 0}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stats?.totalReferrals === 0 ? 'Aucun parrainage pour le moment' : 'Personnes inscrites avec ton lien'}
-                </p>
-              </>
-            )}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-xl shadow-md p-6"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-semibold text-gray-600">Conversions</span>
-            </div>
-            {isLoadingStats ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                <p className="text-lg text-gray-500">Chargement...</p>
-              </div>
-            ) : (
-              <>
-                <p className="text-3xl font-black text-gray-900">
-                  {stats?.totalConversions || 0}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stats?.totalConversions === 0 ? 'Aucune conversion pour le moment' : 'Abonnements payants générés'}
-                </p>
-              </>
-            )}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-xl shadow-md p-6"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <DollarSign className="w-5 h-5 text-yellow-500" />
-              <span className="text-sm font-semibold text-gray-600">Commissions</span>
-            </div>
-            {isLoadingStats ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                <p className="text-lg text-gray-500">Chargement...</p>
-              </div>
-            ) : (
-              <>
-                <p className="text-3xl font-black text-gray-900">
-                  {stats?.totalEarnings?.toFixed(2) || '0.00'}€
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stats?.totalEarnings === 0 ? 'Commencez à parrainer !' : 'Gains totaux'}
-                </p>
-              </>
-            )}
-          </motion.div>
-        </div>
-
-        {/* Conversions Récentes */}
-        {stats && stats.recentConversions && stats.recentConversions.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl shadow-lg p-8 mb-8"
-          >
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-500" />
-              Conversions récentes (30 derniers jours)
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              📊 Tes statistiques complètes sont sur Rewardful
             </h3>
-            <div className="space-y-3">
-              {stats.recentConversions.map((conversion) => (
-                <div 
-                  key={conversion.id} 
-                  className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
-                      {conversion.displayName[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900">{conversion.displayName}</p>
-                      <p className="text-sm text-gray-600">
-                        Plan {conversion.plan} • {new Date(conversion.convertedAt).toLocaleDateString('fr-FR')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-black text-green-600">
-                      +{conversion.commissionEarned?.toFixed(2)}€
-                    </p>
-                    <p className="text-xs text-gray-500">Commission gagnée</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-gray-700 mb-6">
+              Parrainages, conversions, commissions, et paiements : tout est géré directement dans ton dashboard Rewardful
+            </p>
+            <a
+              href={stats.rewardfulAffiliateLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+            >
+              Voir mes stats Rewardful
+              <ExternalLink className="w-5 h-5" />
+            </a>
           </motion.div>
         )}
+
 
         {/* Access Full Dashboard */}
         <motion.div
