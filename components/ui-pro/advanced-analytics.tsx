@@ -459,64 +459,107 @@ export function AdvancedAnalytics({
 
         {activeTab === "demographics" && canAccessAdvancedFeatures && (
           <div className="space-y-6">
-            {/* Stats démographiques globales */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Pays principaux</p>
-                      <p className="text-3xl font-bold text-gray-900">{data.demographics.countries.length}</p>
-                    </div>
-                    <Globe className="w-10 h-10 text-blue-500" />
-                  </div>
+            {/* Message si pas de données démographiques */}
+            {data.demographics.countries.length === 0 && 
+             data.demographics.devices.length === 0 && 
+             data.demographics.browsers.length === 0 ? (
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="p-8 text-center">
+                  <Users className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-blue-900 mb-2">
+                    Aucune donnée démographique disponible
+                  </h3>
+                  <p className="text-blue-700 mb-4">
+                    Les statistiques démographiques s'afficheront automatiquement dès que vous recevrez des visites sur votre profil public.
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    📊 Toutes les données affichées ici sont 100% réelles et proviennent de vos vrais visiteurs.
+                  </p>
                 </CardContent>
               </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Type d'appareil dominant</p>
-                      <p className="text-xl font-bold text-gray-900">
-                        {data.demographics.devices[0]?.device || 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-500">{data.demographics.devices[0]?.percentage}% du trafic</p>
-                    </div>
-                    <Smartphone className="w-10 h-10 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Navigateur principal</p>
-                      <p className="text-xl font-bold text-gray-900">
-                        {data.demographics.browsers[0]?.browser || 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-500">{data.demographics.browsers[0]?.percentage}% des visites</p>
-                    </div>
-                    <Monitor className="w-10 h-10 text-purple-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            ) : (
+              <>
+                {/* Stats démographiques globales */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Pays principaux</p>
+                          <p className="text-3xl font-bold text-gray-900">{data.demographics.countries.length}</p>
+                          <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                        </div>
+                        <Globe className="w-10 h-10 text-blue-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Type d'appareil dominant</p>
+                          <p className="text-xl font-bold text-gray-900">
+                            {data.demographics.devices[0]?.device || 'Aucun'}
+                          </p>
+                          {data.demographics.devices[0] && (
+                            <>
+                              <p className="text-sm text-gray-500">{data.demographics.devices[0]?.percentage}% du trafic</p>
+                              <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                            </>
+                          )}
+                        </div>
+                        <Smartphone className="w-10 h-10 text-green-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">Navigateur principal</p>
+                          <p className="text-xl font-bold text-gray-900">
+                            {data.demographics.browsers[0]?.browser || 'Aucun'}
+                          </p>
+                          {data.demographics.browsers[0] && (
+                            <>
+                              <p className="text-sm text-gray-500">{data.demographics.browsers[0]?.percentage}% des visites</p>
+                              <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                            </>
+                          )}
+                        </div>
+                        <Monitor className="w-10 h-10 text-purple-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
 
-            {/* Grille de détails démographiques */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Pays */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-blue-500" />
-                    Répartition géographique
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {data.demographics.countries.map((country, index) => (
+            {/* Grille de détails démographiques - Seulement si données disponibles */}
+            {(data.demographics.countries.length > 0 || 
+              data.demographics.devices.length > 0 || 
+              data.demographics.browsers.length > 0) && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Pays */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-blue-500" />
+                      Répartition géographique
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {data.demographics.countries.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Globe className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p className="text-sm">Aucune donnée pays</p>
+                        <p className="text-xs mt-1">Les données s'afficheront avec les visites</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {data.demographics.countries.map((country, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
@@ -549,21 +592,29 @@ export function AdvancedAnalytics({
                         <p className="text-xs text-gray-600">{formatNumber(country.visitors)} visiteurs</p>
                       </motion.div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-              {/* Appareils */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Monitor className="w-5 h-5 text-green-500" />
-                    Types d'appareils
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {data.demographics.devices.map((device, index) => {
+                {/* Appareils */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Monitor className="w-5 h-5 text-green-500" />
+                      Types d'appareils
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {data.demographics.devices.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Smartphone className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p className="text-sm">Aucune donnée appareils</p>
+                        <p className="text-xs mt-1">Les données s'afficheront avec les visites</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {data.demographics.devices.map((device, index) => {
                       const Icon = device.device === "Mobile" ? Smartphone : Monitor
                       return (
                         <motion.div
@@ -597,30 +648,40 @@ export function AdvancedAnalytics({
                       )
                     })}
                     
-                    {/* Insights */}
-                    <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm font-medium text-green-900 mb-1">📱 Recommandation</p>
-                      <p className="text-xs text-green-700">
-                        {data.demographics.devices[0]?.device === 'Mobile' 
-                          ? 'La majorité de vos visiteurs sont sur mobile. Assurez-vous que votre profil est optimisé pour mobile.'
-                          : 'La majorité de vos visiteurs sont sur desktop. Profitez de l\'espace pour des visuels plus grands.'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                        {/* Insights */}
+                        {data.demographics.devices.length > 0 && (
+                          <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <p className="text-sm font-medium text-green-900 mb-1">📱 Recommandation</p>
+                            <p className="text-xs text-green-700">
+                              {data.demographics.devices[0]?.device === 'mobile' 
+                                ? 'La majorité de vos visiteurs sont sur mobile. Assurez-vous que votre profil est optimisé pour mobile.'
+                                : 'La majorité de vos visiteurs sont sur desktop. Profitez de l\'espace pour des visuels plus grands.'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-              {/* Navigateurs */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-purple-500" />
-                    Navigateurs utilisés
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {data.demographics.browsers.map((browser, index) => (
+                {/* Navigateurs */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-purple-500" />
+                      Navigateurs utilisés
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {data.demographics.browsers.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Monitor className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p className="text-sm">Aucune donnée navigateurs</p>
+                        <p className="text-xs mt-1">Les données s'afficheront avec les visites</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {data.demographics.browsers.map((browser, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, y: 20 }}
@@ -651,51 +712,71 @@ export function AdvancedAnalytics({
                         <p className="text-xs text-gray-600">{formatNumber(browser.count)} utilisateurs</p>
                       </motion.div>
                     ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Carte de compatibilité - Seulement si données disponibles */}
+            {(data.demographics.countries.length > 0 || 
+              data.demographics.devices.length > 0 || 
+              data.demographics.browsers.length > 0) && (
+              <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Profil de votre audience (données réelles)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {data.demographics.countries.length > 0 && (
+                      <div className="text-center p-4 bg-white rounded-lg">
+                        <p className="text-4xl mb-2">{
+                          data.demographics.countries[0]?.country === 'France' ? '🇫🇷' :
+                          data.demographics.countries[0]?.country === 'Belgium' ? '🇧🇪' :
+                          data.demographics.countries[0]?.country === 'Switzerland' ? '🇨🇭' :
+                          data.demographics.countries[0]?.country === 'Canada' ? '🇨🇦' : '🌍'
+                        }</p>
+                        <p className="font-medium text-gray-900">Localisation principale</p>
+                        <p className="text-sm text-gray-600">{data.demographics.countries[0]?.country}</p>
+                        <p className="text-xs text-blue-600 mt-2">{data.demographics.countries[0]?.percentage}% de l'audience</p>
+                        <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                      </div>
+                    )}
+                    
+                    {data.demographics.devices.length > 0 && (
+                      <div className="text-center p-4 bg-white rounded-lg">
+                        <p className="text-4xl mb-2">{
+                          data.demographics.devices[0]?.device === 'mobile' ? '📱' : '💻'
+                        }</p>
+                        <p className="font-medium text-gray-900">Appareil préféré</p>
+                        <p className="text-sm text-gray-600">{data.demographics.devices[0]?.device}</p>
+                        <p className="text-xs text-green-600 mt-2">{data.demographics.devices[0]?.percentage}% des visites</p>
+                        <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                      </div>
+                    )}
+                    
+                    {data.demographics.browsers.length > 0 && (
+                      <div className="text-center p-4 bg-white rounded-lg">
+                        <p className="text-4xl mb-2">{
+                          data.demographics.browsers[0]?.browser === 'Chrome' ? '🔵' :
+                          data.demographics.browsers[0]?.browser === 'Safari' ? '🧭' :
+                          data.demographics.browsers[0]?.browser === 'Firefox' ? '🦊' :
+                          data.demographics.browsers[0]?.browser === 'Edge' ? '🌐' : '💻'
+                        }</p>
+                        <p className="font-medium text-gray-900">Navigateur favori</p>
+                        <p className="text-sm text-gray-600">{data.demographics.browsers[0]?.browser}</p>
+                        <p className="text-xs text-purple-600 mt-2">{data.demographics.browsers[0]?.percentage}% des utilisateurs</p>
+                        <p className="text-xs text-green-600 mt-1">✅ Données réelles</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            </div>
-
-            {/* Carte de compatibilité */}
-            <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  Profil de votre audience
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-white rounded-lg">
-                    <p className="text-4xl mb-2">{
-                      data.demographics.countries[0]?.country === 'France' ? '🇫🇷' : '🌍'
-                    }</p>
-                    <p className="font-medium text-gray-900">Localisation principale</p>
-                    <p className="text-sm text-gray-600">{data.demographics.countries[0]?.country}</p>
-                    <p className="text-xs text-blue-600 mt-2">{data.demographics.countries[0]?.percentage}% de l'audience</p>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-white rounded-lg">
-                    <p className="text-4xl mb-2">{
-                      data.demographics.devices[0]?.device === 'Mobile' ? '📱' : '💻'
-                    }</p>
-                    <p className="font-medium text-gray-900">Appareil préféré</p>
-                    <p className="text-sm text-gray-600">{data.demographics.devices[0]?.device}</p>
-                    <p className="text-xs text-green-600 mt-2">{data.demographics.devices[0]?.percentage}% des visites</p>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-white rounded-lg">
-                    <p className="text-4xl mb-2">{
-                      data.demographics.browsers[0]?.browser === 'Chrome' ? '🔵' :
-                      data.demographics.browsers[0]?.browser === 'Safari' ? '🧭' : '💻'
-                    }</p>
-                    <p className="font-medium text-gray-900">Navigateur favori</p>
-                    <p className="text-sm text-gray-600">{data.demographics.browsers[0]?.browser}</p>
-                    <p className="text-xs text-purple-600 mt-2">{data.demographics.browsers[0]?.percentage}% des utilisateurs</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            )}
           </div>
         )}
 
