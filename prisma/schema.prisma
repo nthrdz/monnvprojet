@@ -245,6 +245,9 @@ model Affiliate {
   // Contact
   applicationEmail String?  // Email pour recevoir les notifications
   
+  // Rewardful
+  rewardfulAffiliateLink String? // Lien affilié Rewardful personnalisé
+  
   // Métadonnées
   approvedAt      DateTime?
   suspendedAt     DateTime?

@@ -15,6 +15,7 @@ interface AffiliateStats {
   commissionRate: number
   status: string
   affiliateCode?: string
+  rewardfulAffiliateLink?: string | null // Lien Rewardful personnalisé
   recentConversions: Array<{
     id: string
     displayName: string
@@ -49,6 +50,9 @@ export default function AffiliatePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<AffiliateStats | null>(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [rewardfulLink, setRewardfulLink] = useState("")
+  const [isEditingRewardful, setIsEditingRewardful] = useState(false)
+  const [isSavingRewardful, setIsSavingRewardful] = useState(false)
 
   useEffect(() => {
     // Vérifier le plan de l'utilisateur
@@ -83,6 +87,10 @@ export default function AffiliatePage() {
       if (response.ok) {
         const data = await response.json()
         setStats(data)
+        // Charger le lien Rewardful s'il existe
+        if (data.rewardfulAffiliateLink) {
+          setRewardfulLink(data.rewardfulAffiliateLink)
+        }
       } else {
         toast.error("Erreur lors du chargement des statistiques")
       }
@@ -91,6 +99,37 @@ export default function AffiliatePage() {
       toast.error("Erreur lors du chargement des statistiques")
     } finally {
       setIsLoadingStats(false)
+    }
+  }
+
+  const saveRewardfulLink = async () => {
+    if (!rewardfulLink || rewardfulLink.trim() === '') {
+      toast.error("Veuillez entrer un lien Rewardful valide")
+      return
+    }
+
+    setIsSavingRewardful(true)
+    try {
+      const response = await fetch('/api/affiliate/update-rewardful-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rewardfulLink: rewardfulLink.trim() })
+      })
+
+      if (response.ok) {
+        toast.success("Lien Rewardful sauvegardé avec succès !")
+        setIsEditingRewardful(false)
+        // Rafraîchir les stats pour obtenir le lien mis à jour
+        fetchAffiliateStats()
+      } else {
+        const data = await response.json()
+        toast.error(data.error || "Erreur lors de la sauvegarde du lien")
+      }
+    } catch (error) {
+      console.error('Erreur sauvegarde lien Rewardful:', error)
+      toast.error("Erreur lors de la sauvegarde du lien")
+    } finally {
+      setIsSavingRewardful(false)
     }
   }
 
@@ -400,29 +439,115 @@ export default function AffiliatePage() {
               <p className="text-white/80 mb-4">
                 Inscris-toi sur Rewardful pour suivre tes statistiques en temps réel, gérer tes paiements et accéder à ton dashboard affilié complet.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href="https://nathan-rodriguez.getrewardful.com/signup"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
-                >
-                  S'inscrire comme affilié
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://app.getrewardful.com/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-bold transition-all border-2 border-white/30"
-                >
-                  Connecte-toi ici
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <p className="text-white/60 text-sm mt-3">
-                💡 Accède à ton dashboard Rewardful pour voir tes stats et commissions
-              </p>
+
+              {/* Si pas encore de lien Rewardful enregistré */}
+              {!stats?.rewardfulAffiliateLink && !isEditingRewardful && (
+                <>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <a
+                      href="https://nathan-rodriguez.getrewardful.com/signup"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
+                    >
+                      S'inscrire comme affilié
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                  <p className="text-white/60 text-sm mt-3">
+                    💡 Une fois inscrit, colle ton lien Rewardful personnalisé ci-dessous
+                  </p>
+                  <button
+                    onClick={() => setIsEditingRewardful(true)}
+                    className="mt-3 text-sm text-white/80 hover:text-white underline"
+                  >
+                    J'ai déjà mon lien Rewardful →
+                  </button>
+                </>
+              )}
+
+              {/* Si on est en train d'éditer le lien */}
+              {isEditingRewardful && (
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-white/90">
+                    Colle ton lien Rewardful personnalisé :
+                  </label>
+                  <input
+                    type="url"
+                    value={rewardfulLink}
+                    onChange={(e) => setRewardfulLink(e.target.value)}
+                    placeholder="https://app.getrewardful.com/affiliates/..."
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-white/40 focus:border-white/40 focus:outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveRewardfulLink}
+                      disabled={isSavingRewardful}
+                      className="flex-1 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSavingRewardful ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Sauvegarde...
+                        </span>
+                      ) : (
+                        'Sauvegarder'
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setIsEditingRewardful(false)}
+                      disabled={isSavingRewardful}
+                      className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all disabled:opacity-50"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Si le lien Rewardful est déjà enregistré */}
+              {stats?.rewardfulAffiliateLink && !isEditingRewardful && (
+                <div className="space-y-3">
+                  <div className="bg-white/10 rounded-lg p-4 flex items-center justify-between gap-4">
+                    <code className="text-sm text-white/90 flex-1 overflow-x-auto">
+                      {stats.rewardfulAffiliateLink}
+                    </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(stats.rewardfulAffiliateLink || '')
+                        toast.success('Lien Rewardful copié !')
+                      }}
+                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-semibold flex items-center gap-2 transition-all flex-shrink-0"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copier
+                    </button>
+                  </div>
+                  <div className="flex gap-3">
+                    <a
+                      href={stats.rewardfulAffiliateLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
+                    >
+                      Accéder à mon dashboard Rewardful
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                    <button
+                      onClick={() => {
+                        setRewardfulLink(stats.rewardfulAffiliateLink || '')
+                        setIsEditingRewardful(true)
+                      }}
+                      className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all"
+                    >
+                      Modifier
+                    </button>
+                  </div>
+                  <p className="text-white/60 text-sm">
+                    💡 Accède à ton dashboard Rewardful pour voir tes stats et commissions détaillées
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

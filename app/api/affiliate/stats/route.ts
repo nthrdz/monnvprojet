@@ -76,6 +76,7 @@ export async function GET(req: NextRequest) {
       status: affiliate.status,
       affiliateCode: affiliate.affiliateCode,
       stripeAccountStatus: affiliate.stripeAccountStatus,
+      rewardfulAffiliateLink: affiliate.rewardfulAffiliateLink, // Lien Rewardful personnalisé
       
       // Stats détaillées
       pendingCommissionsCount: pendingCommissions.length,
