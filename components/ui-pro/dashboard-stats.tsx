@@ -8,13 +8,17 @@ interface DashboardStatsProps {
   uniqueViews: number
   linksCount: number
   racesCount: number
+  viewsTrend?: number
+  uniqueViewsTrend?: number
 }
 
 export function DashboardStats({
   views,
   uniqueViews,
   linksCount,
-  racesCount
+  racesCount,
+  viewsTrend,
+  uniqueViewsTrend
 }: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -22,7 +26,7 @@ export function DashboardStats({
         icon={Activity}
         value={views}
         label="Vues (7j)"
-        trend={{ value: 12, label: "vs semaine dernière" }}
+        trend={viewsTrend !== undefined ? { value: viewsTrend, label: "vs semaine dernière" } : undefined}
         color="primary"
         delay={0}
       />
@@ -30,7 +34,7 @@ export function DashboardStats({
         icon={Users}
         value={uniqueViews}
         label="Visiteurs uniques"
-        trend={{ value: 8, label: "vs semaine dernière" }}
+        trend={uniqueViewsTrend !== undefined ? { value: uniqueViewsTrend, label: "vs semaine dernière" } : undefined}
         color="accent"
         delay={0.1}
       />

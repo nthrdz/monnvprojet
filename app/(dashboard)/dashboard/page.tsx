@@ -61,6 +61,41 @@ export default async function DashboardPage() {
     }
   })
 
+  // Analytics de la semaine précédente (pour calculer les tendances)
+  const fourteenDaysAgo = new Date()
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
+  
+  const previousWeekAnalytics = await prisma.analytics.aggregate({
+    where: {
+      profileId: profile.id,
+      date: {
+        gte: fourteenDaysAgo,
+        lt: sevenDaysAgo
+      }
+    },
+    _sum: {
+      views: true,
+      uniqueViews: true,
+      linkClicks: true
+    }
+  })
+
+  // Calculer les tendances (en pourcentage)
+  const calculateTrend = (current: number, previous: number): number => {
+    if (previous === 0) return current > 0 ? 100 : 0
+    return Math.round(((current - previous) / previous) * 100)
+  }
+
+  const viewsTrend = calculateTrend(
+    analytics._sum.views || 0,
+    previousWeekAnalytics._sum.views || 0
+  )
+  
+  const uniqueViewsTrend = calculateTrend(
+    analytics._sum.uniqueViews || 0,
+    previousWeekAnalytics._sum.uniqueViews || 0
+  )
+
   const totalLinkClicks = await prisma.link.aggregate({
     where: { profileId: profile.id },
     _sum: { clicks: true }
@@ -98,6 +133,8 @@ export default async function DashboardPage() {
           uniqueViews={analytics._sum.uniqueViews || 0}
           linksCount={profile._count.links}
           racesCount={profile._count.races}
+          viewsTrend={viewsTrend}
+          uniqueViewsTrend={uniqueViewsTrend}
         />
       </div>
 
