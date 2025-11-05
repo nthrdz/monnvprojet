@@ -3,7 +3,7 @@
 import { SidebarNavigation } from "@/components/ui-pro/sidebar-navigation"
 import { MobileNavigation } from "@/components/ui-pro/mobile-navigation"
 import { PageTransition } from "@/components/ui-pro/page-transition"
-import { useRouter } from "next/navigation"
+import { signOut } from "next-auth/react"
 
 interface DashboardLayoutWrapperProps {
   username: string
@@ -20,11 +20,12 @@ export function DashboardLayoutWrapper({
   plan,
   children 
 }: DashboardLayoutWrapperProps) {
-  const router = useRouter()
-
   const handleSignOut = async () => {
-    await fetch("/api/auth/signout", { method: "POST" })
-    router.push("/login")
+    // Utiliser signOut de NextAuth avec redirection vers la page de connexion
+    await signOut({ 
+      callbackUrl: "/login",
+      redirect: true 
+    })
   }
 
   return (
