@@ -27,6 +27,25 @@ export async function POST(request: Request) {
     else if (userAgent.includes('Firefox')) browser = 'Firefox'
     else if (userAgent.includes('Edg')) browser = 'Edge'
 
+    // 🌍 Déterminer le pays via Vercel geo headers ou API de géolocalisation
+    let country = headersList.get('x-vercel-ip-country') || null
+    
+    // Si pas de header Vercel, essayer de récupérer via une API gratuite
+    if (!country && ip && ip !== 'unknown') {
+      try {
+        const geoResponse = await fetch(`http://ip-api.com/json/${ip}?fields=country`, {
+          signal: AbortSignal.timeout(2000) // Timeout de 2 secondes
+        })
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json()
+          country = geoData.country || null
+        }
+      } catch (error) {
+        console.warn('Erreur géolocalisation:', error)
+        // Continuer sans pays si l'API échoue
+      }
+    }
+
     // Récupérer ou créer l'entrée analytics du jour
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -50,7 +69,7 @@ export async function POST(request: Request) {
           uniqueViews: 1,
           linkClicks: 0,
           device,
-          country: null // On pourrait utiliser une API de géolocalisation ici
+          country: country // 🌍 Utiliser le pays réel détecté
         }
       })
     } else {
@@ -78,6 +97,11 @@ export async function POST(request: Request) {
     // Incrémenter les compteurs
     demographics.devices[device] = (demographics.devices[device] || 0) + 1
     demographics.browsers[browser] = (demographics.browsers[browser] || 0) + 1
+    
+    // 🌍 Incrémenter le compteur de pays si disponible
+    if (country) {
+      demographics.countries[country] = (demographics.countries[country] || 0) + 1
+    }
 
     await prisma.profile.update({
       where: { id: profileId },

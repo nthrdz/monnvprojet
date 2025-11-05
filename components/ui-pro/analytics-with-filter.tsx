@@ -64,12 +64,14 @@ export function AnalyticsWithFilter({ userPlan, username }: AnalyticsWithFilterP
         const analyticsData = await response.json()
         setData(analyticsData)
       } else {
-        // Fallback sur des données simulées
-        setData(generateMockData(days))
+        // ❌ NE PAS utiliser de données simulées - afficher un message d'erreur
+        console.error('Erreur API analytics:', response.status)
+        setData(null)
       }
     } catch (error) {
       console.error('Erreur chargement analytics:', error)
-      setData(generateMockData(getDaysFromRange(range)))
+      // ❌ NE PAS utiliser de données simulées - afficher un message d'erreur
+      setData(null)
     } finally {
       setIsLoading(false)
     }
@@ -80,64 +82,31 @@ export function AnalyticsWithFilter({ userPlan, username }: AnalyticsWithFilterP
     loadData(timeRange)
   }, [timeRange])
 
-  // Générer des données simulées si besoin
-  const generateMockData = (days: number) => {
-    return {
-      views: {
-        total: Math.floor(Math.random() * 1000) + days * 10,
-        unique: Math.floor(Math.random() * 800) + days * 8,
-        byDate: Array.from({ length: Math.min(days, 30) }, (_, i) => ({
-          date: new Date(Date.now() - (days - i - 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          views: Math.floor(Math.random() * 100) + 20,
-          uniqueViews: Math.floor(Math.random() * 80) + 15,
-          clicks: Math.floor(Math.random() * 30) + 5
-        }))
-      },
-      clicks: {
-        total: Math.floor(Math.random() * 300) + days * 3,
-        byLink: Array.from({ length: 5 }, (_, i) => ({
-          linkTitle: `Lien ${i + 1}`,
-          clicks: Math.floor(Math.random() * 50) + 10,
-          percentage: Math.floor(Math.random() * 40) + 10
-        })),
-        byHour: Array.from({ length: 24 }, (_, hour) => ({
-          hour,
-          clicks: Math.floor(Math.random() * 20) + 2
-        }))
-      },
-      demographics: {
-        countries: [
-          { country: "France", visitors: Math.floor(Math.random() * 400) + 100, percentage: 60 },
-          { country: "Belgique", visitors: Math.floor(Math.random() * 200) + 50, percentage: 20 },
-          { country: "Suisse", visitors: Math.floor(Math.random() * 150) + 30, percentage: 15 },
-          { country: "Canada", visitors: Math.floor(Math.random() * 80) + 20, percentage: 5 }
-        ],
-        devices: [
-          { device: "Mobile", count: Math.floor(Math.random() * 500) + 200, percentage: 64 },
-          { device: "Desktop", count: Math.floor(Math.random() * 300) + 100, percentage: 36 }
-        ],
-        browsers: [
-          { browser: "Chrome", count: Math.floor(Math.random() * 500) + 200, percentage: 59 },
-          { browser: "Safari", count: Math.floor(Math.random() * 200) + 100, percentage: 26 },
-          { browser: "Firefox", count: Math.floor(Math.random() * 80) + 30, percentage: 10 },
-          { browser: "Edge", count: Math.floor(Math.random() * 40) + 20, percentage: 5 }
-        ]
-      },
-      heatmap: Array.from({ length: 20 }, () => ({
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 80 + 10,
-        intensity: Math.random(),
-        clicks: Math.floor(Math.random() * 20) + 1
-      }))
-    }
-  }
-
-  if (!data || isLoading) {
+  // Afficher un état de chargement ou d'erreur
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement des analytics...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Si pas de données (erreur API ou pas de visites)
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-4">📊</div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Aucune donnée disponible</h3>
+          <p className="text-gray-600">
+            Partagez votre profil public pour commencer à collecter des statistiques sur vos visiteurs.
+          </p>
+          <p className="text-sm text-gray-500 mt-4">
+            Les données démographiques s'afficheront automatiquement dès que vous recevrez des visites.
+          </p>
         </div>
       </div>
     )

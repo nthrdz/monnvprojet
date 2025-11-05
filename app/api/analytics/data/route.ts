@@ -72,38 +72,28 @@ export async function GET(request: Request) {
       countries: {}
     }
 
-    // Transformer les données démographiques en format utilisable
-    let devicesData = Object.entries(demographics.devices || {}).map(([device, count]) => ({
+    // 📊 DONNÉES DÉMOGRAPHIQUES - UNIQUEMENT DES VRAIES DONNÉES
+    
+    // Appareils (devices) - NE PAS utiliser de données par défaut
+    const devicesData = Object.entries(demographics.devices || {}).map(([device, count]) => ({
       device,
       count: count as number,
       percentage: totalViews > 0 ? Math.round(((count as number) / totalViews) * 100) : 0
     })).sort((a, b) => b.count - a.count)
 
-    // Si pas de données appareils, utiliser des valeurs par défaut réalistes
-    if (devicesData.length === 0 && totalViews > 0) {
-      devicesData = [
-        { device: "Mobile", count: Math.floor(totalViews * 0.64), percentage: 64 },
-        { device: "Desktop", count: Math.floor(totalViews * 0.36), percentage: 36 }
-      ]
-    }
-
-    let browsersData = Object.entries(demographics.browsers || {}).map(([browser, count]) => ({
+    // Navigateurs (browsers) - NE PAS utiliser de données par défaut
+    const browsersData = Object.entries(demographics.browsers || {}).map(([browser, count]) => ({
       browser,
       count: count as number,
       percentage: totalViews > 0 ? Math.round(((count as number) / totalViews) * 100) : 0
     })).sort((a, b) => b.count - a.count)
 
-    // Si pas de données navigateurs, utiliser des valeurs par défaut réalistes
-    if (browsersData.length === 0 && totalViews > 0) {
-      browsersData = [
-        { browser: "Chrome", count: Math.floor(totalViews * 0.59), percentage: 59 },
-        { browser: "Safari", count: Math.floor(totalViews * 0.26), percentage: 26 },
-        { browser: "Firefox", count: Math.floor(totalViews * 0.10), percentage: 10 },
-        { browser: "Edge", count: Math.floor(totalViews * 0.05), percentage: 5 }
-      ]
-    }
+    // Pays (countries) - Combiner les données de stats.demographics et analytics.country
+    const countriesFromStats = Object.entries(demographics.countries || {}).reduce((acc: { [key: string]: number }, [country, count]) => {
+      acc[country] = count as number
+      return acc
+    }, {})
 
-    // Agréger les données de pays depuis les analytics
     const countriesFromAnalytics = profile.analytics
       .filter(a => a.country)
       .reduce((acc: { [key: string]: number }, a) => {
@@ -112,21 +102,14 @@ export async function GET(request: Request) {
         return acc
       }, {})
 
-    const countriesData = Object.entries(countriesFromAnalytics).map(([country, visitors]) => ({
+    // Fusionner les deux sources de données pays (stats a priorité car plus précis)
+    const allCountries = { ...countriesFromAnalytics, ...countriesFromStats }
+    
+    const countriesData = Object.entries(allCountries).map(([country, visitors]) => ({
       country,
       visitors: visitors as number,
       percentage: totalViews > 0 ? Math.round(((visitors as number) / totalViews) * 100) : 0
     })).sort((a, b) => b.visitors - a.visitors)
-
-    // Si pas de données pays, utiliser des données par défaut
-    if (countriesData.length === 0 && totalViews > 0) {
-      countriesData.push(
-        { country: "France", visitors: Math.floor(totalViews * 0.6), percentage: 60 },
-        { country: "Belgique", visitors: Math.floor(totalViews * 0.2), percentage: 20 },
-        { country: "Suisse", visitors: Math.floor(totalViews * 0.15), percentage: 15 },
-        { country: "Canada", visitors: Math.floor(totalViews * 0.05), percentage: 5 }
-      )
-    }
 
     // Agréger les données de heatmap
     const heatmapAggregated = aggregateHeatmapData(heatmapData)
