@@ -9,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function sendWelcomeEmail(to: string, name: string) {
   try {
     await resend.emails.send({
-      from: 'Athlink <onboarding@resend.dev>',
+      from: 'Athlink <noreply@athlink.fr>',
       to,
       subject: '🎉 Bienvenue sur Athlink !',
       html: `
@@ -63,7 +63,7 @@ export async function sendBookingNotification(
 ) {
   try {
     await resend.emails.send({
-      from: 'Athlink Coaching <coaching@resend.dev>',
+      from: 'Athlink Coaching <coaching@athlink.fr>',
       to: coachEmail,
       subject: `📩 Nouvelle demande de réservation de ${clientName}`,
       html: `
@@ -114,7 +114,7 @@ export async function sendAffiliateSignupNotification(
     const commission = planType === 'ELITE' ? '10,36€' : '3,96€'
     
     await resend.emails.send({
-      from: 'Athlink Programme Ambassadeur <affiliate@resend.dev>',
+      from: 'Athlink <noreply@athlink.fr>',
       to: affiliateEmail,
       subject: '🎉 Nouveau parrainage réussi !',
       html: `

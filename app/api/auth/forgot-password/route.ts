@@ -82,11 +82,11 @@ export async function POST(req: NextRequest) {
 
     try {
       console.log("📧 Tentative d'envoi d'email via Resend...")
-      console.log("   - De: Athlink <onboarding@resend.dev>")
+      console.log("   - De: Athlink <noreply@athlink.fr>")
       console.log("   - À:", user.email)
       
       const emailResult = await resend.emails.send({
-        from: 'Athlink <onboarding@resend.dev>',
+        from: 'Athlink <noreply@athlink.fr>',
         to: user.email,
         subject: 'Réinitialisation de votre mot de passe Athlink',
         html: `
