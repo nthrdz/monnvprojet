@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RaceLogo } from "@/components/ui-pro/race-logo"
 import { toast } from "sonner"
 import Image from "next/image"
+import NextLink from "next/link"
 import { 
   Trophy, 
   Calendar, 
@@ -24,7 +25,8 @@ import {
   CheckCircle,
   AlertCircle,
   Timer,
-  Search
+  Search,
+  Globe
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -46,6 +48,7 @@ export function CompetitionsContent() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [isExtractingLogo, setIsExtractingLogo] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     date: "",
@@ -59,7 +62,18 @@ export function CompetitionsContent() {
 
   useEffect(() => {
     fetchRaces()
+    fetchUsername()
   }, [])
+
+  async function fetchUsername() {
+    try {
+      const res = await fetch("/api/profile")
+      const data = await res.json()
+      setUsername(data.profile?.username || null)
+    } catch (error) {
+      console.error("Erreur lors du chargement du username")
+    }
+  }
 
   async function fetchRaces() {
     try {
@@ -251,28 +265,42 @@ export function CompetitionsContent() {
           <h2 className="text-xl font-semibold text-gray-900">Mes Compétitions</h2>
           <p className="text-gray-600">Gérez votre calendrier de courses</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setShowForm(!showForm)
-            setEditingId(null)
-            setFormData({
-              name: "",
-              date: "",
-              location: "",
-              distance: "",
-              result: "",
-              status: "upcoming",
-              url: "",
-              logoUrl: ""
-            })
-          }}
-          className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
-        >
-          <Plus className="w-4 h-4" />
-          {showForm ? "Annuler" : "Nouvelle Course"}
-        </motion.button>
+        <div className="flex items-center gap-3">
+          {username && (
+            <NextLink href={`/${username}`} target="_blank">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-lg"
+              >
+                <Globe className="w-4 h-4" />
+                Voir profil public
+              </motion.button>
+            </NextLink>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setShowForm(!showForm)
+              setEditingId(null)
+              setFormData({
+                name: "",
+                date: "",
+                location: "",
+                distance: "",
+                result: "",
+                status: "upcoming",
+                url: "",
+                logoUrl: ""
+              })
+            }}
+            className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
+          >
+            <Plus className="w-4 h-4" />
+            {showForm ? "Annuler" : "Nouvelle Course"}
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Form */}

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Image from "next/image"
 import { searchBrand, getBrandLogoUrl, type Brand } from "@/lib/brands"
+import NextLink from "next/link"
 import { 
   Award, 
   Plus, 
@@ -43,6 +44,7 @@ export function SponsorsContent() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     logoUrl: "",
@@ -60,7 +62,18 @@ export function SponsorsContent() {
 
   useEffect(() => {
     fetchSponsors()
+    fetchUsername()
   }, [])
+
+  async function fetchUsername() {
+    try {
+      const res = await fetch("/api/profile")
+      const data = await res.json()
+      setUsername(data.profile?.username || null)
+    } catch (error) {
+      console.error("Erreur lors du chargement du username")
+    }
+  }
 
   // Fermer les suggestions quand on clique ailleurs
   useEffect(() => {
@@ -321,27 +334,41 @@ export function SponsorsContent() {
           <h2 className="text-xl font-semibold text-gray-900">Mes Sponsors</h2>
           <p className="text-gray-600">Gérez vos partenaires et collaborations</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setShowForm(!showForm)
-            setEditingId(null)
-            setFormData({
-              name: "",
-              logoUrl: "",
-              websiteUrl: "",
-              promoCode: "",
-              description: ""
-            })
-            setLogoFile(null)
-            setLogoPreview(null)
-          }}
-          className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
-        >
-          <Plus className="w-4 h-4" />
-          {showForm ? "Annuler" : "Nouveau Sponsor"}
-        </motion.button>
+        <div className="flex items-center gap-3">
+          {username && (
+            <NextLink href={`/${username}`} target="_blank">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-lg"
+              >
+                <Globe className="w-4 h-4" />
+                Voir profil public
+              </motion.button>
+            </NextLink>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setShowForm(!showForm)
+              setEditingId(null)
+              setFormData({
+                name: "",
+                logoUrl: "",
+                websiteUrl: "",
+                promoCode: "",
+                description: ""
+              })
+              setLogoFile(null)
+              setLogoPreview(null)
+            }}
+            className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
+          >
+            <Plus className="w-4 h-4" />
+            {showForm ? "Annuler" : "Nouveau Sponsor"}
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Form */}
