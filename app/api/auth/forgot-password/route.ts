@@ -66,6 +66,10 @@ export async function POST(req: NextRequest) {
 
     // Construire l'URL de réinitialisation
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password/${resetToken}`
+    
+    console.log("\n🔗🔗🔗 LIEN DE RÉINITIALISATION 🔗🔗🔗")
+    console.log(resetUrl)
+    console.log("🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗\n")
 
     // Envoyer l'email
     if (!process.env.RESEND_API_KEY) {
@@ -77,7 +81,11 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      await resend.emails.send({
+      console.log("📧 Tentative d'envoi d'email via Resend...")
+      console.log("   - De: Athlink <onboarding@resend.dev>")
+      console.log("   - À:", user.email)
+      
+      const emailResult = await resend.emails.send({
         from: 'Athlink <onboarding@resend.dev>',
         to: user.email,
         subject: 'Réinitialisation de votre mot de passe Athlink',
@@ -140,6 +148,7 @@ export async function POST(req: NextRequest) {
       })
 
       console.log("✅ Email de réinitialisation envoyé à:", user.email)
+      console.log("📬 ID de l'email Resend:", emailResult)
 
       return NextResponse.json({
         success: true,
