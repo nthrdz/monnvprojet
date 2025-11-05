@@ -355,6 +355,41 @@ export async function POST(req: NextRequest) {
       console.log("   - Customer ID:", session.customer)
       console.log("   - Subscription ID:", session.subscription)
 
+      // 🎁 AFFILIATION : Si un code de parrainage existe, enregistrer la conversion
+      const referralCode = session.metadata?.referralCode
+      if (referralCode) {
+        console.log("\n🎁 Code de parrainage détecté:", referralCode)
+        console.log("   - Appel de l'API affiliate/convert...")
+        
+        try {
+          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+          const affiliateResponse = await fetch(`${baseUrl}/api/affiliate/convert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              referralCode: referralCode,
+              userId: userId,
+              planType: plan,
+              stripeCustomerId: session.customer as string,
+              stripeSubscriptionId: session.subscription as string,
+              stripePaymentIntentId: session.payment_intent as string,
+            })
+          })
+
+          if (affiliateResponse.ok) {
+            const affiliateData = await affiliateResponse.json()
+            console.log("✅ Conversion affilié enregistrée avec succès !")
+            console.log("   - Commission:", affiliateData.commission?.amount, "€")
+          } else {
+            const errorData = await affiliateResponse.json()
+            console.error("❌ Erreur enregistrement conversion:", errorData.error)
+          }
+        } catch (affiliateError) {
+          console.error("❌ Erreur appel API affiliate/convert:", affiliateError)
+          // On ne bloque pas le webhook si l'affiliation échoue
+        }
+      }
+
       // 📧 Envoyer un email de confirmation
       try {
         if (resend) {

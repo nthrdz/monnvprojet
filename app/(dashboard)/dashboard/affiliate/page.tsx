@@ -3,8 +3,43 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
-import { Users, Link as LinkIcon, TrendingUp, DollarSign, Copy, CheckCircle, ExternalLink, Lock } from "lucide-react"
+import { Users, Link as LinkIcon, TrendingUp, DollarSign, Copy, CheckCircle, ExternalLink, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
+
+interface AffiliateStats {
+  totalReferrals: number
+  totalConversions: number
+  totalEarnings: number
+  totalClicks: number
+  commissionRate: number
+  status: string
+  affiliateCode?: string
+  recentConversions: Array<{
+    id: string
+    displayName: string
+    plan: string
+    convertedAt: Date
+    commissionEarned: number
+  }>
+  referrals: Array<{
+    id: string
+    status: string
+    displayName: string
+    plan: string
+    convertedAt?: Date
+    commissionEarned?: number
+  }>
+  commissions: Array<{
+    id: string
+    amount: number
+    type: string
+    status: string
+    description: string
+    paidAt?: Date
+    createdAt: Date
+  }>
+}
 
 export default function AffiliatePage() {
   const { data: session } = useSession()
@@ -12,6 +47,8 @@ export default function AffiliatePage() {
   const [affiliateLink, setAffiliateLink] = useState("")
   const [userPlan, setUserPlan] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<AffiliateStats | null>(null)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
   useEffect(() => {
     // Vérifier le plan de l'utilisateur
@@ -26,8 +63,36 @@ export default function AffiliatePage() {
       const username = session.user.username || session.user.email?.split('@')[0]
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://athlink.fr'
       setAffiliateLink(`${baseUrl}/?via=${username}`)
+
+      // Récupérer les stats d'affiliation
+      if (plan === 'PRO' || plan === 'ELITE') {
+        fetchAffiliateStats()
+      }
     }
   }, [session])
+
+  const fetchAffiliateStats = async () => {
+    setIsLoadingStats(true)
+    try {
+      const response = await fetch('/api/affiliate/stats', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      } else {
+        toast.error("Erreur lors du chargement des statistiques")
+      }
+    } catch (error) {
+      console.error('Erreur récupération stats:', error)
+      toast.error("Erreur lors du chargement des statistiques")
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
 
   const copyLink = () => {
     if (affiliateLink) {
@@ -204,10 +269,21 @@ export default function AffiliatePage() {
               <Users className="w-5 h-5 text-blue-500" />
               <span className="text-sm font-semibold text-gray-600">Parrainages</span>
             </div>
-            <p className="text-3xl font-black text-gray-900">
-              --
-            </p>
-            <p className="text-xs text-gray-500 mt-1">En attente de synchronisation</p>
+            {isLoadingStats ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <p className="text-lg text-gray-500">Chargement...</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-black text-gray-900">
+                  {stats?.totalReferrals || 0}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats?.totalReferrals === 0 ? 'Aucun parrainage pour le moment' : 'Personnes inscrites avec ton lien'}
+                </p>
+              </>
+            )}
           </motion.div>
 
           <motion.div
@@ -220,10 +296,21 @@ export default function AffiliatePage() {
               <TrendingUp className="w-5 h-5 text-green-500" />
               <span className="text-sm font-semibold text-gray-600">Conversions</span>
             </div>
-            <p className="text-3xl font-black text-gray-900">
-              --
-            </p>
-            <p className="text-xs text-gray-500 mt-1">En attente de synchronisation</p>
+            {isLoadingStats ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <p className="text-lg text-gray-500">Chargement...</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-black text-gray-900">
+                  {stats?.totalConversions || 0}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats?.totalConversions === 0 ? 'Aucune conversion pour le moment' : 'Abonnements payants générés'}
+                </p>
+              </>
+            )}
           </motion.div>
 
           <motion.div
@@ -236,18 +323,70 @@ export default function AffiliatePage() {
               <DollarSign className="w-5 h-5 text-yellow-500" />
               <span className="text-sm font-semibold text-gray-600">Commissions</span>
             </div>
-            <p className="text-3xl font-black text-gray-900">
-              --€
-            </p>
-            <p className="text-xs text-gray-500 mt-1">En attente de synchronisation</p>
+            {isLoadingStats ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <p className="text-lg text-gray-500">Chargement...</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-black text-gray-900">
+                  {stats?.totalEarnings?.toFixed(2) || '0.00'}€
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats?.totalEarnings === 0 ? 'Commencez à parrainer !' : 'Gains totaux'}
+                </p>
+              </>
+            )}
           </motion.div>
         </div>
+
+        {/* Conversions Récentes */}
+        {stats && stats.recentConversions && stats.recentConversions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              Conversions récentes (30 derniers jours)
+            </h3>
+            <div className="space-y-3">
+              {stats.recentConversions.map((conversion) => (
+                <div 
+                  key={conversion.id} 
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
+                      {conversion.displayName[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">{conversion.displayName}</p>
+                      <p className="text-sm text-gray-600">
+                        Plan {conversion.plan} • {new Date(conversion.convertedAt).toLocaleDateString('fr-FR')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-black text-green-600">
+                      +{conversion.commissionEarned?.toFixed(2)}€
+                    </p>
+                    <p className="text-xs text-gray-500">Commission gagnée</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Access Full Dashboard */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
           className="bg-gradient-to-br from-gray-800 to-black text-white rounded-2xl shadow-xl p-8"
         >
           <div className="flex items-start gap-4">

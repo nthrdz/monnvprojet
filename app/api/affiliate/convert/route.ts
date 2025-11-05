@@ -125,14 +125,22 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    // Récupérer les informations du nouvel utilisateur affilié
+    const newUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { profile: true }
+    })
+
     // Envoyer un email de notification à l'affilié
     try {
       const affiliateEmail = referral.affiliate.user?.email
-      if (affiliateEmail && resend) {
+      if (affiliateEmail && resend && newUser) {
+        const newUserName = newUser.profile?.displayName || newUser.name || 'Un nouvel athlète'
+        
         await resend.emails.send({
           from: 'Athlink <notifications@athlink.fr>',
           to: affiliateEmail,
-          subject: '🎉 Nouvelle conversion - Vous avez gagné une commission !',
+          subject: `🎉 ${newUserName} vous a rejoint grâce à vous !`,
           html: `
             <!DOCTYPE html>
             <html>
@@ -140,12 +148,13 @@ export async function POST(req: NextRequest) {
                 <style>
                   body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                   .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                  .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+                  .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
                   .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                  .success-box { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-                  .amount { font-size: 36px; font-weight: bold; color: #155724; }
+                  .success-box { background: #d1fae5; border: 2px solid #10b981; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                  .amount { font-size: 36px; font-weight: bold; color: #065f46; }
+                  .user-card { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
                   .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-                  .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+                  .button { display: inline-block; background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
                   .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
                 </style>
               </head>
@@ -157,25 +166,32 @@ export async function POST(req: NextRequest) {
                   <div class="content">
                     <p>Bonjour ${referral.affiliate.user.profile?.displayName || 'Ambassadeur'},</p>
                     
-                    <div class="success-box">
-                      <p style="margin: 0 0 10px 0;">Vous avez gagné :</p>
-                      <div class="amount">${commissionAmount.toFixed(2)} €</div>
-                      <p style="margin: 10px 0 0 0; color: #155724;">Commission 40%</p>
+                    <div class="user-card">
+                      <h3 style="margin-top: 0; color: #10b981;">👤 Nouvel affilié</h3>
+                      <p style="font-size: 18px; font-weight: bold; margin: 10px 0;">${newUserName}</p>
+                      <p style="color: #666; margin: 5px 0;">Plan souscrit : <strong>${planType}</strong></p>
+                      <p style="color: #666; margin: 5px 0;">Code utilisé : <strong>${referralCode}</strong></p>
                     </div>
                     
-                    <p>Félicitations ! Un utilisateur s'est inscrit avec votre code de parrainage et a souscrit à un plan payant.</p>
+                    <div class="success-box">
+                      <p style="margin: 0 0 10px 0; font-size: 14px; color: #065f46;">Vous avez gagné :</p>
+                      <div class="amount">${commissionAmount.toFixed(2)} €</div>
+                      <p style="margin: 10px 0 0 0; color: #065f46; font-weight: bold;">Commission 40%</p>
+                    </div>
+                    
+                    <p>Félicitations ! <strong>${newUserName}</strong> s'est inscrit avec votre code de parrainage et vient de passer au plan ${planType}. Vous gagnez maintenant <strong>${commissionAmount.toFixed(2)}€ de commission récurrente chaque mois</strong> tant qu'il reste abonné.</p>
                     
                     <div class="info-box">
-                      <h3 style="margin-top: 0; color: #667eea;">📊 Détails de la conversion</h3>
+                      <h3 style="margin-top: 0; color: #10b981;">📊 Détails de la conversion</h3>
                       <p><strong>Plan souscrit :</strong> ${planType}</p>
-                      <p><strong>Valeur :</strong> ${planPrice.toFixed(2)} €</p>
-                      <p><strong>Votre commission :</strong> ${commissionAmount.toFixed(2)} € (40%)</p>
-                      <p><strong>Code utilisé :</strong> ${referralCode}</p>
+                      <p><strong>Valeur de l'abonnement :</strong> ${planPrice.toFixed(2)} €/mois</p>
+                      <p><strong>Votre commission mensuelle :</strong> ${commissionAmount.toFixed(2)} € (40%)</p>
+                      <p><strong>Type :</strong> Commission récurrente</p>
                     </div>
                     
                     <div style="text-align: center;">
                       <a href="${process.env.NEXTAUTH_URL}/dashboard/affiliate" class="button">
-                        Voir mon dashboard
+                        Voir mon dashboard ambassadeur
                       </a>
                     </div>
                     
@@ -192,6 +208,7 @@ export async function POST(req: NextRequest) {
             </html>
           `
         })
+        console.log("📧 Email de notification envoyé à l'affilié:", affiliateEmail)
       }
     } catch (emailError) {
       console.error('Erreur envoi email conversion:', emailError)

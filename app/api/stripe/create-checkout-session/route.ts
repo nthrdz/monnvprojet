@@ -26,8 +26,11 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Utilisateur authentifié:", session.user.id)
 
-    const { plan, billingCycle } = await req.json()
+    const { plan, billingCycle, referralCode } = await req.json()
     console.log("📦 Données reçues - Plan:", plan, "Cycle:", billingCycle || "monthly")
+    if (referralCode) {
+      console.log("🎁 Code de parrainage:", referralCode)
+    }
 
     // ⚠️ IMPORTANT : Créez ces prix dans Stripe Dashboard !
     // 1. Allez sur https://dashboard.stripe.com/products
@@ -99,6 +102,7 @@ export async function POST(req: NextRequest) {
         profileId: profile.id,
         plan: plan,
         billingCycle: cycle,
+        ...(referralCode && { referralCode }),
       },
       subscription_data: {
         // ⚡ Pas de période d'essai - activation immédiate (pas de trial_period_days = pas de trial)
