@@ -1,78 +1,92 @@
 /**
- * Script pour supprimer un utilisateur et toutes ses données associées
+ * 🗑️ Supprimer un utilisateur de la base de données
+ * 
  * Usage: node scripts/delete-user.js <email>
  */
 
 require('dotenv').config({ path: '.env.local' })
 const { PrismaClient } = require('@prisma/client')
+
 const prisma = new PrismaClient()
 
-const emailToDelete = process.argv[2] || 'nathanrdz834@gmail.com'
-
 async function deleteUser(email) {
-  console.log('\n🗑️  SUPPRESSION DE L\'UTILISATEUR')
-  console.log('=' .repeat(60))
-  console.log(`Email: ${email}`)
-  console.log('=' .repeat(60))
+  console.log('\n🗑️  SUPPRESSION D\'UTILISATEUR\n')
+  console.log('='.repeat(70))
+  console.log(`\n📧 Email : ${email}\n`)
 
   try {
-    // Trouver l'utilisateur
+    // 1. Trouver l'utilisateur
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        profile: {
-          include: {
-            links: true,
-            races: true,
-            sponsors: true,
-            media: true,
-            analytics: true
-          }
-        }
+        profile: true,
+        affiliate: true
       }
     })
 
     if (!user) {
-      console.log('\n❌ Utilisateur non trouvé avec cet email.')
+      console.log('❌ Aucun utilisateur trouvé avec cet email.\n')
       return
     }
 
-    console.log('\n📊 DONNÉES À SUPPRIMER:')
-    console.log(`- Utilisateur: ${user.name || 'N/A'} (${user.email})`)
+    console.log('✅ Utilisateur trouvé :')
+    console.log(`   - ID: ${user.id}`)
+    console.log(`   - Email: ${user.email}`)
+    console.log(`   - Nom: ${user.name || 'Non renseigné'}`)
     
     if (user.profile) {
-      console.log(`- Profil: @${user.profile.username}`)
-      console.log(`- Liens: ${user.profile.links.length}`)
-      console.log(`- Compétitions: ${user.profile.races.length}`)
-      console.log(`- Sponsors: ${user.profile.sponsors.length}`)
-      console.log(`- Médias: ${user.profile.media.length}`)
-      console.log(`- Analytics: ${user.profile.analytics.length} entrées`)
+      console.log(`   - Username: ${user.profile.username}`)
+      console.log(`   - Plan: ${user.profile.plan}`)
+    }
+    
+    if (user.affiliate) {
+      console.log(`   - Affilié: Oui (${user.affiliate.affiliateCode})`)
     }
 
-    // Confirmer la suppression
-    console.log('\n⚠️  ATTENTION: Cette action est IRRÉVERSIBLE !')
-    console.log('Toutes les données de cet utilisateur seront supprimées définitivement.')
-    
-    // En production, on demanderait confirmation, mais pour un script on continue
-    console.log('\n🔄 Suppression en cours...')
+    console.log('\n⚠️  ATTENTION : Cette action est IRRÉVERSIBLE !')
+    console.log('    Toutes les données liées seront supprimées :')
+    console.log('    - Profil')
+    console.log('    - Liens personnalisés')
+    console.log('    - Compétitions')
+    console.log('    - Sponsors')
+    console.log('    - Médias')
+    console.log('    - Analytics')
+    console.log('    - Données d\'affiliation')
+    console.log('    - Sessions')
+    console.log('')
 
-    // Supprimer l'utilisateur (les cascades Prisma supprimeront automatiquement le reste)
+    // Demander confirmation (simulation, on supprime directement en script)
+    console.log('🗑️  Suppression en cours...\n')
+
+    // Prisma gère automatiquement les suppressions en cascade grâce à onDelete: Cascade
     await prisma.user.delete({
       where: { email }
     })
 
-    console.log('\n✅✅✅ UTILISATEUR SUPPRIMÉ AVEC SUCCÈS ✅✅✅')
-    console.log(`L'utilisateur ${email} et toutes ses données ont été supprimés.`)
-    console.log('\n')
+    console.log('='.repeat(70))
+    console.log('\n✅ Utilisateur supprimé avec succès !')
+    console.log(`   Email : ${email}`)
+    console.log(`   Toutes les données associées ont été supprimées.\n`)
 
   } catch (error) {
-    console.error('\n❌ ERREUR lors de la suppression:', error)
-    console.error('Stack:', error.stack)
+    console.error('\n❌ Erreur lors de la suppression:', error.message)
+    
+    if (error.code === 'P2025') {
+      console.log('\n⚠️  L\'utilisateur n\'existe pas ou a déjà été supprimé.\n')
+    }
   } finally {
     await prisma.$disconnect()
   }
 }
 
-// Exécuter la suppression
-deleteUser(emailToDelete)
+// Récupérer l'email depuis les arguments
+const email = process.argv[2]
 
+if (!email) {
+  console.log('\n❌ Usage: node scripts/delete-user.js <email>')
+  console.log('\nExemple:')
+  console.log('  node scripts/delete-user.js contact@athlink.fr\n')
+  process.exit(1)
+}
+
+deleteUser(email)
