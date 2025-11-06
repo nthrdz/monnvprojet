@@ -400,7 +400,7 @@ export async function POST(req: NextRequest) {
             },
             body: JSON.stringify({
               referral_code: referralCode,
-              email: user.email,
+              email: profile.user.email,
               amount: session.amount_total,
               currency: session.currency || 'eur',
               external_id: session.id,
