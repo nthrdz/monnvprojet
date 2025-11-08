@@ -105,28 +105,28 @@ export default function SourcesPage() {
       transition={{ duration: 0.5 }}
       className="space-y-8"
     >
-      {/* Header avec titre et stats */}
+      {/* Header avec titre et stats - Mobile optimized */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5 }}
-        className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm"
+        className="bg-gradient-to-r from-gray-50 to-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-sm"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sources</h1>
-          <p className="text-gray-600">Gérez vos liens, compétitions et partenaires en un seul endroit</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Sources</h1>
+          <p className="text-sm sm:text-base text-gray-600">Gérez vos liens, compétitions et partenaires</p>
         </div>
       </motion.div>
 
-      {/* Onglets améliorés */}
+      {/* Onglets améliorés - Mobile optimized */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+        className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
       >
         <div className="border-b border-gray-200 bg-gray-50/50">
-          <nav className="flex">
+          <nav className="flex overflow-x-auto">
             {tabs.map((tab, index) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -141,7 +141,7 @@ export default function SourcesPage() {
                   whileHover={{ y: -2 }}
                   whileTap={{ y: 0 }}
                   className={cn(
-                    "relative flex-1 px-6 py-4 text-sm font-medium transition-all duration-300 group",
+                    "relative flex-1 px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-all duration-300 group whitespace-nowrap",
                     isActive
                       ? "text-gray-900 bg-white"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
