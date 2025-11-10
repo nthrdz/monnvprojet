@@ -432,7 +432,7 @@ export default function Home() {
                   className="relative rounded-3xl overflow-hidden shadow-2xl"
                 >
                   <Image
-                    src="/uploads/hero/3.png"
+                    src="/uploads/hero/ambassadeur 1.png"
                     alt="Programme Ambassadeur - Gagne 40% de commission récurrente"
                     width={1200}
                     height={800}
@@ -659,7 +659,7 @@ export default function Home() {
                   className="relative rounded-3xl overflow-hidden shadow-2xl"
                 >
                   <Image
-                    src="/uploads/hero/4.png"
+                    src="/uploads/hero/exemple profil athlink.png"
                     alt="Exemple de profil Athlink - Liens, événements et sponsors"
                     width={1200}
                     height={800}
