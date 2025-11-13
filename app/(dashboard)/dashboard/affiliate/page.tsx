@@ -15,7 +15,7 @@ interface AffiliateStats {
   commissionRate: number
   status: string
   affiliateCode?: string
-  rewardfulAffiliateLink?: string | null // Lien Rewardful personnalisé
+  firstPromoterAffiliateLink?: string | null // Lien FirstPromoter personnalisé
   recentConversions: Array<{
     id: string
     displayName: string
@@ -50,9 +50,9 @@ export default function AffiliatePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<AffiliateStats | null>(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
-  const [rewardfulLink, setRewardfulLink] = useState("")
-  const [isEditingRewardful, setIsEditingRewardful] = useState(false)
-  const [isSavingRewardful, setIsSavingRewardful] = useState(false)
+  const [firstPromoterLink, setFirstPromoterLink] = useState("")
+  const [isEditingFirstPromoter, setIsEditingFirstPromoter] = useState(false)
+  const [isSavingFirstPromoter, setIsSavingFirstPromoter] = useState(false)
 
   useEffect(() => {
     // Vérifier le plan de l'utilisateur
@@ -62,11 +62,11 @@ export default function AffiliatePage() {
       setUserPlan(plan)
       setIsLoading(false)
 
-      // Générer le lien d'affilié basé sur le username
+      // Générer le lien d'affilié FirstPromoter basé sur le username
       // @ts-ignore - username existe dans notre session personnalisée
       const username = session.user.username || session.user.email?.split('@')[0]
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://athlink.fr'
-      setAffiliateLink(`${baseUrl}/?via=${username}`)
+      setAffiliateLink(`${baseUrl}/?fpr=${username}`)
 
       // Récupérer les stats d'affiliation
       if (plan === 'PRO' || plan === 'ELITE') {
@@ -87,9 +87,9 @@ export default function AffiliatePage() {
       if (response.ok) {
         const data = await response.json()
         setStats(data)
-        // Charger le lien Rewardful s'il existe
-        if (data.rewardfulAffiliateLink) {
-          setRewardfulLink(data.rewardfulAffiliateLink)
+        // Charger le lien FirstPromoter s'il existe
+        if (data.firstPromoterAffiliateLink) {
+          setFirstPromoterLink(data.firstPromoterAffiliateLink)
         }
       } else {
         toast.error("Erreur lors du chargement des statistiques")
@@ -102,23 +102,23 @@ export default function AffiliatePage() {
     }
   }
 
-  const saveRewardfulLink = async () => {
-    if (!rewardfulLink || rewardfulLink.trim() === '') {
-      toast.error("Veuillez entrer un lien Rewardful valide")
+  const saveFirstPromoterLink = async () => {
+    if (!firstPromoterLink || firstPromoterLink.trim() === '') {
+      toast.error("Veuillez entrer un lien FirstPromoter valide")
       return
     }
 
-    setIsSavingRewardful(true)
+    setIsSavingFirstPromoter(true)
     try {
-      const response = await fetch('/api/affiliate/update-rewardful-link', {
+      const response = await fetch('/api/affiliate/update-firstpromoter-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rewardfulLink: rewardfulLink.trim() })
+        body: JSON.stringify({ firstPromoterLink: firstPromoterLink.trim() })
       })
 
       if (response.ok) {
-        toast.success("Lien Rewardful sauvegardé avec succès !")
-        setIsEditingRewardful(false)
+        toast.success("Lien FirstPromoter sauvegardé avec succès !")
+        setIsEditingFirstPromoter(false)
         // Rafraîchir les stats pour obtenir le lien mis à jour
         fetchAffiliateStats()
       } else {
@@ -126,10 +126,10 @@ export default function AffiliatePage() {
         toast.error(data.error || "Erreur lors de la sauvegarde du lien")
       }
     } catch (error) {
-      console.error('Erreur sauvegarde lien Rewardful:', error)
+      console.error('Erreur sauvegarde lien FirstPromoter:', error)
       toast.error("Erreur lors de la sauvegarde du lien")
     } finally {
-      setIsSavingRewardful(false)
+      setIsSavingFirstPromoter(false)
     }
   }
 
@@ -180,7 +180,7 @@ export default function AffiliatePage() {
             <ul className="text-left text-gray-700 space-y-2 max-w-md mx-auto">
               <li>• <strong>40%</strong> de commission récurrente</li>
               <li>• Paiements automatiques chaque mois</li>
-              <li>• Dashboard Rewardful complet</li>
+              <li>• Dashboard FirstPromoter complet</li>
               <li>• Support prioritaire</li>
             </ul>
           </div>
@@ -256,82 +256,78 @@ export default function AffiliatePage() {
           </div>
         </motion.div>
 
-        {/* Affiliate Link - Uniquement Rewardful */}
-        {stats?.rewardfulAffiliateLink && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-lg p-8 mb-8"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <LinkIcon className="w-6 h-6 text-gray-800" />
-              <h2 className="text-2xl font-bold text-gray-900">Ton lien d'ambassadeur Rewardful</h2>
-            </div>
-            
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-4">
-              <code className="text-sm text-gray-700 flex-1 overflow-x-auto">
-                {affiliateLink || "https://athlink.fr/?via=nathan"}
-              </code>
-              <button
-                onClick={copyLink}
-                className="px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-lg font-semibold flex items-center gap-2 transition-all"
-              >
-                {copied ? (
-                  <>
-                    <CheckCircle className="w-4 h-4" />
-                    Copié !
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copier
-                  </>
-                )}
-              </button>
-            </div>
-
-            <p className="text-sm text-gray-500 mt-3">
-              Partage ce lien sur tes réseaux sociaux, dans tes stories, ou directement à tes amis athlètes !
-            </p>
-            <p className="text-xs text-gray-400 mt-2">
-              🎯 Toutes tes statistiques et commissions sont gérées par Rewardful
-            </p>
-          </motion.div>
-        )}
-
-        {/* Message: Stats sur Rewardful */}
-        {stats?.rewardfulAffiliateLink && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 mb-8 text-center"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">
-              📊 Tes statistiques complètes sont sur Rewardful
-            </h3>
-            <p className="text-gray-700 mb-6">
-              Parrainages, conversions, commissions, et paiements : tout est géré directement dans ton dashboard Rewardful
-            </p>
-            <a
-              href={stats.rewardfulAffiliateLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
-            >
-              Voir mes stats Rewardful
-              <ExternalLink className="w-5 h-5" />
-            </a>
-          </motion.div>
-        )}
-
-
-        {/* Access Full Dashboard */}
+        {/* Affiliate Link - FirstPromoter */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <LinkIcon className="w-6 h-6 text-gray-800" />
+            <h2 className="text-2xl font-bold text-gray-900">Ton lien d'ambassadeur</h2>
+          </div>
+          
+          <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-4">
+            <code className="text-sm text-gray-700 flex-1 overflow-x-auto">
+              {affiliateLink || "https://athlink.fr/?fpr=ton_code"}
+            </code>
+            <button
+              onClick={copyLink}
+              className="px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-lg font-semibold flex items-center gap-2 transition-all"
+            >
+              {copied ? (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  Copié !
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copier
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-500 mt-3">
+            Partage ce lien sur tes réseaux sociaux, dans tes stories, ou directement à tes amis athlètes !
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            🎯 Toutes tes statistiques et commissions sont trackées automatiquement par FirstPromoter
+          </p>
+        </motion.div>
+
+        {/* Message: Stats sur FirstPromoter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 mb-8 text-center"
+        >
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            📊 Tes statistiques complètes sont sur FirstPromoter
+          </h3>
+          <p className="text-gray-700 mb-6">
+            Parrainages, conversions, commissions, et paiements : tout est géré automatiquement via l'intégration Stripe
+          </p>
+          <a
+            href="https://firstpromoter.com/affiliates/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+          >
+            Voir mes stats FirstPromoter
+            <ExternalLink className="w-5 h-5" />
+          </a>
+        </motion.div>
+
+
+        {/* Access Full Dashboard - FirstPromoter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           className="bg-gradient-to-br from-gray-800 to-black text-white rounded-2xl shadow-xl p-8"
         >
           <div className="flex items-start gap-4">
@@ -340,120 +336,26 @@ export default function AffiliatePage() {
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">
-                Dashboard complet Rewardful
+                Dashboard complet FirstPromoter
               </h3>
-              <p className="text-white/80 mb-4">
-                Inscris-toi sur Rewardful pour suivre tes statistiques en temps réel, gérer tes paiements et accéder à ton dashboard affilié complet.
+              <p className="text-white/80 mb-6">
+                Accède à ton dashboard FirstPromoter pour suivre tes statistiques en temps réel, voir tes commissions et gérer tes paiements.
               </p>
 
-              {/* Si pas encore de lien Rewardful enregistré */}
-              {!stats?.rewardfulAffiliateLink && !isEditingRewardful && (
-                <>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <a
-                      href="https://nathan-rodriguez.getrewardful.com/signup"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
-                    >
-                      S'inscrire comme affilié
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                  <p className="text-white/60 text-sm mt-3">
-                    💡 Une fois inscrit, colle ton lien Rewardful personnalisé ci-dessous
-                  </p>
-                  <button
-                    onClick={() => setIsEditingRewardful(true)}
-                    className="mt-3 text-sm text-white/80 hover:text-white underline"
-                  >
-                    J'ai déjà mon lien Rewardful →
-                  </button>
-                </>
-              )}
-
-              {/* Si on est en train d'éditer le lien */}
-              {isEditingRewardful && (
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-white/90">
-                    Colle ton lien Rewardful personnalisé :
-                  </label>
-                  <input
-                    type="url"
-                    value={rewardfulLink}
-                    onChange={(e) => setRewardfulLink(e.target.value)}
-                    placeholder="https://app.getrewardful.com/affiliates/..."
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-white/40 focus:border-white/40 focus:outline-none"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={saveRewardfulLink}
-                      disabled={isSavingRewardful}
-                      className="flex-1 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSavingRewardful ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Sauvegarde...
-                        </span>
-                      ) : (
-                        'Sauvegarder'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setIsEditingRewardful(false)}
-                      disabled={isSavingRewardful}
-                      className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all disabled:opacity-50"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Si le lien Rewardful est déjà enregistré */}
-              {stats?.rewardfulAffiliateLink && !isEditingRewardful && (
-                <div className="space-y-3">
-                  <div className="bg-white/10 rounded-lg p-4 flex items-center justify-between gap-4">
-                    <code className="text-sm text-white/90 flex-1 overflow-x-auto">
-                      {stats.rewardfulAffiliateLink}
-                    </code>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(stats.rewardfulAffiliateLink || '')
-                        toast.success('Lien Rewardful copié !')
-                      }}
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-semibold flex items-center gap-2 transition-all flex-shrink-0"
-                    >
-                      <Copy className="w-4 h-4" />
-                      Copier
-                    </button>
-                  </div>
-                  <div className="flex gap-3">
-                    <a
-                      href={stats.rewardfulAffiliateLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
-                    >
-                      Accéder à mon dashboard Rewardful
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                    <button
-                      onClick={() => {
-                        setRewardfulLink(stats.rewardfulAffiliateLink || '')
-                        setIsEditingRewardful(true)
-                      }}
-                      className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all"
-                    >
-                      Modifier
-                    </button>
-                  </div>
-                  <p className="text-white/60 text-sm">
-                    💡 Accède à ton dashboard Rewardful pour voir tes stats et commissions détaillées
-                  </p>
-                </div>
-              )}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="https://firstpromoter.com/affiliates/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
+                >
+                  Accéder à mon dashboard
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+              <p className="text-white/60 text-sm mt-4">
+                💡 Le tracking est automatique via FirstPromoter. Tes commissions sont calculées automatiquement pour chaque vente via ton lien.
+              </p>
             </div>
           </div>
         </motion.div>
