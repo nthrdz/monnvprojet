@@ -389,41 +389,10 @@ export async function POST(req: NextRequest) {
           // On ne bloque pas le webhook si l'affiliation échoue
         }
 
-        // 🎯 REWARDFUL : Envoyer la conversion à l'API Rewardful
-        console.log("\n🎁 Envoi de la conversion à Rewardful...")
-        try {
-          const rewardfulResponse = await fetch('https://api.getrewardful.com/v1/conversions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${process.env.REWARDFUL_API_SECRET}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              referral_code: referralCode,
-              email: profile.user.email,
-              amount: session.amount_total,
-              currency: session.currency || 'eur',
-              external_id: session.id,
-              metadata: {
-                plan: plan,
-                userId: userId,
-                subscriptionId: session.subscription
-              }
-            })
-          })
-
-          if (rewardfulResponse.ok) {
-            const rewardfulData = await rewardfulResponse.json()
-            console.log("✅ Conversion envoyée à Rewardful avec succès !")
-            console.log("   - Conversion ID:", rewardfulData.id)
-          } else {
-            const errorText = await rewardfulResponse.text()
-            console.error("❌ Erreur Rewardful:", rewardfulResponse.status, errorText)
-          }
-        } catch (rewardfulError) {
-          console.error("❌ Erreur appel API Rewardful:", rewardfulError)
-          // On ne bloque pas le webhook si Rewardful échoue
-        }
+        // 🎯 FIRSTPROMOTER : Les conversions sont trackées automatiquement via l'intégration Stripe
+        // Le SDK FirstPromoter + l'intégration Stripe dans leur dashboard gèrent les conversions
+        // Plus besoin d'appeler manuellement une API de conversion
+        console.log("\n🎁 FirstPromoter trackera automatiquement cette conversion via Stripe")
       }
 
       // 📧 Envoyer un email de confirmation
