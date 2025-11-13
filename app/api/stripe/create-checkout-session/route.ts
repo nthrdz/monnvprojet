@@ -26,10 +26,13 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Utilisateur authentifié:", session.user.id)
 
-    const { plan, billingCycle, referralCode } = await req.json()
+    const { plan, billingCycle, referralCode, fp_tid } = await req.json()
     console.log("📦 Données reçues - Plan:", plan, "Cycle:", billingCycle || "monthly")
     if (referralCode) {
       console.log("🎁 Code de parrainage:", referralCode)
+    }
+    if (fp_tid) {
+      console.log("🎯 FirstPromoter Tracking ID (fp_tid):", fp_tid)
     }
 
     // ⚠️ IMPORTANT : Créez ces prix dans Stripe Dashboard !
@@ -103,6 +106,7 @@ export async function POST(req: NextRequest) {
         plan: plan,
         billingCycle: cycle,
         ...(referralCode && { referralCode }),
+        ...(fp_tid && { fp_tid }), // 🎯 FirstPromoter Tracking ID pour le tracking d'affiliation
       },
       subscription_data: {
         // ⚡ Pas de période d'essai - activation immédiate (pas de trial_period_days = pas de trial)
@@ -111,6 +115,7 @@ export async function POST(req: NextRequest) {
           profileId: profile.id,
           plan: plan,
           billingCycle: cycle,
+          ...(fp_tid && { fp_tid }), // 🎯 FirstPromoter Tracking ID pour le tracking des paiements récurrents
         }
       }
     }

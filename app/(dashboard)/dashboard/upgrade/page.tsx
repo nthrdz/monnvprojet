@@ -59,9 +59,34 @@ export default function UpgradePage() {
       
       const planValue = planMapping[planName]
       
+      // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis le cookie
+      function getFPTid(): string | null {
+        // FirstPromoter stocke le tid dans window.FPROM.data.tid
+        if (typeof window !== 'undefined' && (window as any).FPROM?.data?.tid) {
+          return (window as any).FPROM.data.tid
+        }
+        // Fallback: essayer de lire le cookie directement
+        const cookies = document.cookie.split(';')
+        for (let cookie of cookies) {
+          const [name, value] = cookie.trim().split('=')
+          if (name === '_fprom_tid') {
+            return decodeURIComponent(value)
+          }
+        }
+        return null
+      }
+      
+      const fpTid = getFPTid()
+      if (fpTid) {
+        console.log("🎯 FirstPromoter Tracking ID trouvé:", fpTid)
+      } else {
+        console.log("⚠️ Aucun FirstPromoter Tracking ID trouvé (utilisateur non arrivé via lien affilié)")
+      }
+      
       console.log("🚀 Création de la session Stripe Checkout...")
       console.log("   - Plan:", planValue)
       console.log("   - Cycle:", billingCycle)
+      console.log("   - FP TID:", fpTid || "Aucun")
       
       // ✅ Créer une session Stripe Checkout avec le cycle de facturation
       const response = await fetch("/api/stripe/create-checkout-session", {
@@ -69,7 +94,8 @@ export default function UpgradePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           plan: planValue,
-          billingCycle: billingCycle // 'monthly' ou 'yearly'
+          billingCycle: billingCycle, // 'monthly' ou 'yearly'
+          fp_tid: fpTid // 🎯 FirstPromoter Tracking ID
         })
       })
 
