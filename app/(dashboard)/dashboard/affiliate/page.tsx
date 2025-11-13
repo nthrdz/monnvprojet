@@ -339,21 +339,76 @@ export default function AffiliatePage() {
                 Dashboard complet FirstPromoter
               </h3>
               <p className="text-white/80 mb-6">
-                Accède à ton dashboard FirstPromoter pour suivre tes statistiques en temps réel, voir tes commissions et gérer tes paiements.
+                Pour accéder à tes statistiques détaillées, crée d'abord ton compte affiliateur sur FirstPromoter, puis connecte-toi.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              {/* Étape 1: Créer un compte */}
+              <div className="mb-4 p-4 bg-white/10 rounded-lg border border-white/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    1
+                  </div>
+                  <h4 className="font-bold text-lg">Créer mon compte affiliateur</h4>
+                </div>
+                <p className="text-white/70 text-sm mb-4 ml-11">
+                  Si tu n'as pas encore de compte FirstPromoter, crée-le maintenant pour commencer à gagner des commissions.
+                </p>
+                <a
+                  href="https://firstpromoter.com/signup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-11 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                >
+                  Créer mon compte affiliateur
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Étape 2: Se connecter */}
+              <div className="mb-4 p-4 bg-white/10 rounded-lg border border-white/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    2
+                  </div>
+                  <h4 className="font-bold text-lg">Se connecter à FirstPromoter</h4>
+                </div>
+                <p className="text-white/70 text-sm mb-4 ml-11">
+                  Une fois ton compte créé, connecte-toi pour accéder à ton dashboard et voir tes statistiques.
+                </p>
                 <a
                   href="https://firstpromoter.com/affiliates/login"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
+                  className="ml-11 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                >
+                  Se connecter à FirstPromoter
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Étape 3: Accéder au dashboard */}
+              <div className="p-4 bg-white/10 rounded-lg border border-white/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    3
+                  </div>
+                  <h4 className="font-bold text-lg">Accéder à mon dashboard</h4>
+                </div>
+                <p className="text-white/70 text-sm mb-4 ml-11">
+                  Une fois connecté, accède à ton dashboard pour suivre tes statistiques en temps réel, voir tes commissions et gérer tes paiements.
+                </p>
+                <a
+                  href="https://firstpromoter.com/affiliates/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-11 inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-all"
                 >
                   Accéder à mon dashboard
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
-              <p className="text-white/60 text-sm mt-4">
+
+              <p className="text-white/60 text-sm mt-6">
                 💡 Le tracking est automatique via FirstPromoter. Tes commissions sont calculées automatiquement pour chaque vente via ton lien.
               </p>
             </div>
