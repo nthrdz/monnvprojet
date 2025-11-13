@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/db'
@@ -32,22 +33,39 @@ export async function POST(req: NextRequest) {
       console.log("🎁 Code de parrainage:", referralCode)
     }
     
-    // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis les cookies si non fourni
-    let trackingId = fp_tid
+    // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis les cookies côté serveur
+    // Conforme aux instructions FirstPromoter : https://docs.firstpromoter.com
+    let trackingId = fp_tid // D'abord, utiliser celui transmis depuis le client
+    
     if (!trackingId) {
-      // Fallback: essayer de récupérer depuis les cookies de la requête
-      const cookies = req.headers.get('cookie') || ''
-      const cookieMatch = cookies.match(/_fprom_tid=([^;]+)/)
-      if (cookieMatch) {
-        trackingId = decodeURIComponent(cookieMatch[1])
-        console.log("🎯 FirstPromoter Tracking ID récupéré depuis les cookies:", trackingId)
+      // Méthode 1: Utiliser l'API cookies() de Next.js (méthode recommandée)
+      try {
+        const cookieStore = await cookies()
+        const fpromTidCookie = cookieStore.get('_fprom_tid')
+        if (fpromTidCookie?.value) {
+          trackingId = decodeURIComponent(fpromTidCookie.value)
+          console.log("🎯 FirstPromoter Tracking ID récupéré via cookies() API:", trackingId)
+        }
+      } catch (error) {
+        console.log("⚠️ Impossible d'utiliser cookies() API, utilisation du fallback")
+      }
+      
+      // Méthode 2: Fallback - lire depuis les headers HTTP (compatible avec tous les cas)
+      if (!trackingId) {
+        const cookieHeader = req.headers.get('cookie') || ''
+        const cookieMatch = cookieHeader.match(/_fprom_tid=([^;]+)/)
+        if (cookieMatch) {
+          trackingId = decodeURIComponent(cookieMatch[1])
+          console.log("🎯 FirstPromoter Tracking ID récupéré depuis headers HTTP:", trackingId)
+        }
       }
     }
     
     if (trackingId) {
-      console.log("🎯 FirstPromoter Tracking ID (fp_tid):", trackingId)
+      console.log("✅ FirstPromoter Tracking ID (fp_tid) final:", trackingId)
     } else {
       console.log("⚠️ Aucun FirstPromoter Tracking ID trouvé")
+      console.log("   → L'utilisateur n'est peut-être pas arrivé via un lien d'affiliation")
     }
 
     // ⚠️ IMPORTANT : Créez ces prix dans Stripe Dashboard !
@@ -121,7 +139,9 @@ export async function POST(req: NextRequest) {
         plan: plan,
         billingCycle: cycle,
         ...(referralCode && { referralCode }),
-        ...(trackingId && { fp_tid: trackingId }), // 🎯 FirstPromoter Tracking ID pour le tracking d'affiliation
+        // 🎯 FirstPromoter Tracking ID - conforme aux instructions FirstPromoter
+        // Le fp_tid est récupéré depuis le cookie _fprom_tid côté serveur
+        ...(trackingId && { fp_tid: trackingId }),
       },
       subscription_data: {
         // ⚡ Pas de période d'essai - activation immédiate (pas de trial_period_days = pas de trial)
