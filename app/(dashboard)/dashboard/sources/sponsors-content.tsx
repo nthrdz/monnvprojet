@@ -184,11 +184,22 @@ export function SponsorsContent() {
     })
   }
 
-  function copyToClipboard(text: string, id: string) {
+  async function copyToClipboard(text: string, id: string) {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
     toast.success("Code copié !")
+    
+    // 📊 Tracker la copie du code promo
+    try {
+      await fetch('/api/sponsors/track-promo-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sponsorId: id })
+      })
+    } catch (error) {
+      console.error('Erreur tracking copie code promo:', error)
+    }
   }
 
   async function handleNameChange(value: string) {
@@ -347,6 +358,16 @@ export function SponsorsContent() {
               </motion.button>
             </NextLink>
           )}
+          <NextLink href="/dashboard/sponsors-analytics">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-200 shadow-lg"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Analytics
+            </motion.button>
+          </NextLink>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
