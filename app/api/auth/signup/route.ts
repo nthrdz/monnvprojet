@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { signupSchema, mapSportToEnum, createStatsWithOriginalSport } from "@/lib/validations"
-import { sendWelcomeEmail } from "@/lib/email"
+import { sendWelcomeEmail, sendAdminNewSignupNotification } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -86,6 +86,20 @@ export async function POST(req: NextRequest) {
       console.log('✅ Email de bienvenue envoyé à:', user.email)
     } catch (emailError) {
       console.error('❌ Erreur envoi email de bienvenue:', emailError)
+      // On ne bloque pas l'inscription si l'email échoue
+    }
+
+    // 📧 Notification admin pour nouvelle inscription
+    try {
+      await sendAdminNewSignupNotification(
+        user.profile?.username || 'inconnu',
+        'FREE',
+        validatedData.sport,
+        new Date()
+      )
+      console.log('✅ Notification admin envoyée pour:', user.profile?.username)
+    } catch (adminEmailError) {
+      console.error('❌ Erreur envoi notification admin:', adminEmailError)
       // On ne bloque pas l'inscription si l'email échoue
     }
 

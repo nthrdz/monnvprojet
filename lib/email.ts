@@ -157,5 +157,58 @@ export async function sendAffiliateSignupNotification(
   }
 }
 
+/**
+ * Envoyer une notification admin lors d'une nouvelle inscription
+ */
+export async function sendAdminNewSignupNotification(
+  username: string,
+  plan: 'FREE' | 'PRO' | 'ELITE',
+  sport?: string,
+  signupDate?: Date
+) {
+  try {
+    const { newSignupAdminNotification } = await import('@/lib/email-templates')
+    
+    const formattedDate = signupDate 
+      ? new Date(signupDate).toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : new Date().toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+
+    const profileUrl = `https://athlink.fr/${username}`
+
+    const html = newSignupAdminNotification({
+      username,
+      plan,
+      sport,
+      signupDate: formattedDate,
+      profileUrl
+    })
+
+    await resend.emails.send({
+      from: 'Athlink Notifications <noreply@athlink.fr>',
+      to: 'contact@athlink.fr',
+      subject: `🎉 Nouvelle inscription: ${username}`,
+      html
+    })
+    
+    console.log('✅ Notification admin nouvelle inscription envoyée pour:', username)
+    return { success: true }
+  } catch (error) {
+    console.error('❌ Erreur envoi notification admin nouvelle inscription:', error)
+    return { success: false, error }
+  }
+}
+
 export { resend }
 
