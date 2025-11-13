@@ -31,8 +31,23 @@ export async function POST(req: NextRequest) {
     if (referralCode) {
       console.log("🎁 Code de parrainage:", referralCode)
     }
-    if (fp_tid) {
-      console.log("🎯 FirstPromoter Tracking ID (fp_tid):", fp_tid)
+    
+    // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis les cookies si non fourni
+    let trackingId = fp_tid
+    if (!trackingId) {
+      // Fallback: essayer de récupérer depuis les cookies de la requête
+      const cookies = req.headers.get('cookie') || ''
+      const cookieMatch = cookies.match(/_fprom_tid=([^;]+)/)
+      if (cookieMatch) {
+        trackingId = decodeURIComponent(cookieMatch[1])
+        console.log("🎯 FirstPromoter Tracking ID récupéré depuis les cookies:", trackingId)
+      }
+    }
+    
+    if (trackingId) {
+      console.log("🎯 FirstPromoter Tracking ID (fp_tid):", trackingId)
+    } else {
+      console.log("⚠️ Aucun FirstPromoter Tracking ID trouvé")
     }
 
     // ⚠️ IMPORTANT : Créez ces prix dans Stripe Dashboard !
@@ -106,7 +121,7 @@ export async function POST(req: NextRequest) {
         plan: plan,
         billingCycle: cycle,
         ...(referralCode && { referralCode }),
-        ...(fp_tid && { fp_tid }), // 🎯 FirstPromoter Tracking ID pour le tracking d'affiliation
+        ...(trackingId && { fp_tid: trackingId }), // 🎯 FirstPromoter Tracking ID pour le tracking d'affiliation
       },
       subscription_data: {
         // ⚡ Pas de période d'essai - activation immédiate (pas de trial_period_days = pas de trial)
@@ -115,7 +130,7 @@ export async function POST(req: NextRequest) {
           profileId: profile.id,
           plan: plan,
           billingCycle: cycle,
-          ...(fp_tid && { fp_tid }), // 🎯 FirstPromoter Tracking ID pour le tracking des paiements récurrents
+          ...(trackingId && { fp_tid: trackingId }), // 🎯 FirstPromoter Tracking ID pour le tracking des paiements récurrents
         }
       }
     }

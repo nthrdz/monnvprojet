@@ -61,18 +61,26 @@ export default function UpgradePage() {
       
       // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis le cookie
       function getFPTid(): string | null {
-        // FirstPromoter stocke le tid dans window.FPROM.data.tid
-        if (typeof window !== 'undefined' && (window as any).FPROM?.data?.tid) {
-          return (window as any).FPROM.data.tid
+        if (typeof window === 'undefined') return null
+        
+        // Méthode 1: FirstPromoter stocke le tid dans window.FPROM.data.tid
+        if ((window as any).FPROM?.data?.tid) {
+          const tid = (window as any).FPROM.data.tid
+          console.log("✅ FP TID trouvé via window.FPROM.data.tid:", tid)
+          return tid
         }
-        // Fallback: essayer de lire le cookie directement
+        
+        // Méthode 2: Essayer de lire le cookie _fprom_tid directement
         const cookies = document.cookie.split(';')
         for (let cookie of cookies) {
           const [name, value] = cookie.trim().split('=')
-          if (name === '_fprom_tid') {
-            return decodeURIComponent(value)
+          if (name === '_fprom_tid' && value) {
+            const tid = decodeURIComponent(value)
+            console.log("✅ FP TID trouvé via cookie _fprom_tid:", tid)
+            return tid
           }
         }
+        
         return null
       }
       
