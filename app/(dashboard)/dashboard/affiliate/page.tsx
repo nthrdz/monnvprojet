@@ -42,9 +42,9 @@ export default function AffiliatePage() {
       if (plan === 'PRO' || plan === 'ELITE') {
         // Afficher le message de redirection
         setIsRedirecting(true)
-        // Rediriger automatiquement vers le programme d'affiliation
+        // Rediriger automatiquement vers le programme d'affiliation (page de connexion)
         setTimeout(() => {
-          window.location.href = 'https://athlink.firstpromoter.com'
+          window.location.href = 'https://athlink.firstpromoter.com/login'
         }, 500) // Petit délai pour afficher le message
         return
       }
