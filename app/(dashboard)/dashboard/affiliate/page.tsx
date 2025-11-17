@@ -228,10 +228,10 @@ export default function AffiliatePage() {
             </div>
             <div className="flex-1">
               <h3 className="text-xl sm:text-2xl font-bold mb-2">
-                Devenir Ambassadeur avec FirstPromoter
+                Devenir Ambassadeur Athlink
               </h3>
               <p className="text-white/80 text-sm sm:text-base mb-6">
-                Pour commencer à gagner des commissions, crée ton compte affiliateur sur FirstPromoter et connecte-toi à ton dashboard.
+                Pour commencer à gagner des commissions, crée ton compte affiliateur sur le programme d'affiliation Athlink et connecte-toi à ton dashboard.
               </p>
             </div>
           </div>
@@ -251,12 +251,12 @@ export default function AffiliatePage() {
                 <div>
                   <h4 className="font-bold text-base sm:text-lg mb-1">Créer mon compte affiliateur</h4>
                   <p className="text-white/70 text-xs sm:text-sm">
-                    Si tu n'as pas encore de compte FirstPromoter, crée-le maintenant.
+                    Inscris-toi au programme d'affiliation Athlink pour commencer à gagner des commissions.
                   </p>
                 </div>
               </div>
               <a
-                href="https://firstpromoter.com/signup"
+                href="https://athlink.firstpromoter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl flex-shrink-0"
@@ -282,20 +282,20 @@ export default function AffiliatePage() {
                   2
                 </div>
                 <div>
-                  <h4 className="font-bold text-base sm:text-lg mb-1">Se connecter à FirstPromoter</h4>
+                  <h4 className="font-bold text-base sm:text-lg mb-1">Se connecter au programme</h4>
                   <p className="text-white/70 text-xs sm:text-sm">
-                    Une fois ton compte créé, connecte-toi pour accéder à ton dashboard.
+                    Une fois ton compte créé, connecte-toi au programme d'affiliation Athlink pour accéder à ton dashboard.
                   </p>
                 </div>
               </div>
               <a
-                href="https://firstpromoter.com/affiliates/login"
+                href="https://athlink.firstpromoter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl flex-shrink-0"
               >
                 <LogIn className="w-4 h-4" />
-                <span className="hidden sm:inline">Se connecter</span>
+                <span className="hidden sm:inline">Se connecter au programme</span>
                 <span className="sm:hidden">Connexion</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
@@ -322,7 +322,7 @@ export default function AffiliatePage() {
                 </div>
               </div>
               <a
-                href="https://firstpromoter.com/affiliates/login"
+                href="https://athlink.firstpromoter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-auto inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex-shrink-0"
@@ -339,7 +339,7 @@ export default function AffiliatePage() {
             <p className="text-white/70 text-xs sm:text-sm flex items-start gap-2">
               <Sparkles className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <span>
-                <strong>Le tracking est automatique</strong> via FirstPromoter. Tes commissions sont calculées automatiquement pour chaque vente via ton lien d'affiliation. L'intégration Stripe gère tout en arrière-plan.
+                <strong>Le tracking est automatique</strong> via le programme d'affiliation Athlink. Tes commissions sont calculées automatiquement pour chaque vente via ton lien d'affiliation. L'intégration Stripe gère tout en arrière-plan.
               </span>
             </p>
           </div>
@@ -355,20 +355,20 @@ export default function AffiliatePage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <BarChart3 className="w-6 h-6 text-blue-600" />
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Statistiques complètes sur FirstPromoter
+              Statistiques complètes sur le programme d'affiliation
             </h3>
           </div>
           <p className="text-gray-700 text-sm sm:text-base mb-6">
-            Parrainages, conversions, commissions, et paiements : tout est géré automatiquement via l'intégration Stripe dans ton dashboard FirstPromoter.
+            Parrainages, conversions, commissions, et paiements : tout est géré automatiquement via l'intégration Stripe dans ton dashboard du programme d'affiliation Athlink.
           </p>
           <a
-            href="https://firstpromoter.com/affiliates/login"
+            href="https://athlink.firstpromoter.com"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
           >
             <BarChart3 className="w-5 h-5" />
-            Voir mes stats FirstPromoter
+            Voir mes statistiques
             <ExternalLink className="w-5 h-5" />
           </a>
         </motion.div>
