@@ -29,6 +29,7 @@ export default function AffiliatePage() {
   const [affiliateLink, setAffiliateLink] = useState("")
   const [userPlan, setUserPlan] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
     if (session?.user) {
@@ -37,7 +38,18 @@ export default function AffiliatePage() {
       setUserPlan(plan)
       setIsLoading(false)
 
-      // Générer le lien d'affilié FirstPromoter basé sur le username
+      // 🎯 Redirection automatique vers le programme d'affiliation Athlink
+      if (plan === 'PRO' || plan === 'ELITE') {
+        // Afficher le message de redirection
+        setIsRedirecting(true)
+        // Rediriger automatiquement vers le programme d'affiliation
+        setTimeout(() => {
+          window.location.href = 'https://athlink.firstpromoter.com'
+        }, 500) // Petit délai pour afficher le message
+        return
+      }
+
+      // Générer le lien d'affilié FirstPromoter basé sur le username (pour affichage si pas de redirection)
       // @ts-ignore
       const username = session.user.username || session.user.email?.split('@')[0]
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://athlink.fr'
@@ -55,12 +67,14 @@ export default function AffiliatePage() {
   }
 
   // Si le plan n'est pas PRO ou ELITE, afficher un message de restriction
-  if (isLoading) {
+  if (isLoading || isRedirecting) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-gray-600">
+            {isRedirecting ? 'Redirection vers le programme d\'affiliation...' : 'Chargement...'}
+          </p>
         </div>
       </div>
     )
