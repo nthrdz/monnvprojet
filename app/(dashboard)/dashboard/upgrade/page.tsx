@@ -59,24 +59,26 @@ export default function UpgradePage() {
       
       const planValue = planMapping[planName]
       
-      // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis le cookie
+      // 🎯 Récupérer le FirstPromoter Tracking ID (tid) - Conforme aux instructions FirstPromoter
+      // Référence: https://docs.firstpromoter.com
       function getFPTid(): string | null {
         if (typeof window === 'undefined') return null
         
-        // Méthode 1: FirstPromoter stocke le tid dans window.FPROM.data.tid
-        if ((window as any).FPROM?.data?.tid) {
+        // Méthode principale selon les instructions FirstPromoter
+        // window.FPROM.data.tid contient le Tracking ID
+        if ((window as any).FPROM && (window as any).FPROM.data && (window as any).FPROM.data.tid) {
           const tid = (window as any).FPROM.data.tid
-          console.log("✅ FP TID trouvé via window.FPROM.data.tid:", tid)
+          console.log("✅ FirstPromoter Tracking ID (tid) trouvé:", tid)
           return tid
         }
         
-        // Méthode 2: Essayer de lire le cookie _fprom_tid directement
+        // Fallback: essayer de lire le cookie _fprom_tid directement
         const cookies = document.cookie.split(';')
         for (let cookie of cookies) {
           const [name, value] = cookie.trim().split('=')
           if (name === '_fprom_tid' && value) {
             const tid = decodeURIComponent(value)
-            console.log("✅ FP TID trouvé via cookie _fprom_tid:", tid)
+            console.log("✅ FP TID trouvé via cookie _fprom_tid (fallback):", tid)
             return tid
           }
         }

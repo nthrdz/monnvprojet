@@ -27,15 +27,22 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Utilisateur authentifié:", session.user.id)
 
+    // 🎯 Étape 2: Récupérer fp_tid depuis req.body (conforme aux instructions FirstPromoter)
+    // Référence: https://docs.firstpromoter.com
+    // Le client envoie fp_tid via axios.post() ou fetch()
     const { plan, billingCycle, referralCode, fp_tid } = await req.json()
     console.log("📦 Données reçues - Plan:", plan, "Cycle:", billingCycle || "monthly")
     if (referralCode) {
       console.log("🎁 Code de parrainage:", referralCode)
     }
+    if (fp_tid) {
+      console.log("🎯 fp_tid reçu depuis le client:", fp_tid)
+    }
     
-    // 🎯 Récupérer le FirstPromoter Tracking ID (tid) depuis les cookies côté serveur
-    // Conforme aux instructions FirstPromoter : https://docs.firstpromoter.com
-    let trackingId = fp_tid // D'abord, utiliser celui transmis depuis le client
+    // 🎯 Récupérer le FirstPromoter Tracking ID (tid)
+    // Méthode principale: depuis req.body.fp_tid (transmis par le client)
+    // Fallback: depuis les cookies côté serveur (si non transmis)
+    let trackingId = fp_tid // D'abord, utiliser celui transmis depuis le client (méthode recommandée)
     
     if (!trackingId) {
       // Méthode 1: Utiliser l'API cookies() de Next.js (méthode recommandée)
@@ -140,7 +147,8 @@ export async function POST(req: NextRequest) {
         billingCycle: cycle,
         ...(referralCode && { referralCode }),
         // 🎯 FirstPromoter Tracking ID - conforme aux instructions FirstPromoter
-        // Le fp_tid est récupéré depuis le cookie _fprom_tid côté serveur
+        // Le fp_tid est récupéré depuis req.body.fp_tid (transmis par le client)
+        // et ajouté dans les métadonnées de la session Stripe Checkout
         ...(trackingId && { fp_tid: trackingId }),
       },
       subscription_data: {
