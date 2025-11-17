@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Zap } from "lucide-react";
 import { NavBrand } from "@/components/NavBrand";
+import { LanguageSelector } from "@/components/language-selector";
 
 export function ConditionalNavbar() {
   const pathname = usePathname();
@@ -31,6 +32,7 @@ export function ConditionalNavbar() {
 
         {/* Auth CTA (separated) */}
         <div className="flex items-center gap-3">
+          <LanguageSelector variant="light" />
           <Link href="/login" className="hidden sm:inline-flex text-sm text-gray-700 hover:text-gray-900">
             Se connecter
           </Link>

@@ -1,0 +1,65 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "language": "Language"
+  },
+  "home": {
+    "title": "The Digital Profile for Athletes",
+    "subtitle": "Share your performances, find sponsors, grow your community",
+    "cta": "Create my profile",
+    "features": {
+      "title": "Why choose Athlink?",
+      "performance": "Track your performances",
+      "sponsors": "Find sponsors",
+      "community": "Grow your community"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to your dashboard",
+    "stats": {
+      "views": "Views",
+      "uniqueVisitors": "Unique Visitors",
+      "clicks": "Clicks",
+      "conversions": "Conversions"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "username": "Username",
+      "submit": "Sign up",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  }
+}
+

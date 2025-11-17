@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { ConditionalNavbar } from "@/components/ConditionalNavbar";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { I18nProvider } from "@/components/providers/i18n-provider";
 import { AffiliateTracker } from "@/components/affiliate-tracker";
 import { Analytics } from "@vercel/analytics/next";
 import { FirstPromoterDebug } from "@/components/firstpromoter-debug";
@@ -45,11 +46,13 @@ export default function RootLayout({
         />
         
         <SessionProvider>
-          <AffiliateTracker />
-          {process.env.NODE_ENV === 'development' && <FirstPromoterDebug />}
-          <ConditionalNavbar />
-          {children}
-          <Toaster position="top-center" richColors />
+          <I18nProvider>
+            <AffiliateTracker />
+            {process.env.NODE_ENV === 'development' && <FirstPromoterDebug />}
+            <ConditionalNavbar />
+            {children}
+            <Toaster position="top-center" richColors />
+          </I18nProvider>
         </SessionProvider>
         <Analytics />
       </body>

@@ -1,0 +1,65 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Déconnexion",
+    "dashboard": "Dashboard",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "language": "Langue"
+  },
+  "home": {
+    "title": "Le Profil Digital des Athlètes",
+    "subtitle": "Partage tes performances, trouve des sponsors, développe ta communauté",
+    "cta": "Créer mon profil",
+    "features": {
+      "title": "Pourquoi choisir Athlink ?",
+      "performance": "Suivez vos performances",
+      "sponsors": "Trouvez des sponsors",
+      "community": "Développez votre communauté"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bienvenue sur ton dashboard",
+    "stats": {
+      "views": "Vues",
+      "uniqueVisitors": "Visiteurs uniques",
+      "clicks": "Clics",
+      "conversions": "Conversions"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "Email",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "signup": "S'inscrire"
+    },
+    "signup": {
+      "title": "Inscription",
+      "email": "Email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "username": "Nom d'utilisateur",
+      "submit": "S'inscrire",
+      "hasAccount": "Déjà un compte ?",
+      "login": "Se connecter"
+    }
+  }
+}
+

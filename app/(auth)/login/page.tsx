@@ -13,9 +13,12 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Zap, Eye, EyeOff } from "lucide-react"
+import { useI18n } from "@/components/providers/i18n-provider"
+import { LanguageSelector } from "@/components/language-selector"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t, locale } = useI18n()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
@@ -38,15 +41,15 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        toast.error("Email ou mot de passe incorrect")
+        toast.error(locale === 'fr' ? "Email ou mot de passe incorrect" : "Incorrect email or password")
         return
       }
 
-      toast.success("Connexion réussie !")
+      toast.success(locale === 'fr' ? "Connexion réussie !" : "Login successful!")
       router.push("/dashboard")
       router.refresh()
     } catch {
-      toast.error("Une erreur est survenue")
+      toast.error(locale === 'fr' ? "Une erreur est survenue" : "An error occurred")
     } finally {
       setIsLoading(false)
     }
@@ -56,13 +59,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white relative">
-        {/* Logo */}
-        <Link href="/" className="absolute top-4 sm:top-6 lg:top-10 left-4 sm:left-6 lg:left-10 flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-hero" />
-          <span className="font-black text-xl sm:text-2xl bg-gradient-hero bg-clip-text text-transparent">
-            Athlink
-          </span>
-        </Link>
+        {/* Logo & Language Selector */}
+        <div className="absolute top-4 sm:top-6 lg:top-10 left-4 sm:left-6 lg:left-10 right-4 sm:right-6 lg:right-10 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-hero" />
+            <span className="font-black text-xl sm:text-2xl bg-gradient-hero bg-clip-text text-transparent">
+              Athlink
+            </span>
+          </Link>
+          <LanguageSelector variant="light" />
+        </div>
 
         {/* Form Container */}
         <motion.div
@@ -73,17 +79,17 @@ export default function LoginPage() {
         >
           <div className="mb-8 sm:mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-primary-600 to-quaternary-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-              Bon retour
+              {t('auth.login.title')}
             </h1>
             <p className="text-base sm:text-lg text-gray-600">
-              Connecte-toi à ton profil athlète
+              {locale === 'fr' ? 'Connecte-toi à ton profil athlète' : 'Sign in to your athlete profile'}
             </p>
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Email
+                {t('auth.login.email')}
               </Label>
               <Input 
                 id="email" 
@@ -102,13 +108,13 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
-                  Mot de passe
+                  {t('auth.login.password')}
                 </Label>
                 <Link 
                   href="/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
                 >
-                  Mot de passe oublié ?
+                  {t('auth.login.forgotPassword')}
                 </Link>
               </div>
               <div className="relative">
@@ -146,11 +152,11 @@ export default function LoginPage() {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-                  Connexion...
+                  {t('common.loading')}
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  Se connecter
+                  {t('auth.login.submit')}
                   <ArrowRight className="w-5 h-5" />
                 </div>
               )}
@@ -176,13 +182,13 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Continuer avec Google
+            {locale === 'fr' ? 'Continuer avec Google' : 'Continue with Google'}
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-8">
-            Pas encore de compte ?{" "}
+            {t('auth.login.noAccount')}{" "}
             <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-bold transition-colors">
-              Créer un compte
+              {t('auth.login.signup')}
             </Link>
           </p>
         </motion.div>
