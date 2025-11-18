@@ -17,7 +17,27 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
-    "language": "Language"
+    "language": "Language",
+    "close": "Close",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "continue": "Continue",
+    "viewAll": "View all",
+    "seeAll": "See all",
+    "current": "Current",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "days": "d",
+    "daysAgo": "d ago",
+    "daysUntil": "d"
   },
   "home": {
     "heroTitle": "The #1 link in bio for athletes to convert your fans",
@@ -36,11 +56,14 @@
       "performance": "Track your performances",
       "sponsors": "Find sponsors",
       "community": "Grow your community"
-    }
+    },
+    "finalCta": "Join our athletes who use Athlink to share their passion"
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to your dashboard",
+    "welcome": "Welcome",
+    "welcomeUser": "Welcome, {name}",
+    "performanceThisWeek": "Here are your performances this week",
     "menu": {
       "profile": "Profile",
       "dashboard": "Dashboard",
@@ -61,7 +84,32 @@
       "views": "Views",
       "uniqueVisitors": "Unique Visitors",
       "clicks": "Clicks",
-      "conversions": "Conversions"
+      "conversions": "Conversions",
+      "links": "Links",
+      "races": "Competitions"
+    },
+    "goals": {
+      "title": "Your Goals",
+      "setGoal": "Set a goal",
+      "noGoals": "No goals set",
+      "editGoal": "Edit goal"
+    },
+    "races": {
+      "title": "My Competitions",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "viewAll": "View all →",
+      "noRaces": "No competitions",
+      "location": "Location",
+      "distance": "Distance",
+      "date": "Date"
+    },
+    "upgrade": {
+      "title": "Upgrade to the next level",
+      "subtitle": "Unlock all features",
+      "currentPlan": "Current Plan",
+      "upgradeNow": "Upgrade to {plan}",
+      "features": "Included features"
     }
   },
   "auth": {
@@ -72,7 +120,10 @@
       "forgotPassword": "Forgot password?",
       "submit": "Sign in",
       "noAccount": "Don't have an account?",
-      "signup": "Sign up"
+      "signup": "Sign up",
+      "continueWithGoogle": "Continue with Google",
+      "error": "Incorrect email or password",
+      "success": "Login successful!"
     },
     "signup": {
       "title": "Sign Up",
@@ -88,7 +139,9 @@
       "hasAccount": "Already have an account?",
       "login": "Sign in",
       "success": "Account created successfully!",
-      "error": "Error during registration"
+      "error": "Error during registration",
+      "creating": "Creating...",
+      "createProfile": "Create my profile"
     }
   },
   "sources": {
@@ -97,18 +150,91 @@
       "description": "Manage your custom links",
       "add": "Add a link",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "url": "URL",
+      "label": "Label",
+      "active": "Active",
+      "inactive": "Inactive",
+      "position": "Position",
+      "clicks": "Clicks"
     },
     "competitions": {
       "title": "Competitions",
       "description": "Your race calendar",
-      "add": "Add a competition"
+      "add": "Add a competition",
+      "edit": "Edit",
+      "delete": "Delete",
+      "name": "Name",
+      "date": "Date",
+      "location": "Location",
+      "distance": "Distance",
+      "result": "Result",
+      "logo": "Logo"
     },
     "sponsors": {
       "title": "Sponsors",
       "description": "Partners and collaborations",
-      "add": "Add a sponsor"
+      "add": "Add a sponsor",
+      "edit": "Edit",
+      "delete": "Delete",
+      "name": "Name",
+      "website": "Website",
+      "promoCode": "Promo code",
+      "clicks": "Clicks",
+      "copies": "Copies",
+      "analytics": "Analytics",
+      "viewPublic": "View public profile"
     }
+  },
+  "upgrade": {
+    "title": "Choose your plan",
+    "subtitle": "Unlock all features",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "currentPlan": "Current Plan",
+    "upgradeTo": "Upgrade to {plan}",
+    "features": "Features",
+    "included": "Included",
+    "free": {
+      "name": "Free",
+      "price": "Free",
+      "description": "Perfect to get started"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "€9.90",
+      "priceYearly": "€99",
+      "description": "For serious athletes",
+      "features": [
+        "Unlimited links",
+        "Unlimited competitions",
+        "Unlimited sponsors",
+        "Advanced analytics",
+        "Priority support"
+      ]
+    },
+    "elite": {
+      "name": "Elite",
+      "price": "€25.90",
+      "priceYearly": "€259",
+      "description": "For professionals",
+      "features": [
+        "Everything in Pro",
+        "Coaching Services",
+        "Media gallery",
+        "Premium analytics",
+        "24/7 support"
+      ]
+    },
+    "upgradeNow": "Upgrade to {plan}",
+    "processing": "Processing...",
+    "error": "Error during upgrade"
+  },
+  "plans": {
+    "free": "Free",
+    "pro": "Pro",
+    "elite": "Elite",
+    "athletePro": "Athlete Pro",
+    "coach": "Coach"
   }
 }
-

@@ -5,6 +5,7 @@ import { Check, Zap, Crown, Sparkles, TrendingUp, Globe, BarChart3, Palette, Lin
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { DebugPlan } from "./debug-plan"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 // ❌ DÉSACTIVATION DES PAYMENT LINKS - On utilise l'API pour avoir les metadata
 // Cela permet au webhook d'identifier l'utilisateur et d'activer le plan immédiatement
@@ -16,6 +17,7 @@ const STRIPE_PAYMENT_LINKS = {
 }
 
 export default function UpgradePage() {
+  const { t, locale } = useI18n()
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
   const [isUpgrading, setIsUpgrading] = useState(false)
 
@@ -196,7 +198,7 @@ export default function UpgradePage() {
     },
   ]
 
-  const savings = billingCycle === "yearly" ? "2 mois offerts" : null
+  const savings = billingCycle === "yearly" ? (locale === 'fr' ? "2 mois offerts" : "2 months free") : null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
@@ -209,7 +211,7 @@ export default function UpgradePage() {
             className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-black text-white px-4 py-2 rounded-full text-sm font-bold mb-6"
           >
             <Sparkles className="w-4 h-4" />
-            Offre de lancement - Prix réduits !
+            {locale === 'fr' ? 'Offre de lancement - Prix réduits !' : 'Launch offer - Reduced prices!'}
           </motion.div>
 
           <motion.h1
@@ -218,7 +220,7 @@ export default function UpgradePage() {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-gray-600 to-gray-900 bg-clip-text text-transparent"
           >
-            Choisis ton Plan
+            {t('upgrade.title')}
           </motion.h1>
 
           <motion.p
@@ -227,7 +229,7 @@ export default function UpgradePage() {
             transition={{ delay: 0.2 }}
             className="text-xl text-gray-600 max-w-2xl mx-auto mb-8"
           >
-            Débloque tout le potentiel de ton profil d&apos;athlète
+            {t('upgrade.subtitle')}
           </motion.p>
 
           {/* Billing Toggle */}
@@ -245,7 +247,7 @@ export default function UpgradePage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Mensuel
+              {t('upgrade.monthly')}
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
@@ -255,10 +257,10 @@ export default function UpgradePage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Annuel
+              {t('upgrade.yearly')}
               {savings && (
                 <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap font-bold">
-                  {savings}
+                  {locale === 'fr' ? '2 mois offerts' : '2 months free'}
                 </span>
               )}
             </button>
@@ -282,7 +284,7 @@ export default function UpgradePage() {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-gray-800 to-black text-white px-4 py-1 rounded-full text-sm font-black shadow-lg">
-                  ⭐ PLUS POPULAIRE
+                  ⭐ {locale === 'fr' ? 'PLUS POPULAIRE' : 'MOST POPULAR'}
                 </div>
               )}
 
@@ -314,7 +316,7 @@ export default function UpgradePage() {
               <div className="mb-6">
                 {plan.price === 0 ? (
                   <div className={`text-5xl font-black ${plan.highlight ? "text-white" : "text-gray-900"}`}>
-                    Gratuit
+                    {t('upgrade.free.price')}
                   </div>
                 ) : (
                   <>
@@ -331,7 +333,7 @@ export default function UpgradePage() {
                           ? "text-gray-900"
                           : plan.highlight ? "text-white/80" : "text-gray-600"
                       }`}>
-                        /mois
+                        {locale === 'fr' ? '/mois' : '/month'}
                       </span>
                     </div>
                     {billingCycle === "yearly" && (
@@ -340,7 +342,7 @@ export default function UpgradePage() {
                           ? "text-gray-900"
                           : plan.highlight ? "text-white/80" : "text-gray-600"
                       }`}>
-                        {plan.yearlyPrice}€ facturé annuellement
+                        {plan.yearlyPrice}€ {locale === 'fr' ? 'facturé annuellement' : 'billed annually'}
                       </div>
                     )}
                   </>
@@ -362,7 +364,7 @@ export default function UpgradePage() {
                 {isUpgrading ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    Activation...
+                    {t('upgrade.processing')}
                   </span>
                 ) : (
                   plan.cta
@@ -402,16 +404,16 @@ export default function UpgradePage() {
           transition={{ delay: 0.5 }}
           className="bg-white rounded-3xl shadow-xl p-8 md:p-12 mb-16"
         >
-          <h2 className="text-3xl font-black text-center mb-8">Comparaison détaillée</h2>
+          <h2 className="text-3xl font-black text-center mb-8">{locale === 'fr' ? 'Comparaison détaillée' : 'Detailed comparison'}</h2>
           
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-4 px-4 font-bold text-gray-900">Fonctionnalité</th>
-                  <th className="text-center py-4 px-4 font-bold text-gray-600">Free</th>
-                  <th className="text-center py-4 px-4 font-bold text-gray-800">Pro</th>
-                  <th className="text-center py-4 px-4 font-bold text-gray-900">Elite</th>
+                  <th className="text-left py-4 px-4 font-bold text-gray-900">{t('upgrade.features')}</th>
+                  <th className="text-center py-4 px-4 font-bold text-gray-600">{t('plans.free')}</th>
+                  <th className="text-center py-4 px-4 font-bold text-gray-800">{t('plans.pro')}</th>
+                  <th className="text-center py-4 px-4 font-bold text-gray-900">{t('plans.elite')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
