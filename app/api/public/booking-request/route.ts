@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { sendBookingNotification } from "@/lib/email"
 
+// GET method for health check
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ 
+    status: "ok",
+    message: "Booking request API is available"
+  }, { status: 200 })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
