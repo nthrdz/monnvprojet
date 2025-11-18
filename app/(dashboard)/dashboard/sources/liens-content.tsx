@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useForm } from "react-hook-form"
+import { useI18n } from "@/components/providers/i18n-provider"
 // Local Zod resolver to avoid package resolution issues in some environments
 const zodResolver = (schema: any) => async (values: unknown) => {
   const result = schema.safeParse(values)
@@ -47,6 +48,7 @@ interface Link extends LinkInput {
 }
 
 export function LiensContent() {
+  const { t, locale } = useI18n()
   const [links, setLinks] = useState<Link[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -85,7 +87,7 @@ export function LiensContent() {
       const data = await res.json()
       setLinks(data.links || [])
     } catch (error) {
-      toast.error("Erreur lors du chargement des liens")
+      toast.error(t('sources.links.errorLoad'))
     }
   }
 
@@ -104,10 +106,10 @@ export function LiensContent() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Erreur")
+        throw new Error(data.error || t('sources.links.error'))
       }
 
-      toast.success(editingId ? "Lien modifié !" : "Lien créé !")
+      toast.success(editingId ? t('sources.links.modified') : t('sources.links.created'))
       form.reset()
       setEditingId(null)
       setShowForm(false)
@@ -120,7 +122,7 @@ export function LiensContent() {
   }
 
   async function deleteLink(id: string) {
-    if (!confirm("Supprimer ce lien ?")) return
+    if (!confirm(t('sources.links.confirmDelete'))) return
 
     try {
       const res = await fetch(`/api/links/${id}`, {
@@ -128,10 +130,10 @@ export function LiensContent() {
       })
 
       if (!res.ok) {
-        throw new Error("Erreur lors de la suppression")
+        throw new Error(t('sources.links.errorDelete'))
       }
 
-      toast.success("Lien supprimé !")
+      toast.success(t('sources.links.deleted'))
       fetchLinks()
     } catch (error: any) {
       toast.error(error.message)
@@ -151,7 +153,7 @@ export function LiensContent() {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
-    toast.success("Lien copié !")
+    toast.success(t('sources.links.linkCopied'))
   }
 
   const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0)
@@ -177,7 +179,7 @@ export function LiensContent() {
               <Link2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Total Liens</p>
+              <p className="text-sm text-gray-600 font-medium">{locale === 'fr' ? 'Total Liens' : 'Total Links'}</p>
               <p className="text-2xl font-bold text-gray-900">{links.length}</p>
             </div>
           </div>
@@ -194,7 +196,7 @@ export function LiensContent() {
               <Eye className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Liens Actifs</p>
+              <p className="text-sm text-gray-600 font-medium">{locale === 'fr' ? 'Liens Actifs' : 'Active Links'}</p>
               <p className="text-2xl font-bold text-gray-900">{activeLinks}</p>
             </div>
           </div>
@@ -211,7 +213,7 @@ export function LiensContent() {
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Total Clics</p>
+              <p className="text-sm text-gray-600 font-medium">{t('dashboard.stats.clicks')}</p>
               <p className="text-2xl font-bold text-gray-900">{totalClicks}</p>
             </div>
           </div>
@@ -226,8 +228,8 @@ export function LiensContent() {
         className="flex justify-between items-center"
       >
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Mes Liens</h2>
-          <p className="text-gray-600">Gérez vos liens personnalisés</p>
+          <h2 className="text-xl font-semibold text-gray-900">{t('sources.links.title')}</h2>
+          <p className="text-gray-600">{t('sources.links.description')}</p>
         </div>
         <div className="flex items-center gap-3">
           {username && (
@@ -238,7 +240,7 @@ export function LiensContent() {
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-lg"
               >
                 <Globe className="w-4 h-4" />
-                Voir profil public
+                {t('sources.links.viewPublic')}
               </motion.button>
             </NextLink>
           )}
@@ -253,7 +255,7 @@ export function LiensContent() {
             className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            {showForm ? "Annuler" : "Nouveau Lien"}
+            {showForm ? t('common.cancel') : t('sources.links.add')}
           </motion.button>
         </div>
       </motion.div>
@@ -270,16 +272,16 @@ export function LiensContent() {
           >
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">
-                {editingId ? "Modifier le lien" : "Créer un nouveau lien"}
+                {editingId ? (locale === 'fr' ? 'Modifier le lien' : 'Edit link') : (locale === 'fr' ? 'Créer un nouveau lien' : 'Create a new link')}
               </h3>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="title">Titre *</Label>
+                    <Label htmlFor="title">{t('sources.links.titleLabel')} *</Label>
                     <Input
                       id="title"
                       {...form.register("title")}
-                      placeholder="Mon lien"
+                      placeholder={locale === 'fr' ? 'Mon lien' : 'My link'}
                       className="mt-1"
                     />
                     {form.formState.errors.title && (
@@ -289,7 +291,7 @@ export function LiensContent() {
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="url">URL *</Label>
+                    <Label htmlFor="url">{t('sources.links.url')} *</Label>
                     <Input
                       id="url"
                       type="url"
@@ -306,11 +308,11 @@ export function LiensContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t('sources.links.descriptionLabel')}</Label>
                     <Input
                       id="description"
                       {...form.register("description")}
-                      placeholder="Description optionnelle"
+                      placeholder={locale === 'fr' ? 'Description optionnelle' : 'Optional description'}
                       className="mt-1"
                     />
                   </div>
@@ -339,12 +341,12 @@ export function LiensContent() {
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                         />
-                        Sauvegarde...
+                        {t('common.loading')}
                       </>
                     ) : (
                       <>
                         <Plus className="w-4 h-4" />
-                        {editingId ? "Modifier" : "Créer"}
+                        {editingId ? t('common.edit') : t('common.create')}
                       </>
                     )}
                   </motion.button>
@@ -385,7 +387,7 @@ export function LiensContent() {
                             ? "bg-green-100 text-green-800" 
                             : "bg-gray-100 text-gray-800"
                         )}>
-                          {link.isActive ? "Actif" : "Inactif"}
+                          {link.isActive ? t('sources.links.active') : t('sources.links.inactive')}
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 truncate max-w-md">{link.url}</p>
@@ -395,7 +397,7 @@ export function LiensContent() {
                       <div className="flex items-center gap-4 mt-2">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <BarChart3 className="w-4 h-4" />
-                          {link.clicks} clics
+                          {link.clicks} {locale === 'fr' ? 'clics' : 'clicks'}
                         </div>
                       </div>
                     </div>
@@ -407,7 +409,7 @@ export function LiensContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => copyToClipboard(link.url, link.id)}
                       className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Copier le lien"
+                      title={t('sources.links.copyLink')}
                     >
                       {copiedId === link.id ? (
                         <Check className="w-4 h-4 text-green-600" />
@@ -421,7 +423,7 @@ export function LiensContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => window.open(link.url, '_blank')}
                       className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="Ouvrir le lien"
+                      title={locale === 'fr' ? 'Ouvrir le lien' : 'Open link'}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </motion.button>
@@ -431,7 +433,7 @@ export function LiensContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => editLink(link)}
                       className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Modifier"
+                      title={t('common.edit')}
                     >
                       <Edit2 className="w-4 h-4" />
                     </motion.button>
@@ -441,7 +443,7 @@ export function LiensContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => deleteLink(link.id)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Supprimer"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </motion.button>
@@ -459,8 +461,8 @@ export function LiensContent() {
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">🔗</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun lien créé</h3>
-            <p className="text-gray-600 mb-4">Commencez par créer votre premier lien personnalisé</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('sources.links.noLinks')}</h3>
+            <p className="text-gray-600 mb-4">{t('sources.links.addFirst')}</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -468,7 +470,7 @@ export function LiensContent() {
               className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-3 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
             >
               <Plus className="w-4 h-4" />
-              Créer mon premier lien
+              {locale === 'fr' ? 'Créer mon premier lien' : 'Create my first link'}
             </motion.button>
           </motion.div>
         )}
