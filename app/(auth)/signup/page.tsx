@@ -13,9 +13,12 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowRight, Check, X, Loader2, Eye, EyeOff } from "lucide-react"
+import { useI18n } from "@/components/providers/i18n-provider"
+import { LanguageSelector } from "@/components/language-selector"
 
 export default function SignupPage() {
   const router = useRouter()
+  const { t, locale } = useI18n()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -97,13 +100,16 @@ export default function SignupPage() {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white relative overflow-y-auto">
-        {/* Logo */}
-        <Link href="/" className="absolute top-4 sm:top-6 lg:top-10 left-4 sm:left-6 lg:left-10 flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-hero" />
-          <span className="font-black text-xl sm:text-2xl bg-gradient-hero bg-clip-text text-transparent">
-            Athlink
-          </span>
-        </Link>
+        {/* Logo & Language Selector */}
+        <div className="absolute top-4 sm:top-6 lg:top-10 left-4 sm:left-6 lg:left-10 right-4 sm:right-6 lg:right-10 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-hero" />
+            <span className="font-black text-xl sm:text-2xl bg-gradient-hero bg-clip-text text-transparent">
+              Athlink
+            </span>
+          </Link>
+          <LanguageSelector variant="light" />
+        </div>
 
         {/* Form Container */}
         <motion.div

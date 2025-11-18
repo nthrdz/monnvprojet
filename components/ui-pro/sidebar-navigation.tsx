@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
+import { useI18n } from "@/components/providers/i18n-provider"
+import { LanguageSelector } from "@/components/language-selector"
 
 interface SidebarNavigationProps {
   username: string
@@ -35,15 +37,16 @@ export function SidebarNavigation({
 }: SidebarNavigationProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const { t } = useI18n()
 
   const allMenuItems = [
-    { href: "/dashboard/profile", icon: User, label: "Profil" },
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/dashboard/sources", icon: Boxes, label: "Sources" },
-    { href: "/dashboard/coaching", icon: Users, label: "Services Coaching", planRequired: "COACH" },
-    { href: "/dashboard/affiliate", icon: Target, label: "Ambassadeur" },
-    { href: "/dashboard/share", icon: Share2, label: "Partager" },
-    { href: "/dashboard/settings", icon: Settings, label: "Paramètres" },
+    { href: "/dashboard/profile", icon: User, label: t('dashboard.menu.profile'), key: 'profile' },
+    { href: "/dashboard", icon: LayoutDashboard, label: t('dashboard.menu.dashboard'), key: 'dashboard' },
+    { href: "/dashboard/sources", icon: Boxes, label: t('dashboard.menu.sources'), key: 'sources' },
+    { href: "/dashboard/coaching", icon: Users, label: t('dashboard.menu.coaching'), planRequired: "COACH", key: 'coaching' },
+    { href: "/dashboard/affiliate", icon: Target, label: t('dashboard.menu.affiliate'), key: 'affiliate' },
+    { href: "/dashboard/share", icon: Share2, label: t('dashboard.menu.share'), key: 'share' },
+    { href: "/dashboard/settings", icon: Settings, label: t('dashboard.menu.settings'), key: 'settings' },
   ]
 
   // Filtrer les éléments du menu selon le plan
@@ -161,10 +164,13 @@ export function SidebarNavigation({
 
         {!isCollapsed && (
           <div className="space-y-1">
+            <div className="mb-2">
+              <LanguageSelector variant="light" />
+            </div>
             <Link href={`/${username}`} target="_blank">
               <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 <User className="w-4 h-4" />
-                Profil public
+                {t('dashboard.menu.publicProfile')}
               </button>
             </Link>
             <button
@@ -172,7 +178,7 @@ export function SidebarNavigation({
               className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              Déconnexion
+              {t('dashboard.menu.logout')}
             </button>
           </div>
         )}

@@ -21,6 +21,7 @@ import {
   Target
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 interface MobileNavigationProps {
   username: string
@@ -39,19 +40,20 @@ export function MobileNavigation({
 }: MobileNavigationProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { t } = useI18n()
 
   const allMenuItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/dashboard/links", icon: Link2, label: "Liens" },
-    { href: "/dashboard/races", icon: Trophy, label: "Compétitions" },
-    { href: "/dashboard/sponsors", icon: Award, label: "Sponsors" },
-    { href: "/dashboard/media", icon: ImageIcon, label: "Galerie" },
-    { href: "/dashboard/coaching", icon: Users, label: "Services Coaching", planRequired: "COACH" },
-    { href: "/dashboard/affiliate", icon: Target, label: "Ambassadeur" },
+    { href: "/dashboard", icon: LayoutDashboard, label: t('dashboard.menu.dashboard') },
+    { href: "/dashboard/links", icon: Link2, label: t('dashboard.sources.links') },
+    { href: "/dashboard/races", icon: Trophy, label: t('dashboard.sources.competitions') },
+    { href: "/dashboard/sponsors", icon: Award, label: t('dashboard.sources.sponsors') },
+    { href: "/dashboard/media", icon: ImageIcon, label: t('dashboard.menu.sources') },
+    { href: "/dashboard/coaching", icon: Users, label: t('dashboard.menu.coaching'), planRequired: "COACH" },
+    { href: "/dashboard/affiliate", icon: Target, label: t('dashboard.menu.affiliate') },
     { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
-    { href: "/dashboard/share", icon: Share2, label: "Partager" },
-    { href: "/dashboard/profile", icon: User, label: "Profil" },
-    { href: "/dashboard/settings", icon: Settings, label: "Paramètres" },
+    { href: "/dashboard/share", icon: Share2, label: t('dashboard.menu.share') },
+    { href: "/dashboard/profile", icon: User, label: t('dashboard.menu.profile') },
+    { href: "/dashboard/settings", icon: Settings, label: t('dashboard.menu.settings') },
   ]
 
   // Filtrer les éléments du menu selon le plan

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { LiensContent } from "./liens-content"
 import { CompetitionsContent } from "./competitions-content"
 import { SponsorsContent } from "./sponsors-content"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 const tabVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -33,6 +34,7 @@ const tabContentVariants = {
 }
 
 export default function SourcesPage() {
+  const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<'liens' | 'competitions' | 'sponsors'>('liens')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -59,27 +61,27 @@ export default function SourcesPage() {
   const tabs = [
     {
       id: 'liens' as const,
-      label: 'Liens',
+      label: t('dashboard.sources.links'),
       icon: Link2,
-      description: 'Gérez vos liens personnalisés',
+      description: t('dashboard.sources.links') + ' - ' + (t('dashboard.sources.links') === 'Links' ? 'Manage your custom links' : 'Gérez vos liens personnalisés'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'
     },
     {
       id: 'competitions' as const,
-      label: 'Compétitions',
+      label: t('dashboard.sources.competitions'),
       icon: Trophy,
-      description: 'Calendrier de vos courses',
+      description: t('dashboard.sources.competitions') + ' - ' + (t('dashboard.sources.competitions') === 'Competitions' ? 'Your race calendar' : 'Calendrier de vos courses'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'
     },
     {
       id: 'sponsors' as const,
-      label: 'Sponsors',
+      label: t('dashboard.sources.sponsors'),
       icon: Award,
-      description: 'Partenaires et collaborations',
+      description: t('dashboard.sources.sponsors') + ' - ' + (t('dashboard.sources.sponsors') === 'Sponsors' ? 'Partners and collaborations' : 'Partenaires et collaborations'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'

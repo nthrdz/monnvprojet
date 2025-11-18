@@ -41,6 +41,22 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Bienvenue sur ton dashboard",
+    "menu": {
+      "profile": "Profil",
+      "dashboard": "Dashboard",
+      "sources": "Sources",
+      "coaching": "Services Coaching",
+      "affiliate": "Ambassadeur",
+      "share": "Partager",
+      "settings": "Paramètres",
+      "logout": "Déconnexion",
+      "publicProfile": "Profil public"
+    },
+    "sources": {
+      "links": "Liens",
+      "competitions": "Compétitions",
+      "sponsors": "Sponsors"
+    },
     "stats": {
       "views": "Vues",
       "uniqueVisitors": "Visiteurs uniques",
