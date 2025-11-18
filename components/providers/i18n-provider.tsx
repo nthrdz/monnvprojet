@@ -24,10 +24,28 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined)
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { locale, changeLocale, isLoading } = useLocale()
   const [currentMessages, setCurrentMessages] = useState<Messages>(messages[locale])
+  const [key, setKey] = useState(0) // Force re-render
 
   useEffect(() => {
     setCurrentMessages(messages[locale])
+    setKey(prev => prev + 1) // Force re-render des composants enfants
   }, [locale])
+
+  // Écouter les changements de langue depuis d'autres composants
+  useEffect(() => {
+    const handleLocaleChange = (event: CustomEvent) => {
+      const newLocale = event.detail as 'fr' | 'en'
+      setCurrentMessages(messages[newLocale])
+      setKey(prev => prev + 1)
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('localechange', handleLocaleChange as EventListener)
+      return () => {
+        window.removeEventListener('localechange', handleLocaleChange as EventListener)
+      }
+    }
+  }, [])
 
   const t = (key: string): string => {
     const keys = key.split('.')
@@ -45,7 +63,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <I18nContext.Provider value={{ t, locale, changeLocale, isLoading }}>
+    <I18nContext.Provider value={{ t, locale, changeLocale, isLoading }} key={key}>
       {children}
     </I18nContext.Provider>
   )

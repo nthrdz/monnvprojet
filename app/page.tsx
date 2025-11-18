@@ -18,8 +18,10 @@ import {
   Link as LinkIcon
 } from "lucide-react"
 import { AffiliateTracker } from "@/components/affiliate-tracker"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 export default function Home() {
+  const { t } = useI18n()
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
   const [currentImage, setCurrentImage] = useState(0)
   const images = ["/uploads/hero/noa.png", "/uploads/hero/nathan.png"]
@@ -50,8 +52,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
+              key={t('home.heroTitle')}
             >
-              Le link in bio n°1 des sportifs pour convertir vos fans
+              {t('home.heroTitle')}
             </motion.h2>
 
             {/* Subtitle - Mobile Optimized */}
@@ -60,8 +63,9 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
               className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 sm:mb-12 md:mb-16 max-w-3xl leading-relaxed px-4 sm:px-6"
+              key={t('home.heroSubtitle')}
             >
-              Le link-in-bio conçu pour les sportifs. Partage tes performances, trouve des sponsors, développe ta communauté.
+              {t('home.heroSubtitle')}
             </motion.p>
 
             {/* Primary CTA */}
@@ -74,9 +78,10 @@ export default function Home() {
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-3 bg-gray-900 text-white hover:bg-gray-800 active:scale-95 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-medium text-base sm:text-lg shadow-lg transition-all touch-manipulation"
+                key={t('home.cta')}
               >
                 <Zap className="w-5 h-5" />
-                Commencer
+                {t('home.cta')}
               </Link>
             </motion.div>
             </div>

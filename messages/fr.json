@@ -20,9 +20,17 @@
     "language": "Langue"
   },
   "home": {
+    "heroTitle": "Le link in bio n°1 des sportifs pour convertir vos fans",
+    "heroSubtitle": "Le link-in-bio conçu pour les sportifs. Partage tes performances, trouve des sponsors, développe ta communauté.",
+    "cta": "Commencer",
     "title": "Le Profil Digital des Athlètes",
     "subtitle": "Partage tes performances, trouve des sponsors, développe ta communauté",
-    "cta": "Créer mon profil",
+    "nav": {
+      "features": "Caractéristiques",
+      "pricing": "Tarifs",
+      "login": "Se connecter",
+      "signup": "S'inscrire"
+    },
     "features": {
       "title": "Pourquoi choisir Athlink ?",
       "performance": "Suivez vos performances",

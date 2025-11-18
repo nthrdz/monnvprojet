@@ -25,6 +25,10 @@ export function useLocale() {
   const changeLocale = (newLocale: Locale) => {
     setLocale(newLocale)
     setCookie(LOCALE_COOKIE_NAME, newLocale, 365) // Cookie valide 1 an
+    // Déclencher un événement personnalisé pour forcer le re-render
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('localechange', { detail: newLocale }))
+    }
     router.refresh() // Rafraîchir la page pour appliquer la nouvelle langue
   }
 
