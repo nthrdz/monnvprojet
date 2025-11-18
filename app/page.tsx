@@ -1102,7 +1102,7 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed mb-12 max-w-2xl mx-auto"
             >
-              Rejoins déjà plusieurs d'athlètes qui utilisent Athlink pour partager leur passion
+              Rejoins nos athlètes qui utilisent Athlink pour partager leur passion
             </motion.p>
             
             <motion.div
