@@ -11,14 +11,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log("============================================================")
+  console.log("🚀 API /api/public/booking-request POST appelée")
+  console.log("============================================================")
+  
   try {
     const body = await request.json()
+    console.log("📦 Body reçu:", body)
     const { coachUsername, clientName, clientEmail, clientPhone, service, message } = body
 
     // Validation
     if (!coachUsername || !clientName || !clientEmail || !service) {
+      console.error("❌ Données manquantes:", { coachUsername, clientName, clientEmail, service })
       return NextResponse.json({ error: "Données manquantes" }, { status: 400 })
     }
+    
+    console.log("✅ Validation OK")
 
     // Vérifier que le coach existe et a le plan COACH
     const coach = await prisma.profile.findUnique({
@@ -34,9 +42,17 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    if (!coach || coach.plan !== "COACH") {
+    if (!coach) {
+      console.error("❌ Coach non trouvé:", coachUsername)
       return NextResponse.json({ error: "Coach non trouvé ou non disponible" }, { status: 404 })
     }
+    
+    if (coach.plan !== "COACH") {
+      console.error("❌ Plan invalide:", coach.plan, "attendu: COACH")
+      return NextResponse.json({ error: "Coach non trouvé ou non disponible" }, { status: 404 })
+    }
+    
+    console.log("✅ Coach trouvé:", coach.displayName, "- Plan:", coach.plan)
 
     // Récupérer les réservations existantes
     const stats = coach.stats as any || {}
@@ -89,14 +105,24 @@ export async function POST(request: NextRequest) {
       // On ne bloque pas la réservation si l'email échoue
     }
 
+    console.log("✅ Demande de réservation créée:", newBooking.id)
+    console.log("============================================================")
+    
     return NextResponse.json({ 
       success: true,
       message: "Demande envoyée avec succès",
       bookingId: newBooking.id
     }, { status: 201 })
-  } catch (error) {
-    console.error("Erreur lors de la création de la demande:", error)
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+  } catch (error: any) {
+    console.error("❌❌❌ ERREUR lors de la création de la demande ❌❌❌")
+    console.error("Type:", error?.constructor?.name)
+    console.error("Message:", error?.message)
+    console.error("Stack:", error?.stack)
+    console.log("============================================================")
+    return NextResponse.json({ 
+      error: "Erreur serveur",
+      details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+    }, { status: 500 })
   }
 }
 
