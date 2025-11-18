@@ -11,6 +11,7 @@ import { RaceLogo } from "@/components/ui-pro/race-logo"
 import { toast } from "sonner"
 import Image from "next/image"
 import NextLink from "next/link"
+import { useI18n } from "@/components/providers/i18n-provider"
 import { 
   Trophy, 
   Calendar, 
@@ -43,6 +44,7 @@ type Race = {
 }
 
 export function CompetitionsContent() {
+  const { t, locale } = useI18n()
   const [races, setRaces] = useState<Race[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -83,7 +85,7 @@ export function CompetitionsContent() {
         setRaces(data.races || [])
       }
     } catch (error) {
-      toast.error("Erreur lors du chargement des courses")
+      toast.error(t('sources.competitions.errorLoad'))
     } finally {
       setLoading(false)
     }
@@ -102,9 +104,9 @@ export function CompetitionsContent() {
         body: JSON.stringify(formData)
       })
 
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde")
+      if (!res.ok) throw new Error(t('sources.competitions.errorSave'))
 
-      toast.success(editingId ? "Course modifiée !" : "Course ajoutée !")
+      toast.success(editingId ? t('sources.competitions.modified') : t('sources.competitions.created'))
       setFormData({
         name: "",
         date: "",
@@ -119,21 +121,21 @@ export function CompetitionsContent() {
       setShowForm(false)
       fetchRaces()
     } catch (error) {
-      toast.error("Erreur lors de la sauvegarde")
+      toast.error(t('sources.competitions.errorSave'))
     }
   }
 
   async function deleteRace(id: string) {
-    if (!confirm("Supprimer cette course ?")) return
+    if (!confirm(t('sources.competitions.confirmDelete'))) return
     
     try {
       const res = await fetch(`/api/races/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erreur lors de la suppression")
+      if (!res.ok) throw new Error(t('sources.competitions.errorDelete'))
       
-      toast.success("Course supprimée !")
+      toast.success(t('sources.competitions.deleted'))
       fetchRaces()
     } catch (error) {
-      toast.error("Erreur lors de la suppression")
+      toast.error(t('sources.competitions.errorDelete'))
     }
   }
 
@@ -155,13 +157,13 @@ export function CompetitionsContent() {
   function getStatusInfo(status: string) {
     switch (status) {
       case "completed":
-        return { icon: CheckCircle, color: "text-green-600", bg: "bg-green-100", label: "Terminée" }
+        return { icon: CheckCircle, color: "text-green-600", bg: "bg-green-100", label: locale === 'fr' ? "Terminée" : "Completed" }
       case "upcoming":
-        return { icon: Timer, color: "text-blue-600", bg: "bg-blue-100", label: "À venir" }
+        return { icon: Timer, color: "text-blue-600", bg: "bg-blue-100", label: t('sources.competitions.upcoming') }
       case "cancelled":
-        return { icon: AlertCircle, color: "text-red-600", bg: "bg-red-100", label: "Annulée" }
+        return { icon: AlertCircle, color: "text-red-600", bg: "bg-red-100", label: locale === 'fr' ? "Annulée" : "Cancelled" }
       default:
-        return { icon: Timer, color: "text-gray-600", bg: "bg-gray-100", label: "Inconnue" }
+        return { icon: Timer, color: "text-gray-600", bg: "bg-gray-100", label: locale === 'fr' ? "Inconnue" : "Unknown" }
     }
   }
 
@@ -171,10 +173,10 @@ export function CompetitionsContent() {
     const diffTime = raceDate.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
-    if (diffDays < 0) return "Passée"
-    if (diffDays === 0) return "Aujourd'hui"
-    if (diffDays === 1) return "Demain"
-    return `${diffDays} jours`
+    if (diffDays < 0) return t('sources.competitions.past')
+    if (diffDays === 0) return locale === 'fr' ? "Aujourd'hui" : "Today"
+    if (diffDays === 1) return locale === 'fr' ? "Demain" : "Tomorrow"
+    return locale === 'fr' ? `${diffDays} jours` : `${diffDays} days`
   }
 
   const upcomingRaces = races.filter(race => race.status === "upcoming")
@@ -213,7 +215,7 @@ export function CompetitionsContent() {
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Total Courses</p>
+              <p className="text-sm text-gray-600 font-medium">{locale === 'fr' ? 'Total Courses' : 'Total Races'}</p>
               <p className="text-2xl font-bold text-gray-900">{totalRaces}</p>
             </div>
           </div>
@@ -230,7 +232,7 @@ export function CompetitionsContent() {
               <Timer className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">À Venir</p>
+              <p className="text-sm text-gray-600 font-medium">{t('sources.competitions.upcoming')}</p>
               <p className="text-2xl font-bold text-gray-900">{upcomingRaces.length}</p>
             </div>
           </div>
@@ -247,7 +249,7 @@ export function CompetitionsContent() {
               <CheckCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Terminées</p>
+              <p className="text-sm text-gray-600 font-medium">{locale === 'fr' ? 'Terminées' : 'Completed'}</p>
               <p className="text-2xl font-bold text-gray-900">{completedRaces.length}</p>
             </div>
           </div>
@@ -262,8 +264,8 @@ export function CompetitionsContent() {
         className="flex justify-between items-center"
       >
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Mes Compétitions</h2>
-          <p className="text-gray-600">Gérez votre calendrier de courses</p>
+          <h2 className="text-xl font-semibold text-gray-900">{t('sources.competitions.title')}</h2>
+          <p className="text-gray-600">{t('sources.competitions.description')}</p>
         </div>
         <div className="flex items-center gap-3">
           {username && (
@@ -274,7 +276,7 @@ export function CompetitionsContent() {
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-lg"
               >
                 <Globe className="w-4 h-4" />
-                Voir profil public
+                {t('sources.competitions.viewPublic')}
               </motion.button>
             </NextLink>
           )}
@@ -298,7 +300,7 @@ export function CompetitionsContent() {
             className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            {showForm ? "Annuler" : "Nouvelle Course"}
+            {showForm ? t('common.cancel') : t('sources.competitions.add')}
           </motion.button>
         </div>
       </motion.div>
@@ -315,23 +317,23 @@ export function CompetitionsContent() {
           >
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">
-                {editingId ? "Modifier la course" : "Ajouter une nouvelle course"}
+                {editingId ? (locale === 'fr' ? 'Modifier la course' : 'Edit competition') : (locale === 'fr' ? 'Ajouter une nouvelle course' : 'Add a new competition')}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Nom de la course *</Label>
+                    <Label htmlFor="name">{t('sources.competitions.name')} *</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Marathon de Paris"
+                      placeholder={locale === 'fr' ? 'Marathon de Paris' : 'Paris Marathon'}
                       className="mt-1"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="date">Date *</Label>
+                    <Label htmlFor="date">{t('sources.competitions.date')} *</Label>
                     <Input
                       id="date"
                       type="date"
@@ -345,17 +347,17 @@ export function CompetitionsContent() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="location">Lieu</Label>
+                    <Label htmlFor="location">{t('sources.competitions.location')}</Label>
                     <Input
                       id="location"
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      placeholder="Paris, France"
+                      placeholder={locale === 'fr' ? 'Paris, France' : 'Paris, France'}
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="distance">Distance</Label>
+                    <Label htmlFor="distance">{t('sources.competitions.distance')}</Label>
                     <Input
                       id="distance"
                       value={formData.distance}
@@ -368,20 +370,20 @@ export function CompetitionsContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="status">Statut</Label>
+                    <Label htmlFor="status">{t('sources.competitions.status')}</Label>
                     <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                       <SelectTrigger className="mt-1">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="upcoming">À venir</SelectItem>
-                        <SelectItem value="completed">Terminée</SelectItem>
-                        <SelectItem value="cancelled">Annulée</SelectItem>
+                        <SelectItem value="upcoming">{t('sources.competitions.upcoming')}</SelectItem>
+                        <SelectItem value="completed">{locale === 'fr' ? 'Terminée' : 'Completed'}</SelectItem>
+                        <SelectItem value="cancelled">{locale === 'fr' ? 'Annulée' : 'Cancelled'}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="result">Résultat</Label>
+                    <Label htmlFor="result">{t('sources.competitions.result')}</Label>
                     <Input
                       id="result"
                       value={formData.result}
@@ -394,7 +396,7 @@ export function CompetitionsContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="url">URL</Label>
+                    <Label htmlFor="url">{t('sources.competitions.url')}</Label>
                     <Input
                       id="url"
                       type="url"
@@ -405,7 +407,7 @@ export function CompetitionsContent() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="logoUrl">Logo URL</Label>
+                    <Label htmlFor="logoUrl">{t('sources.competitions.logo')} URL</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input
                         id="logoUrl"
@@ -420,7 +422,7 @@ export function CompetitionsContent() {
                         whileTap={{ scale: 0.95 }}
                         onClick={async () => {
                           if (!formData.url) {
-                            toast.error("Veuillez d'abord saisir l'URL de la course")
+                            toast.error(t('sources.competitions.errorExtract'))
                             return
                           }
                           
@@ -436,15 +438,15 @@ export function CompetitionsContent() {
                               const data = await res.json()
                               if (data.logoUrl) {
                                 setFormData({ ...formData, logoUrl: data.logoUrl })
-                                toast.success("Logo extrait avec succès !")
+                                toast.success(locale === 'fr' ? 'Logo extrait avec succès !' : 'Logo extracted successfully!')
                               } else {
-                                toast.error("Aucun logo trouvé sur ce site")
+                                toast.error(locale === 'fr' ? 'Aucun logo trouvé sur ce site' : 'No logo found on this site')
                               }
                             } else {
-                              toast.error("Erreur lors de l'extraction du logo")
+                              toast.error(t('sources.competitions.errorExtract'))
                             }
                           } catch (error) {
-                            toast.error("Erreur lors de l'extraction du logo")
+                            toast.error(t('sources.competitions.errorExtract'))
                           } finally {
                             setIsExtractingLogo(false)
                           }
@@ -461,7 +463,7 @@ export function CompetitionsContent() {
                         ) : (
                           <Search className="w-4 h-4" />
                         )}
-                        Extraire
+                        {t('sources.competitions.extractLogo')}
                       </motion.button>
                     </div>
                   </div>
@@ -482,7 +484,7 @@ export function CompetitionsContent() {
                         }}
                       />
                     </div>
-                    <span className="text-sm text-gray-600">Aperçu du logo</span>
+                    <span className="text-sm text-gray-600">{locale === 'fr' ? 'Aperçu du logo' : 'Logo preview'}</span>
                   </div>
                 )}
 
@@ -494,7 +496,7 @@ export function CompetitionsContent() {
                     className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
                   >
                     <Plus className="w-4 h-4" />
-                    {editingId ? "Modifier" : "Ajouter"}
+                    {editingId ? t('common.edit') : t('common.add')}
                   </motion.button>
                 </div>
               </form>
@@ -540,7 +542,7 @@ export function CompetitionsContent() {
                           </div>
                         ) : (
                           <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center bg-gray-50 border border-gray-200">
-                            <span className="text-xs text-gray-400">Pas de logo</span>
+                            <span className="text-xs text-gray-400">{locale === 'fr' ? 'Pas de logo' : 'No logo'}</span>
                           </div>
                         )}
                         <div className={`w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center ${race.logoUrl ? 'hidden' : ''}`}>
@@ -564,7 +566,7 @@ export function CompetitionsContent() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(race.date).toLocaleDateString('fr-FR')}
+                            {new Date(race.date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                           </div>
                           {race.location && (
                             <div className="flex items-center gap-2">
@@ -604,7 +606,7 @@ export function CompetitionsContent() {
                           whileTap={{ scale: 0.9 }}
                           onClick={() => window.open(race.url || '#', '_blank')}
                           className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Voir le site"
+                          title={locale === 'fr' ? 'Voir le site' : 'View website'}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </motion.button>
@@ -615,7 +617,7 @@ export function CompetitionsContent() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => editRace(race)}
                         className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Modifier"
+                        title={t('common.edit')}
                       >
                         <Edit2 className="w-4 h-4" />
                       </motion.button>
@@ -625,7 +627,7 @@ export function CompetitionsContent() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => deleteRace(race.id)}
                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Supprimer"
+                        title={t('common.delete')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </motion.button>
@@ -644,8 +646,8 @@ export function CompetitionsContent() {
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">🏃‍♂️</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune course ajoutée</h3>
-            <p className="text-gray-600 mb-4">Commencez par ajouter votre première compétition</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('sources.competitions.noRaces')}</h3>
+            <p className="text-gray-600 mb-4">{t('sources.competitions.addFirst')}</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -653,7 +655,7 @@ export function CompetitionsContent() {
               className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-3 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
             >
               <Plus className="w-4 h-4" />
-              Ajouter ma première course
+              {locale === 'fr' ? 'Ajouter ma première course' : 'Add my first competition'}
             </motion.button>
           </motion.div>
         )}

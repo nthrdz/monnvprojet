@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import Image from "next/image"
 import { searchBrand, getBrandLogoUrl, type Brand } from "@/lib/brands"
 import NextLink from "next/link"
+import { useI18n } from "@/components/providers/i18n-provider"
 import { 
   Award, 
   Plus, 
@@ -39,6 +40,7 @@ type Sponsor = {
 }
 
 export function SponsorsContent() {
+  const { t, locale } = useI18n()
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -94,7 +96,7 @@ export function SponsorsContent() {
         setSponsors(data.sponsors || [])
       }
     } catch (error) {
-      toast.error("Erreur lors du chargement des sponsors")
+      toast.error(t('sources.sponsors.errorLoad'))
     } finally {
       setLoading(false)
     }
@@ -136,9 +138,9 @@ export function SponsorsContent() {
         })
       })
 
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde")
+      if (!res.ok) throw new Error(t('sources.sponsors.errorSave'))
 
-      toast.success(editingId ? "Sponsor modifié !" : "Sponsor ajouté !")
+      toast.success(editingId ? t('sources.sponsors.modified') : t('sources.sponsors.created'))
       setFormData({
         name: "",
         logoUrl: "",
@@ -152,23 +154,23 @@ export function SponsorsContent() {
       setShowForm(false)
       fetchSponsors()
     } catch (error) {
-      toast.error("Erreur lors de la sauvegarde")
+      toast.error(t('sources.sponsors.errorSave'))
     } finally {
       setIsUploading(false)
     }
   }
 
   async function deleteSponsor(id: string) {
-    if (!confirm("Supprimer ce sponsor ?")) return
+    if (!confirm(t('sources.sponsors.confirmDelete'))) return
     
     try {
       const res = await fetch(`/api/sponsors/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erreur lors de la suppression")
+      if (!res.ok) throw new Error(t('sources.sponsors.errorDelete'))
       
-      toast.success("Sponsor supprimé !")
+      toast.success(t('sources.sponsors.deleted'))
       fetchSponsors()
     } catch (error) {
-      toast.error("Erreur lors de la suppression")
+      toast.error(t('sources.sponsors.errorDelete'))
     }
   }
 
@@ -188,7 +190,7 @@ export function SponsorsContent() {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
-    toast.success("Code copié !")
+    toast.success(t('sources.sponsors.promoCopied'))
     
     // 📊 Tracker la copie du code promo
     try {
@@ -225,7 +227,7 @@ export function SponsorsContent() {
 
   async function extractLogo() {
     if (!formData.websiteUrl) {
-      toast.error("Veuillez d'abord saisir l'URL du site web")
+      toast.error(t('sources.sponsors.enterWebsiteFirst'))
       return
     }
 
@@ -244,15 +246,15 @@ export function SponsorsContent() {
         const data = await res.json()
         if (data.logoUrl) {
           setFormData({ ...formData, logoUrl: data.logoUrl })
-          toast.success("Logo extrait avec succès !")
+          toast.success(locale === 'fr' ? 'Logo extrait avec succès !' : 'Logo extracted successfully!')
         } else {
-          toast.error("Aucun logo trouvé sur ce site")
+          toast.error(locale === 'fr' ? 'Aucun logo trouvé sur ce site' : 'No logo found on this site')
         }
       } else {
-        toast.error("Erreur lors de l'extraction du logo")
+        toast.error(t('sources.sponsors.errorExtract'))
       }
     } catch (error) {
-      toast.error("Erreur lors de l'extraction du logo")
+      toast.error(t('sources.sponsors.errorExtract'))
     } finally {
       setIsExtractingLogo(false)
     }
@@ -293,7 +295,7 @@ export function SponsorsContent() {
               <Award className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Total Sponsors</p>
+              <p className="text-sm text-gray-600 font-medium">{locale === 'fr' ? 'Total Sponsors' : 'Total Sponsors'}</p>
               <p className="text-2xl font-bold text-gray-900">{sponsors.length}</p>
             </div>
           </div>
@@ -310,7 +312,7 @@ export function SponsorsContent() {
               <Tag className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Avec Code Promo</p>
+              <p className="text-sm text-gray-600 font-medium">{t('sources.sponsors.withPromo')}</p>
               <p className="text-2xl font-bold text-gray-900">{sponsorsWithPromo}</p>
             </div>
           </div>
@@ -327,7 +329,7 @@ export function SponsorsContent() {
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 font-medium">Total Clics</p>
+              <p className="text-sm text-gray-600 font-medium">{t('sources.sponsors.totalClicks')}</p>
               <p className="text-2xl font-bold text-gray-900">{totalClicks}</p>
             </div>
           </div>
@@ -342,8 +344,8 @@ export function SponsorsContent() {
         className="flex justify-between items-center"
       >
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Mes Sponsors</h2>
-          <p className="text-gray-600">Gérez vos partenaires et collaborations</p>
+          <h2 className="text-xl font-semibold text-gray-900">{t('sources.sponsors.title')}</h2>
+          <p className="text-gray-600">{t('sources.sponsors.description')}</p>
         </div>
         <div className="flex items-center gap-3">
           {username && (
@@ -354,7 +356,7 @@ export function SponsorsContent() {
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-lg"
               >
                 <Globe className="w-4 h-4" />
-                Voir profil public
+                {t('sources.sponsors.viewPublic')}
               </motion.button>
             </NextLink>
           )}
@@ -365,7 +367,7 @@ export function SponsorsContent() {
               className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all duration-200 shadow-lg"
             >
               <BarChart3 className="w-4 h-4" />
-              Analytics
+              {t('sources.sponsors.analytics')}
             </motion.button>
           </NextLink>
           <motion.button
@@ -387,7 +389,7 @@ export function SponsorsContent() {
             className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-4 py-2 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            {showForm ? "Annuler" : "Nouveau Sponsor"}
+            {showForm ? t('common.cancel') : t('sources.sponsors.add')}
           </motion.button>
         </div>
       </motion.div>
@@ -404,12 +406,12 @@ export function SponsorsContent() {
           >
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">
-                {editingId ? "Modifier le sponsor" : "Ajouter un nouveau sponsor"}
+                {editingId ? (locale === 'fr' ? 'Modifier le sponsor' : 'Edit sponsor') : (locale === 'fr' ? 'Ajouter un nouveau sponsor' : 'Add a new sponsor')}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="relative">
-                    <Label htmlFor="name">Nom du sponsor *</Label>
+                    <Label htmlFor="name">{t('sources.sponsors.name')} *</Label>
                     <div className="relative">
                       <Input
                         id="name"
@@ -445,7 +447,7 @@ export function SponsorsContent() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="websiteUrl">Site web</Label>
+                    <Label htmlFor="websiteUrl">{t('sources.sponsors.website')}</Label>
                     <Input
                       id="websiteUrl"
                       type="url"
@@ -459,7 +461,7 @@ export function SponsorsContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="promoCode">Code promo</Label>
+                    <Label htmlFor="promoCode">{t('sources.sponsors.promoCode')}</Label>
                     <Input
                       id="promoCode"
                       value={formData.promoCode}
@@ -469,12 +471,12 @@ export function SponsorsContent() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t('sources.sponsors.descriptionLabel')}</Label>
                     <Input
                       id="description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Équipement sportif"
+                      placeholder={locale === 'fr' ? 'Équipement sportif' : 'Sports equipment'}
                       className="mt-1"
                     />
                   </div>
@@ -482,7 +484,7 @@ export function SponsorsContent() {
 
                 {/* Logo Section */}
                 <div>
-                  <Label>Logo</Label>
+                  <Label>{t('sources.sponsors.logo')}</Label>
                   <div className="mt-2 space-y-3">
                     <div className="flex items-center gap-3">
                       <Input
@@ -509,7 +511,7 @@ export function SponsorsContent() {
                         ) : (
                           <Search className="w-4 h-4" />
                         )}
-                        Extraire
+                        {t('sources.sponsors.extractLogo')}
                       </motion.button>
                     </div>
                     
@@ -536,7 +538,7 @@ export function SponsorsContent() {
                           alt="Logo preview"
                           className="w-12 h-12 object-contain border border-gray-200 rounded"
                         />
-                        <span className="text-sm text-gray-600">Aperçu du logo</span>
+                        <span className="text-sm text-gray-600">{locale === 'fr' ? 'Aperçu du logo' : 'Logo preview'}</span>
                       </div>
                     )}
                   </div>
@@ -557,12 +559,12 @@ export function SponsorsContent() {
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                         />
-                        Upload...
+                        {t('common.loading')}
                       </>
                     ) : (
                       <>
                         <Plus className="w-4 h-4" />
-                        {editingId ? "Modifier" : "Ajouter"}
+                        {editingId ? t('common.edit') : t('common.add')}
                       </>
                     )}
                   </motion.button>
@@ -607,7 +609,7 @@ export function SponsorsContent() {
                         <h3 className="font-semibold text-gray-900">{sponsor.name}</h3>
                         {sponsor.promoCode && (
                           <div className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                            Code promo
+                            {t('sources.sponsors.promoCode')}
                           </div>
                         )}
                       </div>
@@ -617,12 +619,12 @@ export function SponsorsContent() {
                       <div className="flex items-center gap-4 mt-2">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <BarChart3 className="w-4 h-4" />
-                          {sponsor.clicks} clics
+                          {sponsor.clicks} {locale === 'fr' ? 'clics' : 'clicks'}
                         </div>
                         {sponsor.websiteUrl && (
                           <div className="flex items-center gap-1 text-sm text-gray-500">
                             <Globe className="w-4 h-4" />
-                            Site web
+                            {t('sources.sponsors.website')}
                           </div>
                         )}
                       </div>
@@ -636,7 +638,7 @@ export function SponsorsContent() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => copyToClipboard(sponsor.promoCode!, sponsor.id)}
                         className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                        title="Copier le code promo"
+                        title={t('sources.sponsors.copyPromo')}
                       >
                         {copiedId === sponsor.id ? (
                           <Check className="w-4 h-4 text-green-600" />
@@ -652,7 +654,7 @@ export function SponsorsContent() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => window.open(sponsor.websiteUrl || '#', '_blank')}
                         className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Visiter le site"
+                        title={locale === 'fr' ? 'Visiter le site' : 'Visit website'}
                       >
                         <ExternalLink className="w-4 h-4" />
                       </motion.button>
@@ -663,7 +665,7 @@ export function SponsorsContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => editSponsor(sponsor)}
                       className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Modifier"
+                      title={t('common.edit')}
                     >
                       <Edit2 className="w-4 h-4" />
                     </motion.button>
@@ -673,7 +675,7 @@ export function SponsorsContent() {
                       whileTap={{ scale: 0.9 }}
                       onClick={() => deleteSponsor(sponsor.id)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Supprimer"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </motion.button>
@@ -691,8 +693,8 @@ export function SponsorsContent() {
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">🏆</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun sponsor ajouté</h3>
-            <p className="text-gray-600 mb-4">Commencez par ajouter votre premier partenaire</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('sources.sponsors.noSponsors')}</h3>
+            <p className="text-gray-600 mb-4">{t('sources.sponsors.addFirst')}</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -700,7 +702,7 @@ export function SponsorsContent() {
               className="inline-flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-3 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
             >
               <Plus className="w-4 h-4" />
-              Ajouter mon premier sponsor
+              {locale === 'fr' ? 'Ajouter mon premier sponsor' : 'Add my first sponsor'}
             </motion.button>
           </motion.div>
         )}

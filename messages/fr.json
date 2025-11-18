@@ -239,8 +239,47 @@
       "errorExtract": "Erreur lors de l'extraction du logo",
       "enterWebsiteFirst": "Veuillez d'abord saisir l'URL du site web",
       "uploadLogo": "Télécharger un logo",
-      "searchBrand": "Rechercher une marque"
+      "searchBrand": "Rechercher une marque",
+      "logo": "Logo"
     }
+  },
+  "plans": {
+    "free": "Free",
+    "pro": "Pro",
+    "elite": "Elite"
+  },
+  "upgrade": {
+    "title": "Choisis ton plan",
+    "subtitle": "Débloque tout le potentiel de ton profil d'athlète",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "free": {
+      "price": "Gratuit"
+    },
+    "processing": "Activation...",
+    "features": "Fonctionnalité"
+  },
+  "common": {
+    "welcome": "Bienvenue",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Déconnexion",
+    "dashboard": "Dashboard",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "language": "Langue",
+    "create": "Créer",
+    "add": "Ajouter"
   },
   "upgrade": {
     "title": "Choisis ton plan",

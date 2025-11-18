@@ -239,8 +239,47 @@
       "errorExtract": "Error extracting logo",
       "enterWebsiteFirst": "Please enter the website URL first",
       "uploadLogo": "Upload a logo",
-      "searchBrand": "Search for a brand"
+      "searchBrand": "Search for a brand",
+      "logo": "Logo"
     }
+  },
+  "plans": {
+    "free": "Free",
+    "pro": "Pro",
+    "elite": "Elite"
+  },
+  "upgrade": {
+    "title": "Choose your plan",
+    "subtitle": "Unlock the full potential of your athlete profile",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "free": {
+      "price": "Free"
+    },
+    "processing": "Activating...",
+    "features": "Feature"
+  },
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "language": "Language",
+    "create": "Create",
+    "add": "Add"
   },
   "upgrade": {
     "title": "Choose your plan",
