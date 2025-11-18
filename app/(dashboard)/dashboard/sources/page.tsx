@@ -63,7 +63,7 @@ export default function SourcesPage() {
       id: 'liens' as const,
       label: t('dashboard.sources.links'),
       icon: Link2,
-      description: t('dashboard.sources.links') + ' - ' + (t('dashboard.sources.links') === 'Links' ? 'Manage your custom links' : 'Gérez vos liens personnalisés'),
+      description: t('sources.links.description'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'
@@ -72,7 +72,7 @@ export default function SourcesPage() {
       id: 'competitions' as const,
       label: t('dashboard.sources.competitions'),
       icon: Trophy,
-      description: t('dashboard.sources.competitions') + ' - ' + (t('dashboard.sources.competitions') === 'Competitions' ? 'Your race calendar' : 'Calendrier de vos courses'),
+      description: t('sources.competitions.description'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'
@@ -81,7 +81,7 @@ export default function SourcesPage() {
       id: 'sponsors' as const,
       label: t('dashboard.sources.sponsors'),
       icon: Award,
-      description: t('dashboard.sources.sponsors') + ' - ' + (t('dashboard.sources.sponsors') === 'Sponsors' ? 'Partners and collaborations' : 'Partenaires et collaborations'),
+      description: t('sources.sponsors.description'),
       color: 'from-gray-800 to-gray-900',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200'

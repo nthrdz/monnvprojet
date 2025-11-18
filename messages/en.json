@@ -76,13 +76,38 @@
     },
     "signup": {
       "title": "Sign Up",
+      "subtitle": "Create your profile",
+      "subtitle2": "Join thousands of athletes",
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm password",
       "username": "Username",
+      "name": "Full name",
+      "sport": "Sport",
       "submit": "Sign up",
       "hasAccount": "Already have an account?",
-      "login": "Sign in"
+      "login": "Sign in",
+      "success": "Account created successfully!",
+      "error": "Error during registration"
+    }
+  },
+  "sources": {
+    "links": {
+      "title": "Links",
+      "description": "Manage your custom links",
+      "add": "Add a link",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "competitions": {
+      "title": "Competitions",
+      "description": "Your race calendar",
+      "add": "Add a competition"
+    },
+    "sponsors": {
+      "title": "Sponsors",
+      "description": "Partners and collaborations",
+      "add": "Add a sponsor"
     }
   }
 }

@@ -68,11 +68,11 @@ export default function SignupPage() {
       console.log("📥 Réponse inscription:", data)
 
       if (!res.ok) {
-        throw new Error(data.error || "Erreur lors de l'inscription")
+        throw new Error(data.error || t('auth.signup.error'))
       }
 
       // Message de succès
-      toast.success("✅ Compte créé avec succès !", {
+      toast.success(`✅ ${t('auth.signup.success')}`, {
         duration: 3000
       })
       
@@ -120,10 +120,10 @@ export default function SignupPage() {
         >
           <div className="mb-6 sm:mb-8 lg:mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-primary-600 to-quaternary-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-              Crée ton profil
+              {t('auth.signup.subtitle')}
             </h1>
             <p className="text-base sm:text-lg text-gray-600">
-              Rejoins des milliers d&apos;athlètes
+              {t('auth.signup.subtitle2')}
             </p>
           </div>
 
@@ -131,7 +131,7 @@ export default function SignupPage() {
             {/* Nom complet */}
             <div>
               <Label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Nom complet
+                {t('auth.signup.name')}
               </Label>
               <Input 
                 id="name" 
@@ -149,7 +149,7 @@ export default function SignupPage() {
             {/* Username */}
             <div>
               <Label htmlFor="username" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Nom d&apos;utilisateur
+                {t('auth.signup.username')}
               </Label>
               <div className="flex items-center gap-1 sm:gap-2">
                 <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap font-medium">athlink.app/</span>
@@ -170,7 +170,7 @@ export default function SignupPage() {
             {/* Sport */}
             <div>
               <Label htmlFor="sport" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Sport principal
+                {t('auth.signup.sport')} {locale === 'fr' ? 'principal' : '(main)'}
               </Label>
               <select
                 id="sport"
@@ -199,7 +199,7 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <Label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Email
+                {t('auth.signup.email')}
               </Label>
               <Input 
                 id="email" 
@@ -218,7 +218,7 @@ export default function SignupPage() {
             {/* Mot de passe */}
             <div>
               <Label htmlFor="password" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Mot de passe
+                {t('auth.signup.password')}
               </Label>
               <div className="relative">
                 <Input 
@@ -251,7 +251,7 @@ export default function SignupPage() {
             {/* Confirmer mot de passe */}
             <div>
               <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 mb-2 block">
-                Confirmer le mot de passe
+                {t('auth.signup.confirmPassword')}
               </Label>
               <div className="relative">
                 <Input 
@@ -289,11 +289,11 @@ export default function SignupPage() {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Création en cours...
+                  {t('common.loading')}
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  Créer mon profil
+                  {t('auth.signup.submit')}
                   <ArrowRight className="w-5 h-5" />
                 </div>
               )}
@@ -336,9 +336,9 @@ export default function SignupPage() {
 
           {/* Login Link */}
           <p className="text-center text-sm text-gray-600 mt-8">
-            Déjà un compte ?{" "}
+            {t('auth.signup.hasAccount')}{" "}
             <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700">
-              Se connecter
+              {t('auth.signup.login')}
             </Link>
           </p>
         </motion.div>

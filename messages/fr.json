@@ -76,13 +76,38 @@
     },
     "signup": {
       "title": "Inscription",
+      "subtitle": "Crée ton profil",
+      "subtitle2": "Rejoins des milliers d'athlètes",
       "email": "Email",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "username": "Nom d'utilisateur",
+      "name": "Nom complet",
+      "sport": "Sport",
       "submit": "S'inscrire",
       "hasAccount": "Déjà un compte ?",
-      "login": "Se connecter"
+      "login": "Se connecter",
+      "success": "Compte créé avec succès !",
+      "error": "Erreur lors de l'inscription"
+    }
+  },
+  "sources": {
+    "links": {
+      "title": "Liens",
+      "description": "Gérez vos liens personnalisés",
+      "add": "Ajouter un lien",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "competitions": {
+      "title": "Compétitions",
+      "description": "Calendrier de vos courses",
+      "add": "Ajouter une compétition"
+    },
+    "sponsors": {
+      "title": "Sponsors",
+      "description": "Partenaires et collaborations",
+      "add": "Ajouter un sponsor"
     }
   }
 }
