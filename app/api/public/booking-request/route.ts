@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     
     console.log("✅ Validation OK")
 
-    // Vérifier que le coach existe et a le plan COACH
+    // Vérifier que le coach existe et a le plan COACH ou ELITE
     const coach = await prisma.profile.findUnique({
       where: { username: coachUsername },
       select: { 
@@ -47,8 +47,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Coach non trouvé ou non disponible" }, { status: 404 })
     }
     
-    if (coach.plan !== "COACH") {
-      console.error("❌ Plan invalide:", coach.plan, "attendu: COACH")
+    // ✅ Accepter les plans COACH et ELITE (les utilisateurs ELITE peuvent aussi être coaches)
+    if (coach.plan !== "COACH" && coach.plan !== "ELITE") {
+      console.error("❌ Plan invalide:", coach.plan, "attendu: COACH ou ELITE")
       return NextResponse.json({ error: "Coach non trouvé ou non disponible" }, { status: 404 })
     }
     
