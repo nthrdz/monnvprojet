@@ -532,7 +532,9 @@ export function CoachingPublicClient({
 
                         const date = new Date(currentYear, currentMonth, day)
                         const dateString = date.toISOString().split('T')[0]
-                        const isPast = date < new Date().setHours(0, 0, 0, 0)
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = date < today
                         const isSelected = selectedDate === dateString
                         const hasAvailability = coachAvailabilities.some((avail: any) => {
                           const dayOfWeek = date.getDay()
