@@ -5,8 +5,10 @@ import { User, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ProfileContent } from "./profile-content"
 import { GalerieContent } from "./galerie-content"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 export default function ProfilePage() {
+  const { t } = useI18n()
   // Vérifier l'URL pour ouvrir l'onglet Galerie si on vient de /dashboard/media
   const [activeTab, setActiveTab] = useState<'profile' | 'galerie'>(() => {
     if (typeof window !== 'undefined') {
@@ -35,7 +37,7 @@ export default function ProfilePage() {
             )}
           >
             <User className="w-4 h-4" />
-            Mon Profil
+            {t('profile.tabs.profile')}
           </button>
           <button
             onClick={() => {
@@ -50,7 +52,7 @@ export default function ProfilePage() {
             )}
           >
             <ImageIcon className="w-4 h-4" />
-            Galerie
+            {t('profile.tabs.gallery')}
           </button>
         </nav>
       </div>

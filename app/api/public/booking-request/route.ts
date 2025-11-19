@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     console.log("📦 Body reçu:", body)
-    const { coachUsername, clientName, clientEmail, clientPhone, service, message } = body
+    const { coachUsername, clientName, clientEmail, clientPhone, service, message, date, startTime, duration } = body
 
     // Validation
-    if (!coachUsername || !clientName || !clientEmail || !service) {
-      console.error("❌ Données manquantes:", { coachUsername, clientName, clientEmail, service })
-      return NextResponse.json({ error: "Données manquantes" }, { status: 400 })
+    if (!coachUsername || !clientName || !clientEmail || !service || !date || !startTime) {
+      console.error("❌ Données manquantes:", { coachUsername, clientName, clientEmail, service, date, startTime })
+      return NextResponse.json({ error: "Données manquantes (nom, email, service, date et heure requis)" }, { status: 400 })
     }
     
     console.log("✅ Validation OK")
@@ -59,16 +59,24 @@ export async function POST(request: NextRequest) {
     const stats = coach.stats as any || {}
     const existingBookings = stats.bookings || []
 
+    // Calculer l'heure de fin basée sur la durée
+    const bookingDuration = duration || 60 // Durée par défaut 60 minutes
+    const [hours, minutes] = startTime.split(':').map(Number)
+    const endMinutes = hours * 60 + minutes + bookingDuration
+    const endHours = Math.floor(endMinutes / 60)
+    const endMins = endMinutes % 60
+    const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
+
     // Créer une nouvelle demande de réservation avec statut PENDING
     const newBooking = {
       id: `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       clientName,
       clientEmail,
       clientPhone: clientPhone || null,
-      date: new Date().toISOString().split('T')[0], // Date provisoire (sera modifiée par le coach)
-      startTime: "09:00", // Heure provisoire
-      endTime: "10:00",
-      duration: 60,
+      date: date, // Date choisie par le client
+      startTime: startTime, // Heure choisie par le client
+      endTime: endTime, // Calculée automatiquement
+      duration: bookingDuration,
       service: service,
       price: 0, // Prix à définir par le coach
       status: "PENDING",
@@ -76,6 +84,13 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
       isPublicRequest: true // Marqueur pour identifier les demandes publiques
     }
+    
+    console.log("📅 Réservation créée:", {
+      date: newBooking.date,
+      startTime: newBooking.startTime,
+      endTime: newBooking.endTime,
+      duration: newBooking.duration
+    })
 
     // Ajouter la nouvelle demande
     const updatedBookings = [newBooking, ...existingBookings]

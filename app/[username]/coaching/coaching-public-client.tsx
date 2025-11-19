@@ -50,7 +50,10 @@ export function CoachingPublicClient({
     clientEmail: "",
     clientPhone: "",
     service: "",
-    message: ""
+    message: "",
+    date: "",
+    startTime: "",
+    duration: 60 // Durée par défaut en minutes
   })
 
   const difficultyLabels: Record<string, string> = {
@@ -90,7 +93,10 @@ export function CoachingPublicClient({
           clientEmail: "",
           clientPhone: "",
           service: "",
-          message: ""
+          message: "",
+          date: "",
+          startTime: "",
+          duration: 60
         })
         
         // Masquer le message de succès après 5 secondes
@@ -347,6 +353,52 @@ export function CoachingPublicClient({
                 </select>
               </div>
 
+              {/* Sélection de date et heure */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    Date souhaitée *
+                  </label>
+                  <input
+                    type="date"
+                    value={bookingForm.date}
+                    onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-blue-400 focus:ring-2 focus:ring-primary-blue-400/20 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <Clock className="w-4 h-4 inline mr-2" />
+                    Heure souhaitée *
+                  </label>
+                  <input
+                    type="time"
+                    value={bookingForm.startTime}
+                    onChange={(e) => setBookingForm({ ...bookingForm, startTime: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-blue-400 focus:ring-2 focus:ring-primary-blue-400/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Durée (minutes)
+                </label>
+                <select
+                  value={bookingForm.duration}
+                  onChange={(e) => setBookingForm({ ...bookingForm, duration: parseInt(e.target.value) })}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-blue-400 focus:ring-2 focus:ring-primary-blue-400/20 transition-all"
+                >
+                  <option value={30}>30 minutes</option>
+                  <option value={60}>1 heure</option>
+                  <option value={90}>1h30</option>
+                  <option value={120}>2 heures</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Message
@@ -393,7 +445,7 @@ export function CoachingPublicClient({
 
               <button
                 onClick={handleBookingSubmit}
-                disabled={!bookingForm.clientName || !bookingForm.clientEmail || !bookingForm.service || isSubmitting}
+                disabled={!bookingForm.clientName || !bookingForm.clientEmail || !bookingForm.service || !bookingForm.date || !bookingForm.startTime || isSubmitting}
                 className="w-full py-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold rounded-xl hover:from-gray-900 hover:to-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

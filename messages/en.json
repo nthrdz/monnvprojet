@@ -281,6 +281,57 @@
     "create": "Create",
     "add": "Add"
   },
+  "profile": {
+    "title": "My profile",
+    "subtitle": "Customize your public profile",
+    "viewProfile": "View my profile",
+    "images": {
+      "title": "Profile images",
+      "avatar": "Avatar",
+      "cropImage": "Crop image",
+      "noImageToCrop": "No image to crop"
+    },
+    "general": {
+      "title": "General information",
+      "displayName": "Display name",
+      "username": "Username",
+      "usernameCannotBeChanged": "Username cannot be changed at the moment",
+      "bio": "Bio",
+      "sport": "Main sport",
+      "location": "Location",
+      "socialMedia": "Social media"
+    },
+    "social": {
+      "instagram": "Instagram",
+      "strava": "Strava",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "twitter": "X / Twitter",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "tabs": {
+      "profile": "My Profile",
+      "gallery": "Gallery"
+    },
+    "updated": "Profile updated!",
+    "error": "Error",
+    "errorLoad": "Error loading profile",
+    "loading": "Loading..."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your experience and manage your preferences",
+    "tabs": {
+      "general": "General Settings",
+      "analytics": "Analytics"
+    },
+    "saved": "Settings saved successfully!",
+    "error": "Error saving",
+    "errorSave": "Error saving settings",
+    "planUpdated": "Plan updated to {plan}! Reload the page to see changes.",
+    "errorUpdatePlan": "Error updating plan"
+  },
   "upgrade": {
     "title": "Choose your plan",
     "subtitle": "Unlock all features",

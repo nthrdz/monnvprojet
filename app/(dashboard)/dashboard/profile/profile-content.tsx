@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { getOriginalSportFromStats } from "@/lib/validations"
 import { Crop } from "lucide-react"
+import { useI18n } from "@/components/providers/i18n-provider"
 
 interface Profile {
   username: string
@@ -32,6 +33,7 @@ interface Profile {
 }
 
 export function ProfileContent() {
+  const { t, locale } = useI18n()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
@@ -56,7 +58,7 @@ export function ProfileContent() {
       
       setProfile(profileWithOriginalSport)
     } catch (error) {
-      toast.error("Erreur lors du chargement du profil")
+      toast.error(t('profile.errorLoad'))
     } finally {
       setIsFetching(false)
     }
@@ -76,10 +78,10 @@ export function ProfileContent() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Erreur")
+        throw new Error(data.error || t('profile.error'))
       }
 
-      toast.success("Profil mis à jour !")
+      toast.success(t('profile.updated'))
     } catch (error: any) {
       toast.error(error.message)
     } finally {
@@ -123,7 +125,7 @@ export function ProfileContent() {
       toast.success("Image rognée et sauvegardée avec succès !")
     } catch (error) {
       console.error("Crop error:", error)
-      toast.error("Erreur lors de la sauvegarde de l'image")
+      toast.error(locale === 'fr' ? "Erreur lors de la sauvegarde de l'image" : "Error saving image")
     }
   }
 
@@ -132,14 +134,14 @@ export function ProfileContent() {
       setCropperImage(profile.avatarUrl)
       setShowCropper(true)
     } else {
-      toast.error("Aucune image à rogner")
+      toast.error(t('profile.images.noImageToCrop'))
     }
   }
 
   if (isFetching) {
     return (
       <div className="container mx-auto p-6 max-w-2xl">
-        <p>Chargement...</p>
+        <p>{t('profile.loading')}</p>
       </div>
     )
   }
@@ -147,7 +149,7 @@ export function ProfileContent() {
   if (!profile) {
     return (
       <div className="container mx-auto p-6 max-w-2xl">
-        <p>Erreur lors du chargement du profil</p>
+        <p>{t('profile.errorLoad')}</p>
       </div>
     )
   }
@@ -156,14 +158,14 @@ export function ProfileContent() {
     <div className="container mx-auto p-6 max-w-2xl">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Mon profil</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('profile.title')}</h1>
           <p className="text-muted-foreground">
-            Personnalise ton profil public
+            {t('profile.subtitle')}
           </p>
         </div>
         <Button asChild variant="outline">
           <Link href={`/${profile.username}`} target="_blank">
-            Voir mon profil
+            {t('profile.viewProfile')}
           </Link>
         </Button>
       </div>
@@ -171,11 +173,11 @@ export function ProfileContent() {
       {/* Upload d'images */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Images du profil</CardTitle>
+          <CardTitle>{t('profile.images.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center">
-            <h3 className="font-semibold mb-3 text-center">Avatar</h3>
+            <h3 className="font-semibold mb-3 text-center">{t('profile.images.avatar')}</h3>
             <ImageUpload
               type="avatar"
               currentUrl={profile.avatarUrl}
@@ -194,7 +196,7 @@ export function ProfileContent() {
                   className="flex items-center gap-2"
                 >
                   <Crop className="w-4 h-4" />
-                  Rogner l'image
+                  {t('profile.images.cropImage')}
                 </Button>
               </div>
             )}
@@ -204,45 +206,45 @@ export function ProfileContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Informations générales</CardTitle>
+          <CardTitle>{t('profile.general.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="displayName">Nom affiché</Label>
+              <Label htmlFor="displayName">{t('profile.general.displayName')}</Label>
               <Input 
                 id="displayName" 
                 value={profile.displayName}
                 onChange={(e) => setProfile({...profile, displayName: e.target.value})}
-                placeholder="Thomas Dupont"
+                placeholder={locale === 'fr' ? 'Thomas Dupont' : 'John Doe'}
               />
             </div>
 
             <div>
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">{t('profile.general.username')}</Label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground whitespace-nowrap">athlink.app/</span>
                 <Input 
                   id="username" 
                   value={profile.username}
                   onChange={(e) => setProfile({...profile, username: e.target.value})}
-                  placeholder="thomas-runner"
+                  placeholder={locale === 'fr' ? 'thomas-runner' : 'john-runner'}
                   className="flex-1"
                   disabled
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Le nom d'utilisateur ne peut pas être modifié pour le moment
+                {t('profile.general.usernameCannotBeChanged')}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio">{t('profile.general.bio')}</Label>
               <textarea 
                 id="bio"
                 value={profile.bio || ""}
                 onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                placeholder="Runner passionné - Marathon en 2h45..."
+                placeholder={locale === 'fr' ? 'Runner passionné - Marathon en 2h45...' : 'Passionate runner - Marathon in 2h45...'}
                 className="w-full min-h-[100px] p-3 rounded-md border border-input bg-background"
                 maxLength={500}
               />
@@ -252,31 +254,31 @@ export function ProfileContent() {
             </div>
 
             <div>
-              <Label htmlFor="sport">Sport principal</Label>
+              <Label htmlFor="sport">{t('profile.general.sport')}</Label>
                 <Input 
                   id="sport" 
                   value={profile.sport || ""}
                   onChange={(e) => setProfile({...profile, sport: e.target.value})}
-                  placeholder="Course à pied, Cyclisme, Natation, Triathlon, Ski..."
+                  placeholder={locale === 'fr' ? 'Course à pied, Cyclisme, Natation, Triathlon, Ski...' : 'Running, Cycling, Swimming, Triathlon, Skiing...'}
                 />
             </div>
 
             <div>
-              <Label htmlFor="location">Localisation</Label>
+              <Label htmlFor="location">{t('profile.general.location')}</Label>
               <Input 
                 id="location" 
                 value={profile.location || ""}
                 onChange={(e) => setProfile({...profile, location: e.target.value})}
-                placeholder="Paris, France"
+                placeholder={locale === 'fr' ? 'Paris, France' : 'Paris, France'}
               />
             </div>
 
             <div className="border-t pt-4 mt-6">
-              <h3 className="font-semibold mb-4">Réseaux sociaux</h3>
+              <h3 className="font-semibold mb-4">{t('profile.general.socialMedia')}</h3>
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="instagram">Instagram</Label>
+                  <Label htmlFor="instagram">{t('profile.social.instagram')}</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">@</span>
                     <Input 
@@ -290,7 +292,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="strava">Strava</Label>
+                  <Label htmlFor="strava">{t('profile.social.strava')}</Label>
                   <Input 
                     id="strava" 
                     value={profile.strava || ""}
@@ -300,7 +302,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="youtube">YouTube</Label>
+                  <Label htmlFor="youtube">{t('profile.social.youtube')}</Label>
                   <Input 
                     id="youtube" 
                     value={profile.youtube || ""}
@@ -310,7 +312,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Label htmlFor="tiktok">{t('profile.social.tiktok')}</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">@</span>
                     <Input 
@@ -324,7 +326,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="twitter">X / Twitter</Label>
+                  <Label htmlFor="twitter">{t('profile.social.twitter')}</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">@</span>
                     <Input 
@@ -338,7 +340,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="telegram">Telegram</Label>
+                  <Label htmlFor="telegram">{t('profile.social.telegram')}</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">@</span>
                     <Input 
@@ -352,7 +354,7 @@ export function ProfileContent() {
                 </div>
 
                 <div>
-                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Label htmlFor="whatsapp">{t('profile.social.whatsapp')}</Label>
                   <Input 
                     id="whatsapp" 
                     value={profile.whatsapp || ""}
@@ -360,7 +362,7 @@ export function ProfileContent() {
                     placeholder="+33612345678"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Format international avec indicatif pays
+                    {locale === 'fr' ? 'Format international avec indicatif pays' : 'International format with country code'}
                   </p>
                 </div>
               </div>
@@ -369,9 +371,12 @@ export function ProfileContent() {
             <div className="border-t pt-4 mt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Profil public</Label>
+                  <Label>{locale === 'fr' ? 'Profil public' : 'Public profile'}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Ton profil est {profile.isPublic ? "visible" : "masqué"}
+                    {locale === 'fr' 
+                      ? `Ton profil est ${profile.isPublic ? "visible" : "masqué"}`
+                      : `Your profile is ${profile.isPublic ? "visible" : "hidden"}`
+                    }
                   </p>
                 </div>
                 <Button 
@@ -379,13 +384,19 @@ export function ProfileContent() {
                   variant={profile.isPublic ? "default" : "outline"}
                   onClick={() => setProfile({...profile, isPublic: !profile.isPublic})}
                 >
-                  {profile.isPublic ? "✓ Public" : "Privé"}
+                  {profile.isPublic 
+                    ? (locale === 'fr' ? "✓ Public" : "✓ Public")
+                    : (locale === 'fr' ? "Privé" : "Private")
+                  }
                 </Button>
               </div>
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
+              {isLoading 
+                ? (locale === 'fr' ? "Enregistrement..." : "Saving...")
+                : (locale === 'fr' ? "Enregistrer les modifications" : "Save changes")
+              }
             </Button>
           </form>
         </CardContent>

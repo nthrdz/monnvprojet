@@ -43,9 +43,11 @@ export default async function SettingsPage() {
         
         <div className="relative z-10">
           <h1 className="text-4xl font-black mb-3 bg-gradient-to-r from-primary-700 via-quaternary-700 to-tertiary-700 bg-clip-text text-transparent">
+            {/* Traduction sera gérée côté client */}
             Paramètres
           </h1>
           <p className="text-lg text-primary-600 font-semibold">
+            {/* Traduction sera gérée côté client */}
             Personnalisez votre expérience et gérez vos préférences
           </p>
         </div>

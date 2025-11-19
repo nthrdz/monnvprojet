@@ -281,6 +281,57 @@
     "create": "Créer",
     "add": "Ajouter"
   },
+  "profile": {
+    "title": "Mon profil",
+    "subtitle": "Personnalise ton profil public",
+    "viewProfile": "Voir mon profil",
+    "images": {
+      "title": "Images du profil",
+      "avatar": "Avatar",
+      "cropImage": "Rogner l'image",
+      "noImageToCrop": "Aucune image à rogner"
+    },
+    "general": {
+      "title": "Informations générales",
+      "displayName": "Nom affiché",
+      "username": "Nom d'utilisateur",
+      "usernameCannotBeChanged": "Le nom d'utilisateur ne peut pas être modifié pour le moment",
+      "bio": "Bio",
+      "sport": "Sport principal",
+      "location": "Localisation",
+      "socialMedia": "Réseaux sociaux"
+    },
+    "social": {
+      "instagram": "Instagram",
+      "strava": "Strava",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "twitter": "X / Twitter",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "tabs": {
+      "profile": "Mon Profil",
+      "gallery": "Galerie"
+    },
+    "updated": "Profil mis à jour !",
+    "error": "Erreur",
+    "errorLoad": "Erreur lors du chargement du profil",
+    "loading": "Chargement..."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Personnalisez votre expérience et gérez vos préférences",
+    "tabs": {
+      "general": "Paramètres Généraux",
+      "analytics": "Analytics"
+    },
+    "saved": "Paramètres sauvegardés avec succès!",
+    "error": "Erreur lors de la sauvegarde",
+    "errorSave": "Erreur lors de la sauvegarde des paramètres",
+    "planUpdated": "Plan mis à jour vers {plan} ! Rechargez la page pour voir les changements.",
+    "errorUpdatePlan": "Erreur lors de la mise à jour du plan"
+  },
   "upgrade": {
     "title": "Choisis ton plan",
     "subtitle": "Débloque toutes les fonctionnalités",
