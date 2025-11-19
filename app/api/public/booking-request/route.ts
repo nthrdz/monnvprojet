@@ -59,6 +59,22 @@ export async function POST(request: NextRequest) {
     const stats = coach.stats as any || {}
     const existingBookings = stats.bookings || []
 
+    // ✅ Vérifier que le créneau n'est pas déjà réservé (une seule personne par créneau)
+    const conflictingBooking = existingBookings.find((booking: any) => 
+      booking.date === date && 
+      booking.startTime === startTime && 
+      (booking.status === "CONFIRMED" || booking.status === "PENDING")
+    )
+
+    if (conflictingBooking) {
+      console.error("❌ Créneau déjà réservé:", { date, startTime })
+      return NextResponse.json({ 
+        error: "Ce créneau horaire est déjà réservé. Veuillez choisir un autre créneau." 
+      }, { status: 409 }) // 409 Conflict
+    }
+
+    console.log("✅ Créneau disponible, aucune réservation conflictuelle")
+
     // Calculer l'heure de fin basée sur la durée
     const bookingDuration = duration || 60 // Durée par défaut 60 minutes
     const [hours, minutes] = startTime.split(':').map(Number)
