@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
-import { Calendar, Clock, Euro, Target, Check, X, BookOpen, Users, Download, Lock } from "lucide-react"
+import { Calendar, Clock, Euro, Target, Check, X, BookOpen, Users, Download, Lock, ChevronLeft, ChevronRight } from "lucide-react"
 import { PdfPurchaseModal } from "./pdf-purchase-modal"
 
 interface TrainingPlan {
@@ -71,6 +71,15 @@ export function CoachingPublicClient({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  
+  // État pour le calendrier
+  const [coachAvailabilities, setCoachAvailabilities] = useState<any[]>([])
+  const [coachBookings, setCoachBookings] = useState<any[]>([])
+  const [selectedDate, setSelectedDate] = useState<string>("")
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("")
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [loadingAvailability, setLoadingAvailability] = useState(false)
 
   const handleBookingSubmit = async () => {
     setIsSubmitting(true)
@@ -119,6 +128,129 @@ export function CoachingPublicClient({
     setSelectedPlanForPdf(plan)
     setShowPdfPurchase(true)
   }
+
+  // Charger les disponibilités et réservations du coach
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      setLoadingAvailability(true)
+      try {
+        const response = await fetch(`/api/public/coach-availability?coachUsername=${username}`)
+        if (response.ok) {
+          const data = await response.json()
+          setCoachAvailabilities(data.availabilities || [])
+          setCoachBookings(data.bookings || [])
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des disponibilités:", error)
+      } finally {
+        setLoadingAvailability(false)
+      }
+    }
+    
+    if (viewMode === "booking") {
+      fetchAvailability()
+    }
+  }, [username, viewMode])
+
+  // Générer les créneaux horaires disponibles pour une date donnée
+  const getAvailableTimeSlots = (date: string) => {
+    if (!date || !coachAvailabilities.length) return []
+
+    const dateObj = new Date(date)
+    const dayOfWeek = dateObj.getDay() // 0 = Dimanche, 1 = Lundi, etc.
+    const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][dayOfWeek]
+
+    // Trouver les disponibilités pour ce jour de la semaine
+    const dayAvailability = coachAvailabilities.find((avail: any) => 
+      avail.day?.toLowerCase() === dayName || avail.dayOfWeek === dayOfWeek
+    )
+
+    if (!dayAvailability) return []
+
+    const slots: string[] = []
+    const startTime = dayAvailability.startTime || "09:00"
+    const endTime = dayAvailability.endTime || "18:00"
+    const slotDuration = dayAvailability.slotDuration || 60 // Durée par créneau en minutes
+
+    // Convertir les heures en minutes
+    const [startHours, startMins] = startTime.split(':').map(Number)
+    const [endHours, endMins] = endTime.split(':').map(Number)
+    const startTotalMinutes = startHours * 60 + startMins
+    const endTotalMinutes = endHours * 60 + endMins
+
+    // Générer les créneaux
+    for (let minutes = startTotalMinutes; minutes < endTotalMinutes; minutes += slotDuration) {
+      const hours = Math.floor(minutes / 60)
+      const mins = minutes % 60
+      const timeSlot = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+      slots.push(timeSlot)
+    }
+
+    // Filtrer les créneaux déjà réservés
+    const bookedSlots = coachBookings
+      .filter((booking: any) => booking.date === date && (booking.status === "CONFIRMED" || booking.status === "PENDING"))
+      .map((booking: any) => booking.startTime)
+
+    return slots.filter(slot => !bookedSlots.includes(slot))
+  }
+
+  // Générer le calendrier du mois
+  const generateCalendar = () => {
+    const firstDay = new Date(currentYear, currentMonth, 1)
+    const lastDay = new Date(currentYear, currentMonth + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
+
+    const days: (number | null)[] = []
+    
+    // Ajouter les jours vides du début
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null)
+    }
+    
+    // Ajouter les jours du mois
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day)
+    }
+
+    return days
+  }
+
+  const calendarDays = useMemo(() => generateCalendar(), [currentMonth, currentYear])
+
+  const handleDateSelect = (day: number) => {
+    const date = new Date(currentYear, currentMonth, day)
+    const dateString = date.toISOString().split('T')[0]
+    setSelectedDate(dateString)
+    setSelectedTimeSlot("")
+    setBookingForm({ ...bookingForm, date: dateString, startTime: "" })
+  }
+
+  const handleTimeSlotSelect = (timeSlot: string) => {
+    setSelectedTimeSlot(timeSlot)
+    setBookingForm({ ...bookingForm, startTime: timeSlot })
+  }
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (currentMonth === 0) {
+        setCurrentMonth(11)
+        setCurrentYear(currentYear - 1)
+      } else {
+        setCurrentMonth(currentMonth - 1)
+      }
+    } else {
+      if (currentMonth === 11) {
+        setCurrentMonth(0)
+        setCurrentYear(currentYear + 1)
+      } else {
+        setCurrentMonth(currentMonth + 1)
+      }
+    }
+  }
+
+  const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+  const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 
   return (
     <div className="space-y-8">
@@ -353,34 +485,137 @@ export function CoachingPublicClient({
                 </select>
               </div>
 
-              {/* Sélection de date et heure */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Calendrier et sélection de créneaux */}
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-4">
                     <Calendar className="w-4 h-4 inline mr-2" />
-                    Date souhaitée *
+                    Sélectionner une date *
                   </label>
-                  <input
-                    type="date"
-                    value={bookingForm.date}
-                    onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-blue-400 focus:ring-2 focus:ring-primary-blue-400/20 transition-all"
-                  />
+                  
+                  {/* Calendrier visuel */}
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                    {/* Navigation du mois */}
+                    <div className="flex items-center justify-between mb-4">
+                      <button
+                        onClick={() => navigateMonth('prev')}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <h4 className="text-lg font-semibold">
+                        {monthNames[currentMonth]} {currentYear}
+                      </h4>
+                      <button
+                        onClick={() => navigateMonth('next')}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Jours de la semaine */}
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                      {dayNames.map((day) => (
+                        <div key={day} className="text-center text-xs font-medium text-gray-400 py-2">
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Jours du mois */}
+                    <div className="grid grid-cols-7 gap-1">
+                      {calendarDays.map((day, index) => {
+                        if (day === null) {
+                          return <div key={`empty-${index}`} className="aspect-square" />
+                        }
+
+                        const date = new Date(currentYear, currentMonth, day)
+                        const dateString = date.toISOString().split('T')[0]
+                        const isPast = date < new Date().setHours(0, 0, 0, 0)
+                        const isSelected = selectedDate === dateString
+                        const hasAvailability = coachAvailabilities.some((avail: any) => {
+                          const dayOfWeek = date.getDay()
+                          const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][dayOfWeek]
+                          return avail.day?.toLowerCase() === dayName || avail.dayOfWeek === dayOfWeek
+                        })
+
+                        return (
+                          <button
+                            key={day}
+                            onClick={() => !isPast && hasAvailability && handleDateSelect(day)}
+                            disabled={isPast || !hasAvailability}
+                            className={`
+                              aspect-square rounded-lg text-sm font-medium transition-all
+                              ${isSelected 
+                                ? 'bg-primary-blue-500 text-white' 
+                                : isPast || !hasAvailability
+                                ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                              }
+                            `}
+                          >
+                            {day}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <Clock className="w-4 h-4 inline mr-2" />
-                    Heure souhaitée *
-                  </label>
-                  <input
-                    type="time"
-                    value={bookingForm.startTime}
-                    onChange={(e) => setBookingForm({ ...bookingForm, startTime: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary-blue-400 focus:ring-2 focus:ring-primary-blue-400/20 transition-all"
-                  />
-                </div>
+                {/* Sélection de créneaux horaires */}
+                {selectedDate && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-4">
+                      <Clock className="w-4 h-4 inline mr-2" />
+                      Sélectionner un créneau horaire *
+                    </label>
+                    
+                    {loadingAvailability ? (
+                      <div className="text-center py-8 text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-400 border-t-transparent"></div>
+                        <p className="mt-2">Chargement des créneaux...</p>
+                      </div>
+                    ) : (
+                      (() => {
+                        const availableSlots = getAvailableTimeSlots(selectedDate)
+                        return availableSlots.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            {availableSlots.map((slot) => (
+                              <button
+                                key={slot}
+                                onClick={() => handleTimeSlotSelect(slot)}
+                                className={`
+                                  px-4 py-3 rounded-lg font-medium text-sm transition-all
+                                  ${selectedTimeSlot === slot
+                                    ? 'bg-primary-blue-500 text-white'
+                                    : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                                  }
+                                `}
+                              >
+                                {slot}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-xl p-4 text-center">
+                            <p className="text-yellow-400 text-sm">
+                              Aucun créneau disponible pour cette date. Veuillez choisir une autre date.
+                            </p>
+                          </div>
+                        )
+                      })()
+                    )}
+                  </div>
+                )}
+
+                {!selectedDate && (
+                  <div className="bg-blue-500/20 border border-blue-500/50 rounded-xl p-4 text-center">
+                    <p className="text-blue-400 text-sm">
+                      Veuillez d'abord sélectionner une date pour voir les créneaux disponibles
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
