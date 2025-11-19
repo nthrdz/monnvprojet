@@ -154,7 +154,23 @@ export function CoachingPublicClient({
 
   // Générer les créneaux horaires disponibles pour une date donnée
   const getAvailableTimeSlots = (date: string) => {
-    if (!date || !coachAvailabilities.length) return []
+    if (!date) return []
+
+    // Si aucune disponibilité n'est configurée, utiliser des créneaux par défaut (mode fallback)
+    if (coachAvailabilities.length === 0) {
+      const defaultSlots: string[] = []
+      // Créneaux par défaut : 9h-18h, toutes les heures
+      for (let hour = 9; hour < 18; hour++) {
+        defaultSlots.push(`${String(hour).padStart(2, '0')}:00`)
+      }
+      
+      // Filtrer les créneaux déjà réservés
+      const bookedSlots = coachBookings
+        .filter((booking: any) => booking.date === date && (booking.status === "CONFIRMED" || booking.status === "PENDING"))
+        .map((booking: any) => booking.startTime)
+      
+      return defaultSlots.filter(slot => !bookedSlots.includes(slot))
+    }
 
     const dateObj = new Date(date)
     const dayOfWeek = dateObj.getDay() // 0 = Dimanche, 1 = Lundi, etc.
@@ -536,7 +552,10 @@ export function CoachingPublicClient({
                         today.setHours(0, 0, 0, 0)
                         const isPast = date < today
                         const isSelected = selectedDate === dateString
-                        const hasAvailability = coachAvailabilities.some((avail: any) => {
+                        
+                        // Si aucune disponibilité n'est configurée, permettre toutes les dates (mode fallback)
+                        // Sinon, vérifier si le jour a une disponibilité
+                        const hasAvailability = coachAvailabilities.length === 0 || coachAvailabilities.some((avail: any) => {
                           const dayOfWeek = date.getDay()
                           const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][dayOfWeek]
                           return avail.day?.toLowerCase() === dayName || avail.dayOfWeek === dayOfWeek
