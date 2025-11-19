@@ -137,11 +137,21 @@ export function CoachingPublicClient({
         const response = await fetch(`/api/public/coach-availability?coachUsername=${username}`)
         if (response.ok) {
           const data = await response.json()
+          console.log("📅 Disponibilités chargées:", data.availabilities)
+          console.log("📅 Réservations chargées:", data.bookings)
           setCoachAvailabilities(data.availabilities || [])
           setCoachBookings(data.bookings || [])
+        } else {
+          console.error("Erreur API disponibilités:", response.status)
+          // En cas d'erreur, permettre quand même la sélection (mode fallback)
+          setCoachAvailabilities([])
+          setCoachBookings([])
         }
       } catch (error) {
         console.error("Erreur lors du chargement des disponibilités:", error)
+        // En cas d'erreur, permettre quand même la sélection (mode fallback)
+        setCoachAvailabilities([])
+        setCoachBookings([])
       } finally {
         setLoadingAvailability(false)
       }
