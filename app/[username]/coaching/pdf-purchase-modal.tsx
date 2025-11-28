@@ -113,13 +113,13 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-green-600" />
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">Paiement Réussi !</h4>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Redirection vers PayPal</h4>
                 <p className="text-gray-600 mb-4">
-                  Vous allez être redirigé vers le PDF dans quelques secondes...
+                  Vous allez être redirigé vers PayPal pour effectuer le paiement. Après le paiement, le coach vous enverra le PDF par email.
                 </p>
-                <div className="bg-green-50 rounded-xl p-4">
-                  <p className="text-sm text-green-700">
-                    <strong>Accès illimité</strong> - Téléchargez votre PDF à tout moment
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <p className="text-sm text-blue-700">
+                    <strong>Important :</strong> Le coach vous enverra le PDF par email après réception du paiement PayPal.
                   </p>
                 </div>
               </motion.div>
