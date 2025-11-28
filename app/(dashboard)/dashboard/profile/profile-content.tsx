@@ -378,19 +378,19 @@ export function ProfileContent() {
                 </h3>
                 <div>
                   <Label htmlFor="paypalEmail">
-                    {locale === 'fr' ? 'Email PayPal' : 'PayPal Email'}
+                    {locale === 'fr' ? 'Nom d\'utilisateur PayPal.me' : 'PayPal.me Username'}
                   </Label>
                   <Input 
                     id="paypalEmail" 
-                    type="email"
+                    type="text"
                     value={profile.paypalEmail || ""}
                     onChange={(e) => setProfile({...profile, paypalEmail: e.target.value})}
-                    placeholder="coach@example.com"
+                    placeholder="votre-nom-paypal"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     {locale === 'fr' 
-                      ? 'L\'email PayPal où vous recevrez les paiements pour vos plans d\'entraînement. Les clients paieront directement sur votre compte PayPal.'
-                      : 'The PayPal email where you will receive payments for your training plans. Clients will pay directly to your PayPal account.'
+                      ? 'Votre nom d\'utilisateur PayPal.me (sans @paypal.me). Exemple : si votre lien est paypal.me/coach, entrez "coach". Vous pouvez aussi entrer votre email PayPal si vous préférez.'
+                      : 'Your PayPal.me username (without @paypal.me). Example: if your link is paypal.me/coach, enter "coach". You can also enter your PayPal email if you prefer.'
                     }
                   </p>
                 </div>

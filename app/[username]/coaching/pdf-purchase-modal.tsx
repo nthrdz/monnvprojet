@@ -43,11 +43,26 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
       return
     }
 
-    // Générer le lien PayPal pour payer à un email avec un montant spécifique
-    // Format: https://www.paypal.com/paypalme/email?amount=X.XX&currency=EUR
-    // Alternative: Utiliser le format business.paypal.com
-    const amount = plan.price.toFixed(2)
-    const paypalLink = `https://www.paypal.com/send?amount=${amount}&currency=EUR&recipient=${encodeURIComponent(paypalEmail)}`
+    // Générer le lien PayPal.me avec le nom d'utilisateur PayPal
+    // Format: https://paypal.me/username/amountEUR
+    // Note: paypalEmail peut être soit un email soit un nom d'utilisateur PayPal.me
+    const amount = plan.price.toFixed(2).replace('.', ',')
+    
+    // Si c'est un email, extraire le nom d'utilisateur (partie avant @)
+    // Sinon, utiliser directement comme nom d'utilisateur PayPal.me
+    let paypalUsername = paypalEmail
+    if (paypalEmail.includes('@')) {
+      // C'est un email, on ne peut pas utiliser PayPal.me directement
+      // Utiliser le format PayPal Business avec email
+      const paypalLink = `https://www.paypal.com/send?amount=${plan.price.toFixed(2)}&currency=EUR&recipient=${encodeURIComponent(paypalEmail)}`
+      window.open(paypalLink, '_blank')
+      setIsProcessing(false)
+      setPaymentSuccess(true)
+      return
+    }
+    
+    // C'est un nom d'utilisateur PayPal.me
+    const paypalLink = `https://paypal.me/${paypalUsername}/${amount}EUR`
     
     // Ouvrir PayPal dans un nouvel onglet
     window.open(paypalLink, '_blank')
