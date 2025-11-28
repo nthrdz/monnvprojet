@@ -135,9 +135,29 @@ export async function POST(req: NextRequest) {
         console.log("   - Client:", metadata.clientName)
         console.log("   - Montant:", metadata.planPrice, "€")
         
-        // 📧 Envoyer un email au client avec l'accès au PDF
+        // 📧 Envoyer un email au client avec le PDF en pièce jointe
         try {
-          if (resend) {
+          if (resend && metadata.pdfFileUrl && metadata.pdfFileName) {
+            // Télécharger le PDF depuis Supabase
+            let pdfAttachment = null
+            try {
+              console.log("📥 Téléchargement du PDF depuis:", metadata.pdfFileUrl)
+              const pdfResponse = await fetch(metadata.pdfFileUrl)
+              if (pdfResponse.ok) {
+                const pdfArrayBuffer = await pdfResponse.arrayBuffer()
+                const pdfBuffer = Buffer.from(pdfArrayBuffer)
+                pdfAttachment = {
+                  filename: metadata.pdfFileName || 'plan-entrainement.pdf',
+                  content: pdfBuffer
+                }
+                console.log("✅ PDF téléchargé et prêt à être attaché (taille:", pdfBuffer.length, "bytes)")
+              } else {
+                console.error("❌ Erreur téléchargement PDF:", pdfResponse.status, pdfResponse.statusText)
+              }
+            } catch (pdfError) {
+              console.error("❌ Erreur lors du téléchargement du PDF:", pdfError)
+            }
+
             await resend.emails.send({
               from: 'Athlink <notifications@athlink.fr>',
               to: metadata.clientEmail,
@@ -173,12 +193,79 @@ export async function POST(req: NextRequest) {
                         <p><strong>Coach :</strong> ${coachProfile.displayName}</p>
                         <p><strong>Prix payé :</strong> ${metadata.planPrice}€</p>
                         
+                        ${pdfAttachment ? `
+                        <div style="background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                          <p style="margin: 0; color: #1976d2; font-weight: bold;">📎 Le PDF de votre plan d'entraînement est joint à cet email</p>
+                        </div>
+                        ` : `
                         <div style="text-align: center; margin: 30px 0;">
                           <a href="${metadata.pdfFileUrl}" 
                              class="btn">
                             📥 Télécharger le PDF
                           </a>
                         </div>
+                        `}
+                        
+                        <p style="color: #666; font-size: 14px;">
+                          💡 <strong>Astuce :</strong> Enregistrez ce PDF sur votre appareil pour y accéder à tout moment.
+                        </p>
+                      </div>
+                      <div class="footer">
+                        <p>Athlink - Plateforme de coaching pour athlètes</p>
+                        <p>contact@athlink.fr</p>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+              `,
+              attachments: pdfAttachment ? [pdfAttachment] : undefined
+            })
+            console.log("📧 Email envoyé au client avec PDF:", metadata.clientEmail, pdfAttachment ? "(PDF attaché)" : "(lien uniquement)")
+          } else if (resend) {
+            // Fallback : envoyer l'email sans PDF si le téléchargement a échoué
+            await resend.emails.send({
+              from: 'Athlink <notifications@athlink.fr>',
+              to: metadata.clientEmail,
+              subject: `✅ Votre plan d'entraînement "${metadata.planTitle}"`,
+              html: `
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <style>
+                      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+                      .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                      .success-box { background: #d4edda; border: 2px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                      .btn { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+                      .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="header">
+                        <h1 style="margin: 0;">🎉 Achat confirmé !</h1>
+                      </div>
+                      <div class="content">
+                        <p>Bonjour ${metadata.clientName},</p>
+                        
+                        <div class="success-box">
+                          <h2 style="margin: 0 0 10px 0; color: #155724;">✅ Paiement réussi</h2>
+                          <p style="margin: 0; color: #155724;">Vous avez accès au plan <strong>"${metadata.planTitle}"</strong></p>
+                        </div>
+                        
+                        <h3 style="color: #667eea;">📄 Votre Plan d'Entraînement</h3>
+                        <p><strong>Coach :</strong> ${coachProfile.displayName}</p>
+                        <p><strong>Prix payé :</strong> ${metadata.planPrice}€</p>
+                        
+                        ${metadata.pdfFileUrl ? `
+                        <div style="text-align: center; margin: 30px 0;">
+                          <a href="${metadata.pdfFileUrl}" 
+                             class="btn">
+                            📥 Télécharger le PDF
+                          </a>
+                        </div>
+                        ` : ''}
                         
                         <p style="color: #666; font-size: 14px;">
                           💡 <strong>Astuce :</strong> Enregistrez ce PDF sur votre appareil pour y accéder à tout moment.
@@ -193,7 +280,7 @@ export async function POST(req: NextRequest) {
                 </html>
               `
             })
-            console.log("📧 Email envoyé au client:", metadata.clientEmail)
+            console.log("📧 Email envoyé au client (sans PDF):", metadata.clientEmail)
           }
         } catch (emailError) {
           console.error("❌ Erreur envoi email client:", emailError)
