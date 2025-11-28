@@ -75,6 +75,7 @@ export default async function CoachingPublicPage({ params }: Props) {
           trainingPlans={trainingPlans}
           availabilities={availabilities}
           username={username}
+          paypalEmail={profile.paypalEmail}
         />
       </main>
     </div>

@@ -27,6 +27,8 @@ interface Profile {
   telegram: string
   whatsapp: string
   isPublic: boolean
+  plan: string
+  paypalEmail?: string | null
   avatarUrl?: string | null
   coverUrl?: string | null
   stats?: any
@@ -367,6 +369,33 @@ export function ProfileContent() {
                 </div>
               </div>
             </div>
+
+            {/* Section PayPal pour les coaches */}
+            {(profile.plan === 'ELITE' || profile.plan === 'COACH') && (
+              <div className="border-t pt-4 mt-6">
+                <h3 className="font-semibold mb-4">
+                  {locale === 'fr' ? '💳 Paiements PayPal' : '💳 PayPal Payments'}
+                </h3>
+                <div>
+                  <Label htmlFor="paypalEmail">
+                    {locale === 'fr' ? 'Email PayPal' : 'PayPal Email'}
+                  </Label>
+                  <Input 
+                    id="paypalEmail" 
+                    type="email"
+                    value={profile.paypalEmail || ""}
+                    onChange={(e) => setProfile({...profile, paypalEmail: e.target.value})}
+                    placeholder="coach@example.com"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {locale === 'fr' 
+                      ? 'L\'email PayPal où vous recevrez les paiements pour vos plans d\'entraînement. Les clients paieront directement sur votre compte PayPal.'
+                      : 'The PayPal email where you will receive payments for your training plans. Clients will pay directly to your PayPal account.'
+                    }
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="border-t pt-4 mt-6">
               <div className="flex items-center justify-between">

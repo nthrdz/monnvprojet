@@ -29,6 +29,7 @@ interface CoachingPublicClientProps {
   trainingPlans: TrainingPlan[]
   availabilities: any[]
   username: string
+  paypalEmail: string | null
 }
 
 export function CoachingPublicClient({
@@ -37,7 +38,8 @@ export function CoachingPublicClient({
   coachAvatar,
   trainingPlans,
   availabilities,
-  username
+  username,
+  paypalEmail
 }: CoachingPublicClientProps) {
   const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null)
   const [showBookingForm, setShowBookingForm] = useState(false)
@@ -828,6 +830,7 @@ export function CoachingPublicClient({
           setSelectedPlanForPdf(null)
         }}
         coachName={coachName}
+        paypalEmail={paypalEmail}
       />
     </div>
   )

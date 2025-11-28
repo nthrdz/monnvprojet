@@ -85,6 +85,9 @@ model Profile {
   showCoachingOnProfile Boolean @default(false)
   theme           String    @default("runner-pro")
   
+  // PayPal pour les coaches
+  paypalEmail     String?   // Email PayPal pour recevoir les paiements des plans d'entraînement
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   

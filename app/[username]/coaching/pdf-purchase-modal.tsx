@@ -17,9 +17,10 @@ interface PdfPurchaseModalProps {
   isOpen: boolean
   onClose: () => void
   coachName: string
+  paypalEmail: string | null
 }
 
-export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurchaseModalProps) {
+export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail }: PdfPurchaseModalProps) {
   const [formData, setFormData] = useState({
     clientName: "",
     clientEmail: "",
@@ -31,40 +32,32 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
 
   if (!plan) return null
 
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
     if (!formData.clientName || !formData.clientEmail) {
       setError("Veuillez remplir tous les champs obligatoires")
       return
     }
 
-    setIsProcessing(true)
-    setError("")
-
-    try {
-      // Créer une session de paiement Stripe
-      const response = await fetch("/api/coaching/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planId: plan.id,
-          clientEmail: formData.clientEmail,
-          clientName: formData.clientName
-        })
-      })
-
-      const result = await response.json()
-
-      if (result.url) {
-        // Rediriger vers Stripe Checkout
-        window.location.href = result.url
-      } else {
-        setError(result.error || "Erreur lors de la création de la session de paiement")
-        setIsProcessing(false)
-      }
-    } catch (error) {
-      setError("Une erreur est survenue lors de la création du paiement")
-      setIsProcessing(false)
+    if (!paypalEmail) {
+      setError("Le coach n'a pas configuré son email PayPal. Veuillez contacter le coach directement.")
+      return
     }
+
+    // Générer le lien PayPal pour payer à un email avec un montant spécifique
+    // Format: https://www.paypal.com/paypalme/email?amount=X.XX&currency=EUR
+    // Alternative: Utiliser le format business.paypal.com
+    const amount = plan.price.toFixed(2)
+    const paypalLink = `https://www.paypal.com/send?amount=${amount}&currency=EUR&recipient=${encodeURIComponent(paypalEmail)}`
+    
+    // Ouvrir PayPal dans un nouvel onglet
+    window.open(paypalLink, '_blank')
+    
+    // Note: Sans webhook PayPal, on ne peut pas automatiser l'envoi du PDF
+    // Le coach devra envoyer le PDF manuellement après réception du paiement
+    setIsProcessing(false)
+    
+    // Afficher un message informatif
+    setPaymentSuccess(true)
   }
 
   const handleClose = () => {
@@ -209,15 +202,27 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName }: PdfPurcha
                 )}
 
                 {/* Paiement Info */}
-                <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CreditCard className="w-4 h-4 text-primary-blue-600" />
-                    <span className="text-sm font-medium text-primary-blue-700">Paiement Sécurisé par Stripe</span>
+                {!paypalEmail ? (
+                  <div className="bg-yellow-50 rounded-xl p-4 mb-6 border border-yellow-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="w-4 h-4 text-yellow-600" />
+                      <span className="text-sm font-medium text-yellow-700">Email PayPal non configuré</span>
+                    </div>
+                    <p className="text-xs text-yellow-600">
+                      Le coach n'a pas encore configuré son email PayPal. Veuillez le contacter directement pour effectuer l'achat.
+                    </p>
                   </div>
-                  <p className="text-xs text-blue-600">
-                    Vous serez redirigé vers la page de paiement sécurisée Stripe. Le PDF vous sera envoyé par email après le paiement.
-                  </p>
-                </div>
+                ) : (
+                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CreditCard className="w-4 h-4 text-primary-blue-600" />
+                      <span className="text-sm font-medium text-primary-blue-700">Paiement via PayPal</span>
+                    </div>
+                    <p className="text-xs text-blue-600">
+                      Vous serez redirigé vers PayPal pour effectuer le paiement. Le coach vous enverra le PDF par email après réception du paiement.
+                    </p>
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3">
