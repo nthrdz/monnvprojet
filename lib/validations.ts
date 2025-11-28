@@ -95,7 +95,10 @@ export const profileUpdateSchema = z.object({
   tiktok: z.string().max(100).nullable().optional(),
   telegram: z.string().max(100).nullable().optional(),
   whatsapp: z.string().max(20).nullable().optional(),
-  paypalEmail: z.string().email("Email PayPal invalide").nullable().optional(),
+  paypalEmail: z.union([
+    z.string().email("Email PayPal invalide"),
+    z.string().regex(/^[a-zA-Z0-9_-]+$/, "Nom d'utilisateur PayPal.me invalide (uniquement lettres, chiffres, - et _)")
+  ]).nullable().optional(),
   theme: z.string().optional(),
   isPublic: z.boolean().optional(),
   customDomain: z.union([z.string().max(100, "Maximum 100 caractères"), z.literal(""), z.null()]).optional(),
