@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Check, Download, Mail, X } from "lucide-react"
 import Link from "next/link"
 
-export default function PayPalSuccessPage() {
+function PayPalSuccessContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const token = searchParams.get("token")
@@ -84,3 +84,17 @@ export default function PayPalSuccessPage() {
   )
 }
 
+export default function PayPalSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 border-4 border-primary-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Chargement...</h2>
+        </div>
+      </div>
+    }>
+      <PayPalSuccessContent />
+    </Suspense>
+  )
+}
