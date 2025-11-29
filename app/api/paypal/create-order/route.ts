@@ -63,6 +63,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    console.log("💰 Configuration paiement PayPal:")
+    console.log("   - Email PayPal du coach:", coach.paypalEmail)
+    console.log("   - Montant:", finalAmount, "EUR")
+    console.log("   - Le paiement sera envoyé DIRECTEMENT au coach")
+
     // Vérifier que le plan existe
     const stats = coach.stats as any || {}
     const trainingPlans = stats.trainingPlans || []
@@ -173,6 +178,8 @@ export async function POST(request: NextRequest) {
           payee: {
             email_address: coach.paypalEmail
           },
+          // ⚠️ IMPORTANT: Le paramètre payee envoie l'argent DIRECTEMENT au coach
+          // L'argent n'arrive PAS sur votre compte PayPal, mais directement sur celui du coach
           description: `Plan d'entraînement: ${plan.title}`,
           custom_id: JSON.stringify({
             planId,
@@ -213,6 +220,7 @@ export async function POST(request: NextRequest) {
     const order = await orderResponse.json()
 
     console.log("✅ Ordre PayPal créé:", order.id)
+    console.log("💰 DESTINATAIRE DU PAIEMENT:", coach.paypalEmail)
     console.log("📋 Réponse complète PayPal:", JSON.stringify(order, null, 2))
 
     // Trouver l'URL d'approbation
