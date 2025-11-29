@@ -69,8 +69,24 @@ export async function POST(request: NextRequest) {
     const plan = trainingPlans.find((p: any) => p.id === planId)
 
     if (!plan) {
+      console.error("❌ Plan non trouvé:", planId)
+      console.error("📋 Plans disponibles:", trainingPlans.map((p: any) => ({ id: p.id, title: p.title, price: p.price })))
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })
     }
+
+    console.log("✅ Plan trouvé:", { id: plan.id, title: plan.title, price: plan.price, amountReceived: amount })
+
+    // Utiliser le prix du plan si le montant reçu est 0 ou invalide
+    const finalAmount = amount && amount > 0 ? amount : (plan.price || 0)
+    
+    if (finalAmount <= 0) {
+      console.error("❌ Montant invalide:", { amount, planPrice: plan.price, finalAmount })
+      return NextResponse.json({ 
+        error: "Le prix du plan est invalide ou manquant. Veuillez contacter le coach." 
+      }, { status: 400 })
+    }
+
+    console.log("💰 Montant final utilisé:", finalAmount)
 
     // Obtenir un access token PayPal
     const paypalMode = process.env.PAYPAL_MODE || "sandbox"
@@ -122,7 +138,7 @@ export async function POST(request: NextRequest) {
         purchase_units: [{
           amount: {
             currency_code: "EUR",
-            value: amount.toFixed(2)
+            value: finalAmount.toFixed(2)
           },
           payee: {
             email_address: coach.paypalEmail
@@ -190,7 +206,7 @@ export async function POST(request: NextRequest) {
       planId,
       clientName,
       clientEmail,
-      amount,
+      amount: finalAmount,
       createdAt: new Date().toISOString(),
       status: "PENDING"
     })
