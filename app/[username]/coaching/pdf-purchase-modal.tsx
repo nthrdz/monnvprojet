@@ -44,30 +44,47 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
       return
     }
 
+    if (!plan) {
+      setError("Plan d'entraînement introuvable")
+      return
+    }
+
+    if (!plan.id) {
+      setError("ID du plan manquant")
+      return
+    }
+
+    if (plan.price === undefined || plan.price === null) {
+      setError("Prix du plan manquant")
+      return
+    }
+
+    if (!coachUsername) {
+      setError("Nom d'utilisateur du coach manquant")
+      return
+    }
+
     setIsProcessing(true)
     setError("")
 
     try {
-      console.log("🚀 Création de l'ordre PayPal...")
-      console.log("📦 Données:", {
+      const requestData = {
         planId: plan.id,
-        coachUsername,
+        coachUsername: coachUsername,
         clientName: formData.clientName,
         clientEmail: formData.clientEmail,
-        amount: plan.price
-      })
+        amount: Number(plan.price)
+      }
+
+      console.log("🚀 Création de l'ordre PayPal...")
+      console.log("📦 Données envoyées:", requestData)
+      console.log("📋 Plan complet:", plan)
 
       // Créer un ordre PayPal via l'API
       const response = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planId: plan.id,
-          coachUsername,
-          clientName: formData.clientName,
-          clientEmail: formData.clientEmail,
-          amount: plan.price
-        })
+        body: JSON.stringify(requestData)
       })
 
       console.log("📡 Réponse reçue, status:", response.status)

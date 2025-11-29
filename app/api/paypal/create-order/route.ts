@@ -11,10 +11,32 @@ import { prisma } from "@/lib/db"
  */
 export async function POST(request: NextRequest) {
   try {
-    const { planId, coachUsername, clientName, clientEmail, amount } = await request.json()
+    const body = await request.json()
+    console.log("📥 Données reçues dans l'API:", JSON.stringify(body, null, 2))
+    
+    const { planId, coachUsername, clientName, clientEmail, amount } = body
 
-    if (!planId || !coachUsername || !clientName || !clientEmail || !amount) {
-      return NextResponse.json({ error: "Données manquantes" }, { status: 400 })
+    // Vérification détaillée des données
+    const missingFields = []
+    if (!planId) missingFields.push("planId")
+    if (!coachUsername) missingFields.push("coachUsername")
+    if (!clientName) missingFields.push("clientName")
+    if (!clientEmail) missingFields.push("clientEmail")
+    if (!amount && amount !== 0) missingFields.push("amount")
+
+    if (missingFields.length > 0) {
+      console.error("❌ Données manquantes:", missingFields)
+      console.error("📋 Données reçues:", {
+        planId: planId || "MANQUANT",
+        coachUsername: coachUsername || "MANQUANT",
+        clientName: clientName || "MANQUANT",
+        clientEmail: clientEmail || "MANQUANT",
+        amount: amount !== undefined ? amount : "MANQUANT"
+      })
+      return NextResponse.json({ 
+        error: "Données manquantes",
+        missingFields 
+      }, { status: 400 })
     }
 
     // Vérifier que les clés PayPal sont configurées
