@@ -17,10 +17,11 @@ interface PdfPurchaseModalProps {
   isOpen: boolean
   onClose: () => void
   coachName: string
+  coachUsername: string
   paypalEmail: string | null
 }
 
-export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail }: PdfPurchaseModalProps) {
+export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUsername, paypalEmail }: PdfPurchaseModalProps) {
   const [formData, setFormData] = useState({
     clientName: "",
     clientEmail: "",
@@ -32,7 +33,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
 
   if (!plan) return null
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (!formData.clientName || !formData.clientEmail) {
       setError("Veuillez remplir tous les champs obligatoires")
       return
@@ -43,36 +44,41 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
       return
     }
 
-    // Générer le lien PayPal.me avec le nom d'utilisateur PayPal
-    // Format: https://paypal.me/username/amountEUR
-    // Note: paypalEmail peut être soit un email soit un nom d'utilisateur PayPal.me
-    const amount = plan.price.toFixed(2).replace('.', ',')
-    
-    // Si c'est un email, extraire le nom d'utilisateur (partie avant @)
-    // Sinon, utiliser directement comme nom d'utilisateur PayPal.me
-    let paypalUsername = paypalEmail
-    if (paypalEmail.includes('@')) {
-      // C'est un email, on ne peut pas utiliser PayPal.me directement
-      // Utiliser le format PayPal Business avec email
-      const paypalLink = `https://www.paypal.com/send?amount=${plan.price.toFixed(2)}&currency=EUR&recipient=${encodeURIComponent(paypalEmail)}`
-      window.open(paypalLink, '_blank')
+    setIsProcessing(true)
+    setError("")
+
+    try {
+      // Créer un ordre PayPal via l'API
+      const response = await fetch("/api/paypal/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId: plan.id,
+          coachUsername,
+          clientName: formData.clientName,
+          clientEmail: formData.clientEmail,
+          amount: plan.price
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Erreur lors de la création de l'ordre PayPal")
+      }
+
+      const { approvalUrl } = await response.json()
+
+      if (!approvalUrl) {
+        throw new Error("URL d'approbation PayPal manquante")
+      }
+
+      // Rediriger vers PayPal pour le paiement
+      window.location.href = approvalUrl
+    } catch (err: any) {
+      console.error("❌ Erreur création ordre PayPal:", err)
+      setError(err.message || "Erreur lors de la création du paiement PayPal. Veuillez réessayer.")
       setIsProcessing(false)
-      setPaymentSuccess(true)
-      return
     }
-    
-    // C'est un nom d'utilisateur PayPal.me
-    const paypalLink = `https://paypal.me/${paypalUsername}/${amount}EUR`
-    
-    // Ouvrir PayPal dans un nouvel onglet
-    window.open(paypalLink, '_blank')
-    
-    // Note: Sans webhook PayPal, on ne peut pas automatiser l'envoi du PDF
-    // Le coach devra envoyer le PDF manuellement après réception du paiement
-    setIsProcessing(false)
-    
-    // Afficher un message informatif
-    setPaymentSuccess(true)
   }
 
   const handleClose = () => {
@@ -130,11 +136,11 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-2">Redirection vers PayPal</h4>
                 <p className="text-gray-600 mb-4">
-                  Vous allez être redirigé vers PayPal pour effectuer le paiement. Après le paiement, le coach vous enverra le PDF par email.
+                  Vous allez être redirigé vers PayPal pour effectuer le paiement. Après confirmation du paiement, vous recevrez automatiquement le PDF par email.
                 </p>
                 <div className="bg-blue-50 rounded-xl p-4">
                   <p className="text-sm text-blue-700">
-                    <strong>Important :</strong> Le coach vous enverra le PDF par email après réception du paiement PayPal.
+                    <strong>Important :</strong> Le PDF vous sera envoyé automatiquement par email dès que le paiement sera confirmé.
                   </p>
                 </div>
               </motion.div>
@@ -234,7 +240,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, paypalEmail
                       <span className="text-sm font-medium text-primary-blue-700">Paiement via PayPal</span>
                     </div>
                     <p className="text-xs text-blue-600">
-                      Vous serez redirigé vers PayPal pour effectuer le paiement. Le coach vous enverra le PDF par email après réception du paiement.
+                      Vous serez redirigé vers PayPal pour effectuer le paiement. Le PDF vous sera envoyé automatiquement par email après confirmation du paiement.
                     </p>
                   </div>
                 )}

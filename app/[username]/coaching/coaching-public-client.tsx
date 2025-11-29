@@ -830,6 +830,7 @@ export function CoachingPublicClient({
           setSelectedPlanForPdf(null)
         }}
         coachName={coachName}
+        coachUsername={username}
         paypalEmail={paypalEmail}
       />
     </div>
