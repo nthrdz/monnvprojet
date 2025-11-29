@@ -51,8 +51,7 @@ export async function POST(request: NextRequest) {
         select: { 
           id: true, 
           displayName: true, 
-          stats: true,
-          email: true
+          stats: true
         }
       })
 
