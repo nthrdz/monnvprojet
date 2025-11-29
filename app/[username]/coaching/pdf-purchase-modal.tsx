@@ -212,7 +212,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
                       type="text"
                       value={formData.clientName}
                       onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
                       placeholder="Jean Dupont"
                     />
                   </div>
@@ -225,7 +225,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
                       type="email"
                       value={formData.clientEmail}
                       onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
                       placeholder="jean@example.com"
                     />
                   </div>
@@ -238,7 +238,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
                       type="tel"
                       value={formData.clientPhone}
                       onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
                       placeholder="+33 6 12 34 56 78"
                     />
                   </div>
@@ -292,7 +292,7 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
                   <button
                     onClick={handlePurchase}
                     disabled={isProcessing || !formData.clientName || !formData.clientEmail}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-blue-600 to-primary-blue-700 text-white rounded-xl font-bold hover:from-primary-blue-700 hover:to-primary-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-blue-600 to-primary-blue-700 text-white rounded-xl font-bold hover:from-primary-blue-700 hover:to-primary-blue-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center gap-2 shadow-lg"
                   >
                     {isProcessing ? (
                       <>
