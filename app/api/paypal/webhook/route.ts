@@ -154,7 +154,12 @@ export async function POST(request: NextRequest) {
         ]
       })
 
-      console.log("✅ Email envoyé avec succès:", emailResult.id)
+      if (emailResult.error) {
+        console.error("❌ Erreur Resend:", emailResult.error)
+        throw new Error(`Resend error: ${JSON.stringify(emailResult.error)}`)
+      }
+
+      console.log("✅ Email envoyé avec succès:", emailResult.data?.id || "N/A")
 
       // Mettre à jour les stats du coach
       const purchases = stats.purchases || []
