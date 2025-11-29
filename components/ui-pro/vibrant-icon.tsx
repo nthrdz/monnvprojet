@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { LucideIcon } from "lucide-react"
-import { ReactNode } from "react"
+import { ReactNode, isValidElement } from "react"
 
 interface VibrantIconProps {
   icon: LucideIcon | ReactNode
@@ -13,7 +13,7 @@ interface VibrantIconProps {
 
 export function VibrantIcon({ icon: Icon, className = "", onClick, size }: VibrantIconProps) {
   // Vérifier si c'est un composant LucideIcon (fonction)
-  const isLucideIcon = typeof Icon === 'function'
+  const isLucideIcon = typeof Icon === 'function' && !isValidElement(Icon)
 
   return (
     <motion.span
@@ -36,9 +36,9 @@ export function VibrantIcon({ icon: Icon, className = "", onClick, size }: Vibra
           className={className} 
           size={size}
         />
-      ) : (
-        Icon as ReactNode
-      )}
+      ) : isValidElement(Icon) ? (
+        Icon
+      ) : null}
     </motion.span>
   )
 }
