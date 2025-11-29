@@ -63,11 +63,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    console.log("💰 Configuration paiement PayPal:")
-    console.log("   - Email PayPal du coach:", coach.paypalEmail)
-    console.log("   - Montant:", finalAmount, "EUR")
-    console.log("   - Le paiement sera envoyé DIRECTEMENT au coach")
-
     // Vérifier que le plan existe
     const stats = coach.stats as any || {}
     const trainingPlans = stats.trainingPlans || []
@@ -122,6 +117,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("💰 Montant final utilisé:", finalAmount)
+    console.log("💰 Configuration paiement PayPal:")
+    console.log("   - Email PayPal du coach:", coach.paypalEmail)
+    console.log("   - Montant:", finalAmount, "EUR")
+    console.log("   - Le paiement sera envoyé DIRECTEMENT au coach")
 
     // Obtenir un access token PayPal
     const paypalMode = process.env.PAYPAL_MODE || "sandbox"
