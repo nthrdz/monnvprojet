@@ -12,7 +12,8 @@ interface VibrantIconProps {
 }
 
 export function VibrantIcon({ icon: Icon, className = "", onClick, size }: VibrantIconProps) {
-  const IconComponent = Icon as LucideIcon
+  // Vérifier si c'est un composant LucideIcon (fonction)
+  const isLucideIcon = typeof Icon === 'function'
 
   return (
     <motion.span
@@ -30,13 +31,13 @@ export function VibrantIcon({ icon: Icon, className = "", onClick, size }: Vibra
       style={{ cursor: onClick ? 'pointer' : 'default' }}
       onClick={onClick}
     >
-      {typeof IconComponent === 'function' ? (
-        <IconComponent 
+      {isLucideIcon ? (
+        <Icon 
           className={className} 
           size={size}
         />
       ) : (
-        Icon
+        Icon as ReactNode
       )}
     </motion.span>
   )
