@@ -15,7 +15,7 @@ export function VibrantIcon({ icon: Icon, className = "", onClick, size }: Vibra
   const IconComponent = Icon as LucideIcon
 
   return (
-    <motion.div
+    <motion.span
       whileHover={{ 
         scale: 1.2,
         rotate: [0, -10, 10, -10, 10, 0],
@@ -26,7 +26,8 @@ export function VibrantIcon({ icon: Icon, className = "", onClick, size }: Vibra
         rotate: [0, -15, 15, -15, 15, 0],
         transition: { duration: 0.3 }
       }}
-      className="inline-flex items-center justify-center cursor-pointer"
+      className="inline-flex items-center justify-center"
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
       onClick={onClick}
     >
       {typeof IconComponent === 'function' ? (
@@ -37,7 +38,7 @@ export function VibrantIcon({ icon: Icon, className = "", onClick, size }: Vibra
       ) : (
         Icon
       )}
-    </motion.div>
+    </motion.span>
   )
 }
 

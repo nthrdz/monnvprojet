@@ -530,7 +530,7 @@ export function CoachingPublicClient({
                         onClick={() => navigateMonth('prev')}
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                       >
-                        <ChevronLeft className="w-5 h-5" />
+                        <VibrantIcon icon={ChevronLeft} className="w-5 h-5" />
                       </button>
                       <h4 className="text-lg font-semibold">
                         {monthNames[currentMonth]} {currentYear}
@@ -539,7 +539,7 @@ export function CoachingPublicClient({
                         onClick={() => navigateMonth('next')}
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                       >
-                        <ChevronRight className="w-5 h-5" />
+                        <VibrantIcon icon={ChevronRight} className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -601,7 +601,7 @@ export function CoachingPublicClient({
                 {selectedDate && (
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-4">
-                      <Clock className="w-4 h-4 inline mr-2" />
+                      <VibrantIcon icon={Clock} className="w-4 h-4 inline mr-2" />
                       Sélectionner un créneau horaire *
                     </label>
                     
@@ -773,14 +773,14 @@ export function CoachingPublicClient({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Euro className="w-5 h-5 text-primary-green-400" />
+                      <VibrantIcon icon={Euro} className="w-5 h-5 text-primary-green-400" />
                       <span className="text-sm text-gray-400">Prix</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan.price}€</p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-5 h-5 text-primary-blue-400" />
+                      <VibrantIcon icon={Calendar} className="w-5 h-5 text-primary-blue-400" />
                       <span className="text-sm text-gray-400">Durée</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan.duration} semaines</p>
@@ -790,14 +790,14 @@ export function CoachingPublicClient({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Target className="w-5 h-5 text-yellow-400" />
+                      <VibrantIcon icon={Target} className="w-5 h-5 text-yellow-400" />
                       <span className="text-sm text-gray-400">Séances</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan._count.sessions}</p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-5 h-5 text-purple-400" />
+                      <VibrantIcon icon={Users} className="w-5 h-5 text-purple-400" />
                       <span className="text-sm text-gray-400">Abonnés</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan._count.subscribers}</p>
