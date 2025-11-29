@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { Calendar, Clock, Euro, Target, Check, X, BookOpen, Users, Download, Lock, ChevronLeft, ChevronRight } from "lucide-react"
 import { PdfPurchaseModal } from "./pdf-purchase-modal"
+import { VibrantIcon } from "@/components/ui-pro/vibrant-icon"
 
 interface TrainingPlan {
   id: string
@@ -312,11 +313,11 @@ export function CoachingPublicClient({
             )}
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <BookOpen className="w-4 h-4 text-primary-blue-400" />
+                <VibrantIcon icon={BookOpen} className="w-4 h-4 text-primary-blue-400" />
                 <span className="text-sm">{trainingPlans.length} Plans disponibles</span>
               </div>
               <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <Users className="w-4 h-4 text-primary-green-400" />
+                <VibrantIcon icon={Users} className="w-4 h-4 text-primary-green-400" />
                 <span className="text-sm">Coaching personnalisé</span>
               </div>
             </div>
@@ -377,15 +378,15 @@ export function CoachingPublicClient({
                 {/* Détails du programme avec alignement uniforme */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <Calendar className="w-4 h-4 text-primary-blue-400 flex-shrink-0" />
+                    <VibrantIcon icon={Calendar} className="w-4 h-4 text-primary-blue-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan.duration} semaines</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <Target className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                    <VibrantIcon icon={Target} className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan._count.sessions} séances</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <Users className="w-4 h-4 text-primary-green-400 flex-shrink-0" />
+                    <VibrantIcon icon={Users} className="w-4 h-4 text-primary-green-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan._count.subscribers} abonnés</span>
                   </div>
                 </div>
@@ -394,12 +395,12 @@ export function CoachingPublicClient({
                 <div className="pt-4 border-t border-white/10 mt-auto">
                   <div className="flex items-center justify-between mb-3 min-h-[2rem]">
                     <div className="flex items-center gap-2">
-                      <Euro className="w-5 h-5 text-primary-green-400 flex-shrink-0" />
+                      <VibrantIcon icon={Euro} className="w-5 h-5 text-primary-green-400 flex-shrink-0" />
                       <span className="text-2xl font-bold text-white">{plan.price}€</span>
                     </div>
                     {plan.pdfFileName && (
                       <div className="flex items-center gap-1 text-xs text-gray-300 flex-shrink-0">
-                        <Download className="w-3 h-3" />
+                        <VibrantIcon icon={Download} className="w-3 h-3" />
                         <span>PDF disponible</span>
                       </div>
                     )}
@@ -423,7 +424,7 @@ export function CoachingPublicClient({
                         }}
                         className="flex-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 rounded-lg font-medium transition-all text-sm flex items-center justify-center gap-1"
                       >
-                        <Lock className="w-3 h-3" />
+                        <VibrantIcon icon={Lock} className="w-3 h-3" />
                         Acheter PDF
                       </button>
                     )}
