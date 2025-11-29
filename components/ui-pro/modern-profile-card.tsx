@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { MapPin, Instagram, Youtube, Calendar, Link as LinkIcon, Users, ExternalLink, Trophy, Medal, ImageIcon } from "lucide-react"
+import { VibrantIcon } from "@/components/ui-pro/vibrant-icon"
 
 interface ModernProfileCardProps {
   displayName: string
@@ -329,7 +330,7 @@ export function ModernProfileCard({
                       whileHover={{ scale: 1.02, x: 5 }}
                       className="flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-lg p-3 border border-white/10 transition-all group"
                     >
-                      <ExternalLink className="w-4 h-4 text-green-400 group-hover:text-green-300" />
+                      <VibrantIcon icon={ExternalLink} className="w-4 h-4 text-green-400 group-hover:text-green-300" />
                       <div className="flex-1">
                         <p className="font-medium text-white text-sm">{link.title}</p>
                         {link.icon && (
@@ -351,7 +352,10 @@ export function ModernProfileCard({
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
-                <h3 className="font-semibold text-white mb-3">Sponsors</h3>
+                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                  <VibrantIcon icon={Trophy} className="w-5 h-5 text-white" />
+                  Sponsors
+                </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {sponsors.slice(0, 4).map((sponsor, index) => (
                     <motion.a
@@ -452,7 +456,10 @@ export function ModernProfileCard({
                 className="block bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 transition-all"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-white">Services Coaching</h3>
+                  <h3 className="font-semibold text-white flex items-center gap-2">
+                    <VibrantIcon icon={Users} className="w-5 h-5 text-white" />
+                    Services Coaching
+                  </h3>
                   <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 18 6-6-6-6"/>
                   </svg>

@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { Calendar, Clock, Euro, Target, Check, X, BookOpen, Users, Download, Lock, ChevronLeft, ChevronRight } from "lucide-react"
 import { PdfPurchaseModal } from "./pdf-purchase-modal"
-import { VibrantIcon } from "@/components/ui-pro/vibrant-icon"
 
 interface TrainingPlan {
   id: string
@@ -313,11 +312,11 @@ export function CoachingPublicClient({
             )}
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <VibrantIcon icon={BookOpen} className="w-4 h-4 text-primary-blue-400" />
+                <BookOpen className="w-4 h-4 text-primary-blue-400" />
                 <span className="text-sm">{trainingPlans.length} Plans disponibles</span>
               </div>
               <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <VibrantIcon icon={Users} className="w-4 h-4 text-primary-green-400" />
+                <Users className="w-4 h-4 text-primary-green-400" />
                 <span className="text-sm">Coaching personnalisé</span>
               </div>
             </div>
@@ -378,15 +377,15 @@ export function CoachingPublicClient({
                 {/* Détails du programme avec alignement uniforme */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <VibrantIcon icon={Calendar} className="w-4 h-4 text-primary-blue-400 flex-shrink-0" />
+                    <Calendar className="w-4 h-4 text-primary-blue-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan.duration} semaines</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <VibrantIcon icon={Target} className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                    <Target className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan._count.sessions} séances</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <VibrantIcon icon={Users} className="w-4 h-4 text-primary-green-400 flex-shrink-0" />
+                    <Users className="w-4 h-4 text-primary-green-400 flex-shrink-0" />
                     <span className="min-w-0 flex-1">{plan._count.subscribers} abonnés</span>
                   </div>
                 </div>
@@ -395,12 +394,12 @@ export function CoachingPublicClient({
                 <div className="pt-4 border-t border-white/10 mt-auto">
                   <div className="flex items-center justify-between mb-3 min-h-[2rem]">
                     <div className="flex items-center gap-2">
-                      <VibrantIcon icon={Euro} className="w-5 h-5 text-primary-green-400 flex-shrink-0" />
+                      <Euro className="w-5 h-5 text-primary-green-400 flex-shrink-0" />
                       <span className="text-2xl font-bold text-white">{plan.price}€</span>
                     </div>
                     {plan.pdfFileName && (
                       <div className="flex items-center gap-1 text-xs text-gray-300 flex-shrink-0">
-                        <VibrantIcon icon={Download} className="w-3 h-3" />
+                        <Download className="w-3 h-3" />
                         <span>PDF disponible</span>
                       </div>
                     )}
@@ -424,7 +423,7 @@ export function CoachingPublicClient({
                         }}
                         className="flex-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 rounded-lg font-medium transition-all text-sm flex items-center justify-center gap-1"
                       >
-                        <VibrantIcon icon={Lock} className="w-3 h-3" />
+                        <Lock className="w-3 h-3" />
                         Acheter PDF
                       </button>
                     )}
@@ -530,7 +529,7 @@ export function CoachingPublicClient({
                         onClick={() => navigateMonth('prev')}
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                       >
-                        <VibrantIcon icon={ChevronLeft} className="w-5 h-5" />
+                        <ChevronLeft className="w-5 h-5" />
                       </button>
                       <h4 className="text-lg font-semibold">
                         {monthNames[currentMonth]} {currentYear}
@@ -539,7 +538,7 @@ export function CoachingPublicClient({
                         onClick={() => navigateMonth('next')}
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                       >
-                        <VibrantIcon icon={ChevronRight} className="w-5 h-5" />
+                        <ChevronRight className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -601,7 +600,7 @@ export function CoachingPublicClient({
                 {selectedDate && (
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-4">
-                      <VibrantIcon icon={Clock} className="w-4 h-4 inline mr-2" />
+                      <Clock className="w-4 h-4 inline mr-2" />
                       Sélectionner un créneau horaire *
                     </label>
                     
@@ -773,14 +772,14 @@ export function CoachingPublicClient({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <VibrantIcon icon={Euro} className="w-5 h-5 text-primary-green-400" />
+                      <Euro className="w-5 h-5 text-primary-green-400" />
                       <span className="text-sm text-gray-400">Prix</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan.price}€</p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <VibrantIcon icon={Calendar} className="w-5 h-5 text-primary-blue-400" />
+                      <Calendar className="w-5 h-5 text-primary-blue-400" />
                       <span className="text-sm text-gray-400">Durée</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan.duration} semaines</p>
@@ -790,14 +789,14 @@ export function CoachingPublicClient({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <VibrantIcon icon={Target} className="w-5 h-5 text-yellow-400" />
+                      <Target className="w-5 h-5 text-yellow-400" />
                       <span className="text-sm text-gray-400">Séances</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan._count.sessions}</p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <VibrantIcon icon={Users} className="w-5 h-5 text-purple-400" />
+                      <Users className="w-5 h-5 text-purple-400" />
                       <span className="text-sm text-gray-400">Abonnés</span>
                     </div>
                     <p className="text-2xl font-bold text-white">{selectedPlan._count.subscribers}</p>
