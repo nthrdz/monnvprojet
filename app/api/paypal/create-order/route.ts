@@ -74,15 +74,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Plan non trouvé" }, { status: 404 })
     }
 
-    console.log("✅ Plan trouvé:", { id: plan.id, title: plan.title, price: plan.price, amountReceived: amount })
+    console.log("✅ Plan trouvé:", { 
+      id: plan.id, 
+      title: plan.title, 
+      price: plan.price, 
+      priceType: typeof plan.price,
+      amountReceived: amount,
+      amountType: typeof amount,
+      planKeys: Object.keys(plan)
+    })
+
+    // Convertir le prix en nombre si c'est une string
+    let planPrice = plan.price
+    if (typeof planPrice === 'string') {
+      planPrice = parseFloat(planPrice)
+      console.log("🔄 Prix converti depuis string:", planPrice)
+    }
+    if (typeof planPrice !== 'number' || isNaN(planPrice)) {
+      planPrice = 0
+    }
 
     // Utiliser le prix du plan si le montant reçu est 0 ou invalide
-    const finalAmount = amount && amount > 0 ? amount : (plan.price || 0)
+    const finalAmount = amount && amount > 0 ? Number(amount) : planPrice
     
-    if (finalAmount <= 0) {
-      console.error("❌ Montant invalide:", { amount, planPrice: plan.price, finalAmount })
+    console.log("💰 Calcul montant final:", { 
+      amountReceived: amount, 
+      planPrice: planPrice, 
+      finalAmount: finalAmount 
+    })
+    
+    if (finalAmount <= 0 || isNaN(finalAmount)) {
+      console.error("❌ Montant invalide:", { 
+        amount, 
+        planPrice: plan.price, 
+        planPriceConverted: planPrice,
+        finalAmount 
+      })
+      console.error("📋 Plan complet:", JSON.stringify(plan, null, 2))
       return NextResponse.json({ 
-        error: "Le prix du plan est invalide ou manquant. Veuillez contacter le coach." 
+        error: `Le prix du plan est invalide (${planPrice}€). Veuillez modifier le prix du plan dans votre dashboard ou contacter le coach.` 
       }, { status: 400 })
     }
 
