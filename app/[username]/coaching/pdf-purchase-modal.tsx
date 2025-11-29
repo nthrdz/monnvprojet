@@ -48,6 +48,15 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
     setError("")
 
     try {
+      console.log("🚀 Création de l'ordre PayPal...")
+      console.log("📦 Données:", {
+        planId: plan.id,
+        coachUsername,
+        clientName: formData.clientName,
+        clientEmail: formData.clientEmail,
+        amount: plan.price
+      })
+
       // Créer un ordre PayPal via l'API
       const response = await fetch("/api/paypal/create-order", {
         method: "POST",
@@ -61,16 +70,26 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
         })
       })
 
+      console.log("📡 Réponse reçue, status:", response.status)
+
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({ error: "Erreur inconnue" }))
+        console.error("❌ Erreur API:", errorData)
         throw new Error(errorData.error || "Erreur lors de la création de l'ordre PayPal")
       }
 
-      const { approvalUrl } = await response.json()
+      const data = await response.json()
+      console.log("✅ Données reçues:", data)
+
+      const { approvalUrl } = data
 
       if (!approvalUrl) {
-        throw new Error("URL d'approbation PayPal manquante")
+        console.error("❌ URL d'approbation manquante dans la réponse")
+        console.error("📋 Réponse complète:", data)
+        throw new Error("URL d'approbation PayPal manquante. Veuillez réessayer.")
       }
+
+      console.log("🔗 Redirection vers PayPal:", approvalUrl)
 
       // Rediriger vers PayPal pour le paiement
       window.location.href = approvalUrl

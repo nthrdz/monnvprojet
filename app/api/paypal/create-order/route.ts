@@ -68,11 +68,24 @@ export async function POST(request: NextRequest) {
     })
 
     if (!authResponse.ok) {
-      console.error("❌ Erreur authentification PayPal:", await authResponse.text())
+      const authErrorText = await authResponse.text()
+      console.error("❌ Erreur authentification PayPal:", authErrorText)
+      console.error("🔑 Client ID utilisé:", process.env.PAYPAL_CLIENT_ID?.substring(0, 10) + "...")
+      console.error("🌐 Base URL:", baseUrl)
+      return NextResponse.json({ 
+        error: "Erreur authentification PayPal. Vérifiez vos clés API." 
+      }, { status: 500 })
+    }
+
+    const authData = await authResponse.json()
+    const { access_token } = authData
+
+    if (!access_token) {
+      console.error("❌ Access token manquant dans la réponse PayPal")
       return NextResponse.json({ error: "Erreur authentification PayPal" }, { status: 500 })
     }
 
-    const { access_token } = await authResponse.json()
+    console.log("✅ Authentification PayPal réussie")
 
     // Créer l'ordre PayPal
     const orderResponse = await fetch(`${baseUrl}/v2/checkout/orders`, {
@@ -114,10 +127,39 @@ export async function POST(request: NextRequest) {
     if (!orderResponse.ok) {
       const errorText = await orderResponse.text()
       console.error("❌ Erreur création ordre PayPal:", errorText)
-      return NextResponse.json({ error: "Erreur création ordre PayPal" }, { status: 500 })
+      console.error("📋 Status:", orderResponse.status)
+      console.error("📋 Status Text:", orderResponse.statusText)
+      try {
+        const errorJson = JSON.parse(errorText)
+        console.error("📋 Erreur détaillée:", JSON.stringify(errorJson, null, 2))
+        return NextResponse.json({ 
+          error: errorJson.message || errorJson.name || "Erreur création ordre PayPal" 
+        }, { status: orderResponse.status })
+      } catch {
+        return NextResponse.json({ 
+          error: "Erreur création ordre PayPal. Vérifiez les logs serveur." 
+        }, { status: 500 })
+      }
     }
 
     const order = await orderResponse.json()
+
+    console.log("✅ Ordre PayPal créé:", order.id)
+    console.log("📋 Réponse complète PayPal:", JSON.stringify(order, null, 2))
+
+    // Trouver l'URL d'approbation
+    const approveLink = order.links?.find((link: any) => link.rel === "approve")
+    const approvalUrl = approveLink?.href
+
+    console.log("🔗 URL d'approbation:", approvalUrl)
+    console.log("📎 Tous les liens:", order.links)
+
+    if (!approvalUrl) {
+      console.error("❌ URL d'approbation manquante dans la réponse PayPal")
+      return NextResponse.json({ 
+        error: "URL d'approbation PayPal manquante. Veuillez réessayer." 
+      }, { status: 500 })
+    }
 
     // Enregistrer l'ordre en attente dans la base de données
     const pendingPurchases = stats.pendingPurchases || []
@@ -141,9 +183,11 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    console.log("✅ Ordre enregistré dans la base de données")
+
     return NextResponse.json({ 
       orderId: order.id,
-      approvalUrl: order.links.find((link: any) => link.rel === "approve")?.href
+      approvalUrl: approvalUrl
     })
   } catch (error: any) {
     console.error("❌ Erreur création ordre PayPal:", error)
