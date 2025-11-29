@@ -316,7 +316,10 @@ export function ModernProfileCard({
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
-                <h3 className="font-semibold text-white mb-3">Liens</h3>
+                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                  <VibrantIcon icon={LinkIcon} className="w-5 h-5 text-white" />
+                  Liens
+                </h3>
                 <div className="space-y-2">
                   {links.slice(0, 3).map((link, index) => (
                     <motion.a
@@ -406,7 +409,10 @@ export function ModernProfileCard({
                 className="block bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-white">Galerie</h3>
+                  <h3 className="font-semibold text-white flex items-center gap-2">
+                    <VibrantIcon icon={ImageIcon} className="w-5 h-5 text-white" />
+                    Galerie
+                  </h3>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">{media.length} médias</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
