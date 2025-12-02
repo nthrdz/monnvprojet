@@ -38,17 +38,17 @@ export default function Home() {
       <AffiliateTracker />
       <main className="min-h-screen">
       {/* Hero Section - Full viewport with Enhanced Decorations */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-white">
+      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-white py-20 lg:py-0">
 
         {/* Content */}
-        <div className="container relative mx-auto px-4 sm:px-6 z-10 flex flex-col justify-center min-h-[90vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center max-w-6xl mx-auto">
-            <div className="text-center lg:text-left">
+        <div className="container relative mx-auto px-4 sm:px-6 z-10 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-6xl mx-auto">
+            <div className="text-center lg:text-left pt-8 lg:pt-0">
             {/* Remove big ATHLINK from hero */}
 
             {/* Title with stagger animation - Mobile Optimized */}
             <motion.h2 
-              className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight tracking-tight px-2"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-900 mb-4 md:mb-6 leading-tight tracking-tight"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -62,7 +62,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 sm:mb-12 md:mb-16 max-w-3xl leading-relaxed px-4 sm:px-6"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 md:mb-12 max-w-3xl leading-relaxed"
               key={t('home.heroSubtitle')}
             >
               {t('home.heroSubtitle')}
@@ -73,22 +73,22 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.0 }}
-              className="px-4 sm:px-0 -mt-8 ml-8"
+              className="flex justify-center lg:justify-start"
             >
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-3 bg-gray-900 text-white hover:bg-gray-800 active:scale-95 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-medium text-base sm:text-lg shadow-lg transition-all touch-manipulation"
+                className="inline-flex items-center gap-2 sm:gap-3 bg-gray-900 text-white hover:bg-gray-800 active:scale-95 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base lg:text-lg shadow-lg transition-all touch-manipulation"
                 key={t('home.cta')}
               >
-                <Zap className="w-5 h-5" />
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                 {t('home.cta')}
               </Link>
             </motion.div>
             </div>
 
             {/* Right showcase - Maintenant visible sur mobile aussi */}
-            <div className="w-full mt-8 lg:mt-0">
-              <div className="w-full max-w-[600px] lg:max-w-[1200px] h-[300px] sm:h-[400px] lg:h-[600px] mx-auto">
+            <div className="w-full mt-6 lg:mt-0">
+              <div className="w-full max-w-[350px] sm:max-w-[450px] lg:max-w-[600px] aspect-[3/4] sm:aspect-[4/5] lg:aspect-auto lg:h-[500px] xl:h-[600px] mx-auto">
                 <motion.div
                   key={currentImage}
                   initial={{ opacity: 0 }}
@@ -97,24 +97,19 @@ export default function Home() {
                   transition={{ duration: 0.5 }}
                   className="w-full h-full relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl lg:shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200"
                 >
-                  <div className="absolute inset-0 backdrop-blur-lg bg-white/30"></div>
                   <Image
                     src={images[currentImage]}
                     alt={currentImage === 0 ? "Noa" : "Nathan"}
                     fill
-                    className="object-contain relative z-10 rounded-2xl lg:rounded-3xl p-2 lg:p-0"
+                    className="object-contain"
                     priority
-                    unoptimized
+                    sizes="(max-width: 640px) 350px, (max-width: 1024px) 450px, 600px"
                   />
                 </motion.div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Right Visual handled above */}
-
-        {/* Scroll indicator removed */}
       </section>
 
       {/* Features Section - Apple Style with Enhanced Decorations */}
@@ -122,7 +117,9 @@ export default function Home() {
         {/* Background Elements - Enhanced */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Main background blurs */}
-        <motion.div
+        {/* Background decorations - hidden on mobile for performance */}
+        <div className="hidden sm:block">
+          <motion.div
             animate={{
               scale: [1, 1.1, 1],
               opacity: [0.03, 0.05, 0.03],
@@ -132,9 +129,9 @@ export default function Home() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-900 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-48 sm:w-64 lg:w-96 h-48 sm:h-64 lg:h-96 bg-gray-900 rounded-full blur-3xl"
           />
-            <motion.div
+          <motion.div
             animate={{
               scale: [1.1, 1, 1.1],
               opacity: [0.02, 0.04, 0.02],
@@ -144,56 +141,10 @@ export default function Home() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-40 sm:w-56 lg:w-80 h-40 sm:h-56 lg:h-80 bg-gray-900 rounded-full blur-3xl"
           />
-          
-          {/* Geometric shapes supprimées */}
-          
-          {/* Gradient orbs */}
-          <motion.div
-            animate={{
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-              opacity: [0.05, 0.1, 0.05],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-1/3 right-1/3 w-72 h-72 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full blur-3xl"
-          />
-          
-          {/* Animations supprimées */}
-          
-          {/* Connecting lines effect */}
-          <svg className="absolute inset-0 w-full h-full opacity-5">
-            <motion.line
-              x1="10%"
-              y1="20%"
-              x2="90%"
-              y2="80%"
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-gray-900"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: [0, 1, 0] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.line
-              x1="90%"
-              y1="20%"
-              x2="10%"
-              y2="80%"
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-gray-900"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: [0, 1, 0] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-            />
-          </svg>
-          </div>
+        </div>
+        </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           {/* Header with Apple-style typography */}
@@ -202,14 +153,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24 max-w-4xl mx-auto px-4"
+              className="text-center mb-10 sm:mb-16 md:mb-20 lg:mb-24 max-w-4xl mx-auto"
             >
               <motion.h2
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light text-gray-900 mb-4 sm:mb-6 tracking-tight"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-gray-900 mb-3 sm:mb-6 tracking-tight"
               >
                 Tout ce dont un athlète a besoin
               </motion.h2>
@@ -218,14 +169,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 font-light leading-relaxed px-2"
             >
               Conçu spécifiquement pour les sportifs, avec des fonctionnalités uniques
             </motion.p>
           </motion.div>
 
             {/* Features Grid with Apple-style cards - Mobile Optimized */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 px-4 sm:px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[
               {
                 icon: Activity,
@@ -330,7 +281,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-center mt-20"
+            className="text-center mt-10 sm:mt-16 lg:mt-20"
           >
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -339,11 +290,11 @@ export default function Home() {
             >
             <Link
               href="/signup"
-                className="inline-flex items-center gap-3 bg-gray-900 text-white hover:bg-gray-800 px-8 py-4 rounded-full font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                className="inline-flex items-center gap-2 sm:gap-3 bg-gray-900 text-white hover:bg-gray-800 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-medium text-sm sm:text-base lg:text-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation"
             >
-              <Zap className="w-5 h-5" />
-              Créer mon profil gratuitement
-                <ArrowRight className="w-4 h-4" />
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="whitespace-nowrap">Créer mon profil gratuitement</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
             </motion.div>
           </motion.div>
@@ -355,9 +306,9 @@ export default function Home() {
       </div>
 
       {/* Analytics & Performance Section - Apple Style with Sport Animations */}
-      <section className="py-20 sm:py-32 lg:py-40 bg-gray-50 relative overflow-hidden">
-        {/* Background Elements with Sport Theme */}
-        <div className="absolute inset-0 pointer-events-none">
+      <section className="py-12 sm:py-20 lg:py-32 bg-gray-50 relative overflow-hidden">
+        {/* Background Elements with Sport Theme - hidden on mobile */}
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <motion.div
             animate={{
               scale: [1, 1.2, 1],
@@ -368,7 +319,7 @@ export default function Home() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute top-1/3 right-1/3 w-96 h-96 bg-gray-900 rounded-full blur-3xl"
+            className="absolute top-1/3 right-1/3 w-48 sm:w-64 lg:w-96 h-48 sm:h-64 lg:h-96 bg-gray-900 rounded-full blur-3xl"
           />
           <motion.div
             animate={{
@@ -380,10 +331,8 @@ export default function Home() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-gray-900 rounded-full blur-3xl"
+            className="absolute bottom-1/3 left-1/3 w-40 sm:w-56 lg:w-80 h-40 sm:h-56 lg:h-80 bg-gray-900 rounded-full blur-3xl"
           />
-          
-          {/* Animations supprimées */}
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -394,14 +343,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center mb-24 max-w-4xl mx-auto"
+              className="text-center mb-10 sm:mb-16 lg:mb-24 max-w-4xl mx-auto"
             >
               <motion.h2
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-gray-900 mb-6 tracking-tight"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-gray-900 mb-3 sm:mb-6 tracking-tight"
               >
                 Programme Ambassadeur
               </motion.h2>
@@ -410,41 +359,35 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed"
+                className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 font-light leading-relaxed px-2"
               >
                 Gagne des commissions récurrentes en parrainant de nouveaux athlètes sur Athlink
               </motion.p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
               {/* Analytics Screenshot */}
               <motion.div
-                initial={{ opacity: 0, x: -60 }}
+                initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, margin: "-50px" }}
                 transition={{ 
-                  duration: 1, 
-                  delay: 0.3,
+                  duration: 0.8, 
+                  delay: 0.2,
                   ease: [0.25, 0.46, 0.45, 0.94]
                 }}
                 className="order-2 lg:order-1"
               >
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.02,
-                    transition: { duration: 0.3, ease: "easeOut" }
-                  }}
-                  className="relative rounded-3xl overflow-hidden shadow-2xl"
-                >
+                <div className="relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl lg:shadow-2xl">
                   <Image
                     src="/uploads/hero/ambassadeur 1.png"
                     alt="Programme Ambassadeur - Gagne 40% de commission récurrente"
                     width={1200}
                     height={800}
                     className="w-full h-auto"
-                    unoptimized
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                   />
-                </motion.div>
+                </div>
               </motion.div>
 
               {/* Analytics Description with Apple typography */}

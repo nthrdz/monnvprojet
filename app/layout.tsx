@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   title: "Athlink - Le Profil Digital des Athlètes",
   description: "Partage tes performances, trouve des sponsors, développe ta communauté. Le link-in-bio conçu pour les sportifs.",
   keywords: ["athlète", "running", "cyclisme", "triathlon", "link-in-bio", "sponsor", "performance"],
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
+  },
 };
 
 export default function RootLayout({
@@ -27,8 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="fr" className="scroll-smooth">
+      <body className={`${inter.variable} font-sans antialiased overflow-x-hidden`}>
         {/* 🎯 FIRSTPROMOTER - Tracking d'affiliation */}
         {/* Script d'initialisation - chargé en premier */}
         <Script

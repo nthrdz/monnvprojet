@@ -116,7 +116,49 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for iOS */
+    overflow-x: hidden;
   }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  .h-screen {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix iOS momentum scrolling */
+.overflow-y-auto,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent text selection highlight on iOS */
+.touch-manipulation {
+  -webkit-tap-highlight-color: transparent;
 }
