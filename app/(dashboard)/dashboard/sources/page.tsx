@@ -189,7 +189,7 @@ export default function SourcesPage() {
         </div>
 
         {/* Contenu des onglets avec animation */}
-        <div className="relative min-h-[600px]">
+        <div className="relative min-h-[400px] sm:min-h-[600px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -197,7 +197,7 @@ export default function SourcesPage() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="p-6"
+              className="p-3 sm:p-6"
             >
               {activeTab === 'liens' && <LiensContent />}
               {activeTab === 'competitions' && <CompetitionsContent />}

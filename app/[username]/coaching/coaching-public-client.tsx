@@ -281,43 +281,43 @@ export function CoachingPublicClient({
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8 px-2 sm:px-0">
       {/* Coach Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+        className="bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-8 border border-white/10"
       >
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6">
           {coachAvatar ? (
             <Image
               src={coachAvatar}
               alt={coachName}
               width={120}
               height={120}
-              className="w-24 h-24 rounded-full object-cover border-4 border-white/20"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/20"
             />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-blue-100 to-primary-blue-200 flex items-center justify-center border-4 border-white/20">
-              <span className="text-3xl font-bold text-primary-blue-600">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary-blue-100 to-primary-blue-200 flex items-center justify-center border-4 border-white/20">
+              <span className="text-2xl sm:text-3xl font-bold text-primary-blue-600">
                 {coachName.charAt(0)}
               </span>
             </div>
           )}
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-3xl font-bold mb-2">{coachName}</h2>
-            <p className="text-lg text-yellow-400 mb-3">Coach Certifié</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">{coachName}</h2>
+            <p className="text-base sm:text-lg text-yellow-400 mb-2 sm:mb-3">Coach Certifié</p>
             {coachBio && (
-              <p className="text-gray-300 mb-4">{coachBio}</p>
+              <p className="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">{coachBio}</p>
             )}
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <BookOpen className="w-4 h-4 text-primary-blue-400" />
-                <span className="text-sm">{trainingPlans.length} Plans disponibles</span>
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center md:justify-start">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-white/5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-blue-400" />
+                <span className="text-xs sm:text-sm">{trainingPlans.length} Plans disponibles</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <Users className="w-4 h-4 text-primary-green-400" />
-                <span className="text-sm">Coaching personnalisé</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-white/5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-green-400" />
+                <span className="text-xs sm:text-sm">Coaching personnalisé</span>
               </div>
             </div>
           </div>
@@ -325,10 +325,10 @@ export function CoachingPublicClient({
       </motion.div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-4">
+      <div className="flex gap-2 sm:gap-4">
         <button
           onClick={() => setViewMode("plans")}
-          className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+          className={`flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all text-xs sm:text-base ${
             viewMode === "plans"
               ? "bg-gradient-ocean text-gray-900"
               : "bg-white/5 text-white hover:bg-white/10"
@@ -338,7 +338,7 @@ export function CoachingPublicClient({
         </button>
         <button
           onClick={() => setViewMode("booking")}
-          className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+          className={`flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all text-xs sm:text-base ${
             viewMode === "booking"
               ? "bg-gradient-ocean text-gray-900"
               : "bg-white/5 text-white hover:bg-white/10"
@@ -350,7 +350,7 @@ export function CoachingPublicClient({
 
       {/* Training Plans View */}
       {viewMode === "plans" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {trainingPlans.length > 0 ? (
             trainingPlans.map((plan) => (
               <motion.div

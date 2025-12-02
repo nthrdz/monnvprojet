@@ -761,7 +761,7 @@ export default function Home() {
             >
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`px-6 py-3 rounded-full font-medium transition-all text-sm ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all text-xs sm:text-sm ${
                   billingCycle === "monthly"
                     ? "bg-gray-900 text-white shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
@@ -771,14 +771,14 @@ export default function Home() {
               </button>
               <button
                 onClick={() => setBillingCycle("yearly")}
-                className={`px-6 py-3 rounded-full font-medium transition-all relative text-sm ${
+                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all relative text-xs sm:text-sm ${
                   billingCycle === "yearly"
                     ? "bg-gray-900 text-white shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Annuel
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium">
+                <span className="absolute -top-6 sm:-top-8 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap font-medium">
                   2 mois offerts
                 </span>
               </button>
@@ -786,7 +786,7 @@ export default function Home() {
           </motion.div>
 
           {/* Plans Grid with Apple Style */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto mb-16 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 max-w-6xl mx-auto mb-16 px-4">
             {[
               {
                 name: "Free",
@@ -878,7 +878,7 @@ export default function Home() {
                 )}
 
                 {/* Card */}
-                <div className={`relative h-full p-8 lg:p-10 rounded-3xl border transition-all duration-500 ${
+                <div className={`relative h-full p-5 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl border transition-all duration-500 ${
                   plan.highlight
                     ? "bg-gray-900 text-white border-gray-700 shadow-2xl shadow-gray-900/20"
                     : "bg-white/80 backdrop-blur-sm border-gray-100/50 hover:border-gray-200/50 hover:shadow-2xl hover:shadow-gray-900/5"

@@ -90,14 +90,14 @@ export function ModernProfileCard({
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative w-full max-w-[450px] mx-auto"
+      className="relative w-full max-w-[450px] mx-auto px-2 sm:px-0"
     >
 
       {/* Carte principale avec glassmorphism */}
-      <div className="relative overflow-hidden rounded-[32px] shadow-2xl backdrop-blur-xl bg-gradient-to-b from-white/10 to-black/40 border border-white/20">
+      <div className="relative overflow-hidden rounded-[24px] sm:rounded-[32px] shadow-2xl backdrop-blur-xl bg-gradient-to-b from-white/10 to-black/40 border border-white/20">
         
         {/* Photo de profil - 60% de la hauteur */}
-        <div className="relative h-[400px] sm:h-[450px] overflow-hidden">
+        <div className="relative h-[320px] xs:h-[360px] sm:h-[400px] md:h-[450px] overflow-hidden">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -122,14 +122,14 @@ export function ModernProfileCard({
         </div>
 
         {/* Section informations sur fond noir */}
-        <div className="relative bg-gradient-to-b from-black/90 to-black p-6 sm:p-8">
+        <div className="relative bg-gradient-to-b from-black/90 to-black p-4 sm:p-6 md:p-8">
           
           {/* Nom de l'utilisateur */}
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl sm:text-4xl font-bold text-white text-center mb-3"
+            className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white text-center mb-2 sm:mb-3"
           >
             {displayName}
           </motion.h1>
@@ -139,7 +139,7 @@ export function ModernProfileCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="flex items-center justify-center gap-4 mb-3 text-sm"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-3 text-xs sm:text-sm"
           >
             {/* Active now */}
             <div className="flex items-center gap-2">
@@ -168,7 +168,7 @@ export function ModernProfileCard({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-base text-gray-400 text-center mb-4"
+              className="text-sm sm:text-base text-gray-400 text-center mb-3 sm:mb-4 line-clamp-3"
             >
               {bio}
             </motion.p>
@@ -179,10 +179,10 @@ export function ModernProfileCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
-            className="flex justify-center mb-6"
+            className="flex justify-center mb-4 sm:mb-6"
           >
-            <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-4 py-1.5">
-              <span className="text-sm font-semibold text-yellow-400">{sport}</span>
+            <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-3 sm:px-4 py-1 sm:py-1.5">
+              <span className="text-xs sm:text-sm font-semibold text-yellow-400">{sport}</span>
             </div>
           </motion.div>
 
@@ -193,7 +193,7 @@ export function ModernProfileCard({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="flex items-center justify-center gap-4 mb-6 pb-6 border-b border-white/10"
+              className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-white/10"
             >
               {allSocialIcons.map((social, index) => (
                 <motion.a
@@ -206,16 +206,16 @@ export function ModernProfileCard({
                   transition={{ delay: 0.6 + index * 0.05 }}
                   whileHover={{ scale: 1.2, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all text-white hover:text-yellow-400 cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all text-white hover:text-yellow-400 cursor-pointer active:scale-95"
                 >
-                  <social.icon className="w-5 h-5" />
+                  <social.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </motion.a>
               ))}
             </motion.div>
           )}
 
           {/* Contenu dynamique */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Section Événements/Compétitions */}
             {races.length > 0 && (
               <motion.div
@@ -223,9 +223,9 @@ export function ModernProfileCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
                 whileHover={{ scale: 1.02, y: -2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
+                className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
-                <h3 className="font-semibold text-white mb-3">Événements/Compétitions</h3>
+                <h3 className="font-semibold text-white mb-2 sm:mb-3 text-sm sm:text-base">Événements/Compétitions</h3>
                 <div className="space-y-2">
                   {races.slice(0, 3).map((race, index) => (
                     <motion.a
@@ -238,12 +238,12 @@ export function ModernProfileCard({
                       transition={{ delay: 0.8 + index * 0.1 }}
                       whileHover={{ scale: 1.02, x: 2 }}
                       whileTap={{ scale: 0.98 }}
-                      className="block bg-white/5 hover:bg-white/10 rounded-lg p-3 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+                      className="block bg-white/5 hover:bg-white/10 rounded-lg p-2 sm:p-3 border border-white/10 hover:border-white/20 transition-all cursor-pointer active:scale-[0.98]"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 sm:gap-3">
                         {/* Logo de l'événement */}
                         {race.logoUrl ? (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                             <Image
                               src={race.logoUrl}
                               alt={race.name}
@@ -253,8 +253,8 @@ export function ModernProfileCard({
                             />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-500/20 flex-shrink-0">
-                            <Trophy className="w-6 h-6 text-blue-400" />
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-blue-500/20 flex-shrink-0">
+                            <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                           </div>
                         )}
                         
@@ -314,10 +314,10 @@ export function ModernProfileCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
                 whileHover={{ scale: 1.02, y: -2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
+                className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
-                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-                  <VibrantIcon icon={LinkIcon} className="w-5 h-5 text-white" />
+                <h3 className="font-semibold text-white mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
+                  <VibrantIcon icon={LinkIcon} className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   Liens
                 </h3>
                 <div className="space-y-2">
@@ -331,13 +331,13 @@ export function ModernProfileCard({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.9 + index * 0.1 }}
                       whileHover={{ scale: 1.02, x: 5 }}
-                      className="flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-lg p-3 border border-white/10 transition-all group"
+                      className="flex items-center gap-2 sm:gap-3 bg-white/5 hover:bg-white/10 rounded-lg p-2 sm:p-3 border border-white/10 transition-all group active:scale-[0.98]"
                     >
                       <VibrantIcon icon={ExternalLink} className="w-4 h-4 text-green-400 group-hover:text-green-300" />
-                      <div className="flex-1">
-                        <p className="font-medium text-white text-sm">{link.title}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white text-xs sm:text-sm truncate">{link.title}</p>
                         {link.icon && (
-                          <p className="text-gray-300 text-xs">{link.icon}</p>
+                          <p className="text-gray-300 text-xs truncate">{link.icon}</p>
                         )}
                       </div>
                     </motion.a>
@@ -353,13 +353,13 @@ export function ModernProfileCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
                 whileHover={{ scale: 1.02, y: -2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
+                className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
               >
-                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-                  <VibrantIcon icon={Trophy} className="w-5 h-5 text-white" />
+                <h3 className="font-semibold text-white mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
+                  <VibrantIcon icon={Trophy} className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   Sponsors
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {sponsors.slice(0, 4).map((sponsor, index) => (
                     <motion.a
                       key={sponsor.id}
@@ -370,10 +370,10 @@ export function ModernProfileCard({
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 1.0 + index * 0.1 }}
                       whileHover={{ scale: 1.05 }}
-                      className="bg-white/5 hover:bg-white/10 rounded-lg p-3 border border-white/10 transition-all text-center group"
+                      className="bg-white/5 hover:bg-white/10 rounded-lg p-2 sm:p-3 border border-white/10 transition-all text-center group active:scale-[0.98]"
                     >
                       {sponsor.logoUrl ? (
-                        <div className="w-8 h-8 mx-auto mb-2 rounded-full overflow-hidden">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 rounded-full overflow-hidden">
                           <Image
                             src={sponsor.logoUrl}
                             alt={sponsor.name}
@@ -383,13 +383,13 @@ export function ModernProfileCard({
                           />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 mx-auto mb-2 bg-purple-500 rounded-full flex items-center justify-center">
-                          <Users className="w-4 h-4 text-white" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 bg-purple-500 rounded-full flex items-center justify-center">
+                          <Users className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                         </div>
                       )}
-                      <p className="font-medium text-white text-xs group-hover:text-purple-300">{sponsor.name}</p>
+                      <p className="font-medium text-white text-[10px] sm:text-xs group-hover:text-purple-300 truncate">{sponsor.name}</p>
                       {sponsor.promoCode && (
-                        <p className="text-gray-400 text-xs">{sponsor.promoCode}</p>
+                        <p className="text-gray-400 text-[10px] sm:text-xs truncate">{sponsor.promoCode}</p>
                       )}
                     </motion.a>
                   ))}
@@ -406,23 +406,23 @@ export function ModernProfileCard({
                 transition={{ delay: 1.0 }}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="block bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer"
+                className="block bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer active:scale-[0.98]"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-white flex items-center gap-2">
-                    <VibrantIcon icon={ImageIcon} className="w-5 h-5 text-white" />
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <h3 className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base">
+                    <VibrantIcon icon={ImageIcon} className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     Galerie
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">{media.length} médias</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+                    <span className="text-[10px] sm:text-xs text-gray-400">{media.length} médias</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
                       <path d="m9 18 6-6-6-6"/>
                     </svg>
                   </div>
                 </div>
                 
                 {/* Aperçu des médias */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                   {media.slice(0, 3).map((item, index) => (
                     <motion.div
                       key={item.id}
@@ -459,26 +459,26 @@ export function ModernProfileCard({
                 transition={{ delay: 1.1 }}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="block bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:bg-white/15 transition-all"
+                className="block bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 hover:bg-white/15 transition-all active:scale-[0.98]"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-white flex items-center gap-2">
-                    <VibrantIcon icon={Users} className="w-5 h-5 text-white" />
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <h3 className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base">
+                    <VibrantIcon icon={Users} className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     Services Coaching
                   </h3>
-                  <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 18 6-6-6-6"/>
                   </svg>
                 </div>
-                <p className="text-sm text-gray-300 mb-3">
+                <p className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3">
                   Découvre mes services de coaching personnalisé
                 </p>
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                    <p className="text-xs text-gray-400">Plans d'entraînement</p>
+                  <div className="flex-1 bg-white/5 rounded-lg p-1.5 sm:p-2 text-center">
+                    <p className="text-[10px] sm:text-xs text-gray-400">Plans d'entraînement</p>
                   </div>
-                  <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                    <p className="text-xs text-gray-400">Réservations</p>
+                  <div className="flex-1 bg-white/5 rounded-lg p-1.5 sm:p-2 text-center">
+                    <p className="text-[10px] sm:text-xs text-gray-400">Réservations</p>
                   </div>
                 </div>
               </motion.a>

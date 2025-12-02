@@ -138,25 +138,25 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
+            className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-blue-500 to-primary-blue-600 flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-blue-500 to-primary-blue-600 flex items-center justify-center">
+                  <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Accès Payant</h3>
-                  <p className="text-sm text-gray-600">Contenu premium</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Accès Payant</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Contenu premium</p>
                 </div>
               </div>
               <button
                 onClick={handleClose}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
@@ -184,61 +184,61 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
               /* Formulaire de paiement */
               <>
                 {/* Plan Info */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-gray-900">{plan.title}</h4>
-                    <div className="flex items-center gap-2">
-                      <Download className="w-4 h-4 text-gray-500" />
-                      <span className="text-xs text-gray-500">PDF</span>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">{plan.title}</h4>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
+                      <span className="text-[10px] sm:text-xs text-gray-500">PDF</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{plan.description}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">{plan.description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Coach: {coachName}</span>
+                    <span className="text-xs sm:text-sm text-gray-500">Coach: {coachName}</span>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-primary-blue-600">{plan.price}€</div>
-                      <div className="text-xs text-gray-500">Accès illimité</div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary-blue-600">{plan.price}€</div>
+                      <div className="text-[10px] sm:text-xs text-gray-500">Accès illimité</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Formulaire */}
-                <div className="space-y-4 mb-6">
+                <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                       Nom complet *
                     </label>
                     <input
                       type="text"
                       value={formData.clientName}
                       onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400 text-sm sm:text-base"
                       placeholder="Jean Dupont"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                       Email *
                     </label>
                     <input
                       type="email"
                       value={formData.clientEmail}
                       onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400 text-sm sm:text-base"
                       placeholder="jean@example.com"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                       Téléphone (optionnel)
                     </label>
                     <input
                       type="tel"
                       value={formData.clientPhone}
                       onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400 text-sm sm:text-base"
                       placeholder="+33 6 12 34 56 78"
                     />
                   </div>
@@ -249,59 +249,60 @@ export function PdfPurchaseModal({ plan, isOpen, onClose, coachName, coachUserna
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl"
+                    className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl"
                   >
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                      <p className="text-sm text-red-700">{error}</p>
+                      <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 flex-shrink-0" />
+                      <p className="text-xs sm:text-sm text-red-700">{error}</p>
                     </div>
                   </motion.div>
                 )}
 
                 {/* Paiement Info */}
                 {!paypalEmail ? (
-                  <div className="bg-yellow-50 rounded-xl p-4 mb-6 border border-yellow-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="w-4 h-4 text-yellow-600" />
-                      <span className="text-sm font-medium text-yellow-700">Email PayPal non configuré</span>
+                  <div className="bg-yellow-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border border-yellow-200">
+                    <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                      <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-600" />
+                      <span className="text-xs sm:text-sm font-medium text-yellow-700">Email PayPal non configuré</span>
                     </div>
-                    <p className="text-xs text-yellow-600">
+                    <p className="text-[10px] sm:text-xs text-yellow-600">
                       Le coach n'a pas encore configuré son email PayPal. Veuillez le contacter directement pour effectuer l'achat.
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CreditCard className="w-4 h-4 text-primary-blue-600" />
-                      <span className="text-sm font-medium text-primary-blue-700">Paiement via PayPal</span>
+                  <div className="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                      <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-blue-600" />
+                      <span className="text-xs sm:text-sm font-medium text-primary-blue-700">Paiement via PayPal</span>
                     </div>
-                    <p className="text-xs text-blue-600">
+                    <p className="text-[10px] sm:text-xs text-blue-600">
                       Vous serez redirigé vers PayPal pour effectuer le paiement. Le PDF vous sera envoyé automatiquement par email après confirmation du paiement.
                     </p>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={handleClose}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base"
                   >
                     Annuler
                   </button>
                   <button
                     onClick={handlePurchase}
                     disabled={isProcessing || !formData.clientName || !formData.clientEmail}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-blue-600 to-primary-blue-700 text-white rounded-xl font-bold hover:from-primary-blue-700 hover:to-primary-blue-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center gap-2 shadow-lg"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-primary-blue-600 to-primary-blue-700 text-white rounded-lg sm:rounded-xl font-bold hover:from-primary-blue-700 hover:to-primary-blue-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg text-sm sm:text-base"
                   >
                     {isProcessing ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Traitement...
+                        <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span className="hidden sm:inline">Traitement...</span>
+                        <span className="sm:hidden">...</span>
                       </>
                     ) : (
                       <>
-                        <CreditCard className="w-4 h-4" />
+                        <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Payer {plan.price}€
                       </>
                     )}
